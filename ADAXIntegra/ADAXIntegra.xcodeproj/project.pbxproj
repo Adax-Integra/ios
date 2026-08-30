@@ -99,6 +99,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 7F1098983043AE7A009E8A9B /* Build configuration list for PBXNativeTarget "ADAXIntegra" */;
 			buildPhases = (
+				7F5BC9023044AB1400F74B8B /* Swift-Format-Lint */,
 				7F1098733043AE79009E8A9B /* Sources */,
 				7F1098743043AE79009E8A9B /* Frameworks */,
 				7F1098753043AE79009E8A9B /* Resources */,
@@ -195,6 +196,9 @@
 			);
 			mainGroup = 7F10986E3043AE79009E8A9B;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				7F5BC9013044AA6B00F74B8B /* XCRemoteSwiftPackageReference "swift-format" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 7F1098783043AE79009E8A9B /* Products */;
 			projectDirPath = "";
@@ -230,6 +234,28 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		7F5BC9023044AB1400F74B8B /* Swift-Format-Lint */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Swift-Format-Lint";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\nexport PATH=\"/opt/homebrew/bin:/usr/local/bin:$PATH\"\n\nif command -v swift-format &> /dev/null; then\n  swift-format lint --recursive --configuration .swift-format ADAXIntegra\nelse\n  echo \"warning: swift-format no encontrado en el sistema. Instálalo con 'brew install swift-format'\"\nfi\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		7F1098733043AE79009E8A9B /* Sources */ = {
@@ -578,6 +604,17 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		7F5BC9013044AA6B00F74B8B /* XCRemoteSwiftPackageReference "swift-format" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-format.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 603.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
 	};
 	rootObject = 7F10986F3043AE79009E8A9B /* Project object */;
 }

@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "indentation": {
+    "spaces": 2
+  },
+  "lineLength": 100,
+  "tabWidth": 2,
+  "respectsExistingLineBreaks": true,
+  "rules": {
+    "AllPublicDeclarationsHaveDocumentation": false,
+    "AlwaysUseLowerCamelCase": true,
+    "BeginDocumentationCommentWithOneLineSummary": false,
+    "DoNotUseSemicolons": true,
+    "FileHeader": null,
+    "FullyIndirectEnum": true,
+    "GroupNumericLiterals": true,
+    "NoEmptyTrailingClosureParentheses": true,
+    "NoLeadingUnderscoresForGlobalNames": true,
+    "NoParensAroundConditions": true,
+    "OrganizeImports": true,
+    "UseShorthandTypeNames": true,
+    "UseSynthesizedInitializer": true
+  }
+}
