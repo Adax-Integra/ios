@@ -1,0 +1,59 @@
+# Xcode & Build Artifacts
+build/
+DerivedData/
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
+xcuserdata/
+*.xccheckout
+*.moved-aside
+*.xcuserstate
+*.xcscmblueprint
+
+# Xcode Workspace & Schemes (keep shared data, ignore user data)
+*.xcuserdatad/
+*.xcworkspace/xcuserdata/
+*.xcworkspace/xcshareddata/WorkspaceSettings.xcsettings
+
+# App packaging & archives
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# Swift Package Manager
+.build/
+.swiftpm/
+Packages/
+
+# CocoaPods & Carthage (if used later)
+Pods/
+Carthage/Build/
+
+# Fastlane (if used for CI/CD)
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots/
+fastlane/test_output
+
+# Local Team & Signing Configs (Prevents personal cert conflicts)
+*.local.xcconfig
+Signing.xcconfig
+
+# macOS System Files
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.Spotlight-V100
+.Trashes
+
+# Editor & IDE Configs (Cursor / VS Code)
+.vscode/
+*.swp
+*~
