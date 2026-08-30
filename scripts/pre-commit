@@ -1,0 +1,20 @@
+#!/bin/bash
+export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
+
+if command -v swift-format &> /dev/null; then
+  echo "Formateando archivos Swift con swift-format..."
+  
+  # Filtra únicamente los archivos .swift modificados en el commit
+  swift_files=$(git diff --cached --name-only --diff-filter=ACM | grep '\.swift$')
+  
+  if [ -n "$swift_files" ]; then
+    for file in $swift_files; do
+      if [ -f "$file" ]; then
+        swift-format format --in-place --configuration .swift-format "$file"
+        git add "$file"
+      fi
+    done
+  fi
+else
+  echo "⚠️ Advertencia: swift-format no está instalado en el sistema. Corre 'brew install swift-format'."
+fi

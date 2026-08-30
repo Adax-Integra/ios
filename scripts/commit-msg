@@ -1,0 +1,29 @@
+#!/bin/bash
+
+# Ruta del archivo temporal que contiene el mensaje de commit
+commit_msg_file=$1
+commit_msg=$(head -n 1 "$commit_msg_file")
+
+# Expresión regular: <type>(<scope>): <mensaje>
+# Tipos permitidos: feat, fix, docs, delete, refactor, chore, test, style, ci, perf
+commit_regex="^(feat|fix|docs|delete|refactor|chore|test|style|ci|perf)\([a-zA-Z0-9_\-]+(\ \|\|\ [a-zA-Z0-9_\-]+)?\):\ .+$"
+
+if ! [[ "$commit_msg" =~ $commit_regex ]]; then
+  echo ""
+  echo "❌ Error: El mensaje del commit no cumple con la convención requerida."
+  echo ""
+  echo "📝 Formato esperado:"
+  echo "   <type>(<id_user_story> || <area>): <short message>"
+  echo ""
+  echo "💡 Tipos válidos: feat, fix, docs, delete, refactor, chore, test, style, ci, perf"
+  echo ""
+  echo "📌 Ejemplos válidos:"
+  echo "   feat(US-04): add emergency SOS button"
+  echo "   fix(Presentation): correct card margin on home view"
+  echo "   chore(scripts): update pre-commit hooks"
+  echo ""
+  echo "Tu mensaje actual fue:"
+  echo "   \"$commit_msg\""
+  echo ""
+  exit 1
+fi
