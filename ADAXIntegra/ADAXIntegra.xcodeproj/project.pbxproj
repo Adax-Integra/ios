@@ -30,9 +30,9 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		7F1098793043AE79009E8A9B /* ADAXIntegra */ = {
+		7F1098793043AE79009E8A9B /* ADAXIntegraApp */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = ADAXIntegra;
+			path = ADAXIntegraApp;
 			sourceTree = "<group>";
 		};
 		7F1098873043AE7A009E8A9B /* ADAXIntegraTests */ = {
@@ -43,6 +43,26 @@
 		7F1098913043AE7A009E8A9B /* ADAXIntegraUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = ADAXIntegraUITests;
+			sourceTree = "<group>";
+		};
+		7F77951A304A219D003EFD8E /* Resources */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		7F77951D304A21C6003EFD8E /* Presentation */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Presentation;
+			sourceTree = "<group>";
+		};
+		7F77951F304A2208003EFD8E /* Domain */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Domain;
+			sourceTree = "<group>";
+		};
+		7F779521304A221B003EFD8E /* Data */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Data;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -75,7 +95,11 @@
 		7F10986E3043AE79009E8A9B = {
 			isa = PBXGroup;
 			children = (
-				7F1098793043AE79009E8A9B /* ADAXIntegra */,
+				7F779521304A221B003EFD8E /* Data */,
+				7F77951F304A2208003EFD8E /* Domain */,
+				7F77951D304A21C6003EFD8E /* Presentation */,
+				7F77951A304A219D003EFD8E /* Resources */,
+				7F1098793043AE79009E8A9B /* ADAXIntegraApp */,
 				7F1098873043AE7A009E8A9B /* ADAXIntegraTests */,
 				7F1098913043AE7A009E8A9B /* ADAXIntegraUITests */,
 				7F1098783043AE79009E8A9B /* Products */,
@@ -109,7 +133,11 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				7F1098793043AE79009E8A9B /* ADAXIntegra */,
+				7F1098793043AE79009E8A9B /* ADAXIntegraApp */,
+				7F77951A304A219D003EFD8E /* Resources */,
+				7F77951D304A21C6003EFD8E /* Presentation */,
+				7F77951F304A2208003EFD8E /* Domain */,
+				7F779521304A221B003EFD8E /* Data */,
 			);
 			name = ADAXIntegra;
 			packageProductDependencies = (
