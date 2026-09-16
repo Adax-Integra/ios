@@ -1,5 +1,5 @@
 //
-//  PrimaryButton.swift
+//  SecondaryButton.swift
 //  ADAXIntegra
 //
 //  Created by Eduardo Hernández Alonso on 16/09/26.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct PrimaryButton: View {
+struct SecondaryButton: View {
   let title: String
   let isDisabled: Bool
   let action: () -> Void
@@ -18,12 +18,12 @@ struct PrimaryButton: View {
     Button(action: action) {
       Text(title)
         .font(.headline)
-        .foregroundColor(.white)
+        .foregroundColor(primaryColor)
         .frame(maxWidth: .infinity)
         .padding()
         .background(
           RoundedRectangle(cornerRadius: 12, style: .continuous)
-            .fill(primaryColor)
+            .stroke(primaryColor, lineWidth: 2)
         )
     }
     .disabled(isDisabled)
@@ -32,8 +32,8 @@ struct PrimaryButton: View {
 }
 
 #Preview {
-  PrimaryButton(
-    title: "Primary Button",
+  SecondaryButton(
+    title: "Secondary button",
     isDisabled: false,
     action: {
       print("Button tapped")  // Just to confirm the button is being clicked
