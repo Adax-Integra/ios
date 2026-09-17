@@ -16,12 +16,12 @@ struct SecondaryButton: View {
     Button(action: action) {
       Text(title)
         .font(.headline)
-        .foregroundColor(Color("Primary"))
+        .foregroundColor(Color("PrimaryAdax"))
         .frame(maxWidth: .infinity)
         .padding()
         .background(
           RoundedRectangle(cornerRadius: 12, style: .continuous)
-            .stroke(Color("Primary"), lineWidth: 2)
+            .stroke(Color("PrimaryAdax"), lineWidth: 2)
         )
     }
     .disabled(isDisabled)

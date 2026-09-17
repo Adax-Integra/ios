@@ -21,7 +21,7 @@ struct PrimaryButton: View {
         .padding()
         .background(
           RoundedRectangle(cornerRadius: 12, style: .continuous)
-            .fill(Color("Primary"))
+            .fill(Color("PrimaryAdax"))
         )
     }
     .disabled(isDisabled)

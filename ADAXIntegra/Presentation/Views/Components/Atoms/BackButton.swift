@@ -14,7 +14,7 @@ struct BackButton: View {
     Button(action: action) {
       Image(systemName: "chevron.left")
         .font(.system(size: 25, weight: .semibold))
-        .foregroundColor(Color("Primary"))
+        .foregroundColor(Color("PrimaryAdax"))
         .frame(width: 44, height: 44)
         .contentShape(Rectangle())
     }

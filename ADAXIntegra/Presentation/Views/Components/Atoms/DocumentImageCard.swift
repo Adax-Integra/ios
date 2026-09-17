@@ -22,7 +22,7 @@ struct DocumentImageCard: View {
       .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
       .overlay(
         RoundedRectangle(cornerRadius: 28, style: .continuous)
-          .stroke(Color("Primary"), lineWidth: 3)
+          .stroke(Color("PrimaryAdax"), lineWidth: 3)
       )
   }
 }
