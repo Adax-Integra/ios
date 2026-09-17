@@ -12,18 +12,16 @@ struct SecondaryButton: View {
   let isDisabled: Bool
   let action: () -> Void
 
-  private let primaryColor = Color(red: 99 / 255.0, green: 14 / 255.0, blue: 121 / 255.0)
-
   var body: some View {
     Button(action: action) {
       Text(title)
         .font(.headline)
-        .foregroundColor(primaryColor)
+        .foregroundColor(Color("Primary"))
         .frame(maxWidth: .infinity)
         .padding()
         .background(
           RoundedRectangle(cornerRadius: 12, style: .continuous)
-            .stroke(primaryColor, lineWidth: 2)
+            .stroke(Color("Primary"), lineWidth: 2)
         )
     }
     .disabled(isDisabled)

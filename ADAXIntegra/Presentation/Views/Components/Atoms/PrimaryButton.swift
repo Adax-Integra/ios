@@ -12,8 +12,6 @@ struct PrimaryButton: View {
   let isDisabled: Bool
   let action: () -> Void
 
-  private let primaryColor = Color(red: 99 / 255.0, green: 14 / 255.0, blue: 121 / 255.0)
-
   var body: some View {
     Button(action: action) {
       Text(title)
@@ -23,7 +21,7 @@ struct PrimaryButton: View {
         .padding()
         .background(
           RoundedRectangle(cornerRadius: 12, style: .continuous)
-            .fill(primaryColor)
+            .fill(Color("Primary"))
         )
     }
     .disabled(isDisabled)

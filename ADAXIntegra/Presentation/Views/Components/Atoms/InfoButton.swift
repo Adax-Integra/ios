@@ -10,13 +10,11 @@ import SwiftUI
 struct InfoButton: View {
   let action: () -> Void
 
-  private let iconColor = Color(red: 33 / 255.0, green: 37 / 255.0, blue: 41 / 255.0)
-
   var body: some View {
     Button(action: action) {
       Image(systemName: "info.circle")
         .font(.system(size: 20, weight: .regular))
-        .foregroundColor(iconColor)
+        .foregroundColor(Color("InsideTextAndIcons"))
         .frame(width: 44, height: 44)
         .contentShape(Rectangle())
     }
