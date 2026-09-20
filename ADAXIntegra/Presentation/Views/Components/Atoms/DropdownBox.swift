@@ -10,6 +10,7 @@ import SwiftUI
 struct DropdownBox: View {
   let placeholder: String
   var text: String = ""
+  var trailingInset: CGFloat = 18
 
   var body: some View {
     Text(text.isEmpty ? placeholder : text)
@@ -20,7 +21,8 @@ struct DropdownBox: View {
           : Color("OnBackground")
       )
       .lineLimit(1)
-      .padding(.horizontal, 18)
+      .padding(.leading, 18)
+      .padding(.trailing, trailingInset)
       .frame(maxWidth: .infinity, minHeight: 52, alignment: .leading)
       .background(
         RoundedRectangle(cornerRadius: 16, style: .continuous)

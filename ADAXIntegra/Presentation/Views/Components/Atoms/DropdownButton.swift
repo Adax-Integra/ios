@@ -13,7 +13,7 @@ struct DropdownButton: View {
   var body: some View {
     Button(action: action) {
       Image(systemName: "chevron.down")
-        .font(.system(size: 25, weight: .semibold))
+        .font(.system(size: 20, weight: .semibold))
         .foregroundColor(Color("InsideTextAndIcons"))
         .frame(width: 44, height: 44)
         .contentShape(Rectangle())
