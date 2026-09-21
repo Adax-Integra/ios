@@ -70,7 +70,7 @@ struct Dropdown: View {
       .frame(maxWidth: .infinity)
       .background(.white)
       .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-      .shadow(radius: 4)
+      .shadow(color: Color.black.opacity(0.07), radius: 6, x: 0, y: 3)
     }
     .frame(maxWidth: .infinity)
   }
