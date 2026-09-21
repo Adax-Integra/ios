@@ -8,6 +8,9 @@
 import SwiftUI
 
 struct PrimaryButton: View {
+  var customWidth: CGFloat = .infinity
+  var customHeight: CGFloat = 30
+
   let title: String
   let isDisabled: Bool
   let action: () -> Void
@@ -17,7 +20,7 @@ struct PrimaryButton: View {
       Text(title)
         .font(.headline)
         .foregroundColor(.white)
-        .frame(maxWidth: .infinity)
+        .frame(maxWidth: customWidth, maxHeight: customHeight)
         .padding()
         .background(
           RoundedRectangle(cornerRadius: 12, style: .continuous)
@@ -31,6 +34,8 @@ struct PrimaryButton: View {
 
 #Preview {
   PrimaryButton(
+    customWidth: .infinity,
+    customHeight: 30,
     title: "Primary Button",
     isDisabled: false,
     action: {

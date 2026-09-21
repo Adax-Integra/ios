@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct Dropdown: View {
+  var customWidth: CGFloat = .infinity
+
   let title: String
   let prompt: String
   let options: [String]
@@ -67,7 +69,7 @@ struct Dropdown: View {
         }
 
       }
-      .frame(maxWidth: .infinity)
+      .frame(maxWidth: customWidth)
       .background(.white)
       .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
       .shadow(color: Color.black.opacity(0.07), radius: 6, x: 0, y: 3)
@@ -81,12 +83,13 @@ struct Dropdown: View {
     Color("Background").ignoresSafeArea()
 
     Dropdown(
+      customWidth: .infinity,
       title: "País", prompt: "Selecciona un país",
       options: [
         "México",
         "Estados Unidos",
         "Canadá",
-      ], selection: .constant("México")
+      ], selection: .constant("México"),
     )
     .padding()
   }

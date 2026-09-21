@@ -8,6 +8,9 @@
 import SwiftUI
 
 struct SecondaryButton: View {
+  var customWidth: CGFloat = .infinity
+  var customHeight: CGFloat = .infinity
+
   let title: String
   let isDisabled: Bool
   let action: () -> Void
@@ -17,7 +20,7 @@ struct SecondaryButton: View {
       Text(title)
         .font(.headline)
         .foregroundColor(Color("PrimaryAdax"))
-        .frame(maxWidth: .infinity)
+        .frame(maxWidth: customWidth)
         .padding()
         .background(
           RoundedRectangle(cornerRadius: 12, style: .continuous)
@@ -31,6 +34,8 @@ struct SecondaryButton: View {
 
 #Preview {
   SecondaryButton(
+    customWidth: .infinity,
+    customHeight: .infinity,
     title: "Secondary button",
     isDisabled: false,
     action: {
