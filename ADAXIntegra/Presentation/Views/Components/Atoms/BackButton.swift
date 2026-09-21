@@ -8,14 +8,15 @@
 import SwiftUI
 
 struct BackButton: View {
+  var size: CGFloat = 25
   let action: () -> Void
 
   var body: some View {
     Button(action: action) {
       Image(systemName: "chevron.left")
-        .font(.system(size: 25, weight: .semibold))
+        .font(.system(size: size, weight: .semibold))
         .foregroundColor(Color("PrimaryAdax"))
-        .frame(width: 44, height: 44)
+        .frame(width: max(44, size), height: max(44, size))
         .contentShape(Rectangle())
     }
     .buttonStyle(.plain)
@@ -23,9 +24,15 @@ struct BackButton: View {
 }
 
 #Preview {
-  BackButton(
-    action: {
+  HStack {
+    BackButton(size: 16) {
       print("Back tapped")
     }
-  )
+    BackButton {
+      print("Back tapped")
+    }
+    BackButton(size: 32) {
+      print("Back tapped")
+    }
+  }
 }

@@ -8,14 +8,15 @@
 import SwiftUI
 
 struct InfoButton: View {
+  var size: CGFloat = 20
   let action: () -> Void
 
   var body: some View {
     Button(action: action) {
       Image(systemName: "info.circle")
-        .font(.system(size: 20, weight: .regular))
+        .font(.system(size: size, weight: .regular))
         .foregroundColor(Color("InsideTextAndIcons"))
-        .frame(width: 44, height: 44)
+        .frame(width: max(44, size), height: max(44, size))
         .contentShape(Rectangle())
     }
     .buttonStyle(.plain)
@@ -23,9 +24,15 @@ struct InfoButton: View {
 }
 
 #Preview {
-  InfoButton(
-    action: {
+  HStack {
+    InfoButton(size: 16) {
       print("Info tapped")
     }
-  )
+    InfoButton {
+      print("Info tapped")
+    }
+    InfoButton(size: 32) {
+      print("Info tapped")
+    }
+  }
 }
