@@ -9,6 +9,7 @@ import SwiftUI
 
 struct Dropdown: View {
   var customWidth: CGFloat = .infinity
+  var customHeight: CGFloat = 52
 
   let title: String
   let prompt: String
@@ -35,7 +36,7 @@ struct Dropdown: View {
             .rotationEffect(.degrees(isExpanded ? 180 : 0))
 
         }
-        .frame(height: 52)
+        .frame(height: customHeight)
         .contentShape(Rectangle())  // Makes the whole rectangle area tappable
         .padding(.horizontal)
         .onTapGesture {
@@ -84,6 +85,7 @@ struct Dropdown: View {
 
     Dropdown(
       customWidth: .infinity,
+      customHeight: 52,
       title: "País", prompt: "Selecciona un país",
       options: [
         "México",
