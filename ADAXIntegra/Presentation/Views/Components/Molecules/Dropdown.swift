@@ -8,22 +8,71 @@
 import SwiftUI
 
 struct Dropdown: View {
-  let placeholder: String
-  var text: String = ""
-  var action: () -> Void
+  let title: String
+  let prompt: String
+  let options: [String]
+
+  @State private var isExpanded = false
+  @Binding var selection: String?
 
   var body: some View {
-    ZStack(alignment: .trailing) {
-      DropdownBox(
-        placeholder: placeholder,
-        text: text,
-        trailingInset: 58
-      )
-      .onTapGesture(perform: action)
+    VStack(alignment: .leading) {
+      Text(title)
+        .font(.system(size: 16, weight: .regular))
+        .foregroundColor(Color("OnBackground"))
 
-      DropdownButton(action: action)
-        .padding(.trailing, 6)
+      VStack {
+        HStack {
+          Text(selection ?? prompt)
+
+          Spacer()
+
+          Image(systemName: "chevron.down")
+            .font(.subheadline)
+            .foregroundStyle(Color("InsideTextAndIcons"))
+            .rotationEffect(.degrees(isExpanded ? 180 : 0))
+
+        }
+        .frame(height: 52)
+        .contentShape(Rectangle())  // Makes the whole rectangle area tappable
+        .padding(.horizontal)
+        .onTapGesture {
+          withAnimation(.snappy) { isExpanded.toggle() }
+        }
+
+        if isExpanded {
+          VStack {
+            ForEach(options, id: \.self) { option in
+              HStack {
+                Text(option)
+                  .foregroundStyle(
+                    selection == option ? Color("PrimaryAdax") : Color("InsideTextAndIcons")
+                  )
+                  .fontWeight(selection == option ? .bold : .regular)
+
+                Spacer()
+
+              }
+              .frame(height: 40)
+              .padding(.horizontal)
+              .onTapGesture {
+                withAnimation(.snappy) {
+                  selection = option
+                  isExpanded.toggle()
+                }
+              }
+            }
+          }
+          .transition(.move(edge: .bottom))
+        }
+
+      }
+      .frame(maxWidth: .infinity)
+      .background(.white)
+      .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+      .shadow(radius: 4)
     }
+    .frame(maxWidth: .infinity)
   }
 }
 
@@ -32,10 +81,12 @@ struct Dropdown: View {
     Color("Background").ignoresSafeArea()
 
     Dropdown(
-      placeholder: "Selecciona una opción...",
-      action: {
-        print("Dropdown tapped")
-      }
+      title: "País", prompt: "Selecciona un país",
+      options: [
+        "México",
+        "Estados Unidos",
+        "Canadá",
+      ], selection: .constant("México")
     )
     .padding()
   }
