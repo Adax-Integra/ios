@@ -20,9 +20,11 @@ struct Dropdown: View {
 
   var body: some View {
     VStack(alignment: .leading) {
-      Text(title)
-        .font(.system(size: 16, weight: .regular))
-        .foregroundColor(Color("OnBackground"))
+      if !title.isEmpty {
+        Text(title)
+          .font(.system(size: 16, weight: .regular))
+          .foregroundColor(Color("OnBackground"))
+      }
 
       VStack {
         HStack {
