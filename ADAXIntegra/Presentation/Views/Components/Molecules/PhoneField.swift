@@ -18,6 +18,14 @@ struct PhoneField: View {
   var countryCodeWidth: CGFloat = 96
   var spacing: CGFloat = 12
 
+  // Phone numbers are stored as strings, but the entry must be exactly 10 digits
+  private let phoneLength = 10
+
+  // When non-nil, a "FieldErrorLabel" is rendered below the row and the phone
+  // "SurfaceCard" gets a red outline. The parent (or a helper like
+  // "PhoneField.incompleteErrorMessage") decides when to display it
+  var errorMessage: String? = nil
+
   @Binding var countryCode: String?
   @Binding var phone: String
 
@@ -38,16 +46,43 @@ struct PhoneField: View {
         )
         .frame(width: countryCodeWidth)
 
-        LabeledTextField(
-          title: "",
-          placeholder: placeholder,
-          customHeight: customHeight,
-          keyboardType: .phonePad,
-          text: $phone
-        )
+        SurfaceCard(
+          borderColor: errorMessage != nil ? Color("Error") : nil,
+          borderWidth: errorMessage != nil ? 1 : 0
+        ) {
+          TextInput(
+            placeholder: placeholder,
+            text: $phone,
+            keyboardType: .phonePad,
+            customHeight: customHeight,
+            maxLength: phoneLength
+          )
+        }
+      }
+
+      if let errorMessage {
+        FieldErrorLabel(errorMessage)
       }
     }
     .frame(maxWidth: .infinity, alignment: .leading)
+    // Strip any non-digit character (spaces, dashes, pasted "+", etc.) so the
+    // stored value is always a raw 0-9 string capped at "phoneLength"
+    .onChange(of: phone) { _, newValue in
+      let digitsOnly = newValue.filter(\.isNumber)
+      let clamped = String(digitsOnly.prefix(phoneLength))
+      if clamped != newValue {
+        phone = clamped
+      }
+    }
+  }
+}
+
+extension PhoneField {
+  // Convenience validator for callers that want the built-in 10-digit rule
+  // Returns nil when the value is valid (empty or exactly 10 digits)
+  static func validationError(for phone: String) -> String? {
+    if phone.isEmpty { return nil }
+    return phone.count == 10 ? nil : "Debe tener 10 dígitos"
   }
 }
 
@@ -65,6 +100,12 @@ struct PhoneField: View {
         placeholder: "Tu número aquí...",
         countryCode: .constant(nil),
         phone: .constant("")
+      )
+
+      PhoneField(
+        errorMessage: "Debe tener 10 dígitos",
+        countryCode: .constant("+52"),
+        phone: .constant("44612")
       )
     }
     .padding()
