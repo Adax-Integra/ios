@@ -2,11 +2,12 @@
 //  Dropdown.swift
 //  ADAXIntegra
 //
-//  Created by Eduardo Hernández Alonso on 19/09/26.
+//  Created by Eduardo Hernández Alonso on 21/09/26.
 //
 
 import SwiftUI
 
+// Dropdown component for selecting an option from a list
 struct Dropdown: View {
   var customWidth: CGFloat = .infinity
   var customHeight: CGFloat = 52
@@ -21,61 +22,59 @@ struct Dropdown: View {
   var body: some View {
     VStack(alignment: .leading) {
       if !title.isEmpty {
-        Text(title)
-          .font(.system(size: 16, weight: .regular))
-          .foregroundColor(Color("OnBackground"))
+        FieldLabel(title)
       }
 
-      VStack {
-        HStack {
-          Text(selection ?? prompt)
+      SurfaceCard {
+        VStack {
+          HStack {
+            Text(selection ?? prompt)
 
-          Spacer()
+            Spacer()
 
-          Image(systemName: "chevron.down")
-            .font(.subheadline)
-            .foregroundStyle(Color("InsideTextAndIcons"))
+            Chevron(
+              direction: .up,  // atom renders this as a downward chevron
+              size: 12,
+              customColor: "InsideTextAndIcons"
+            )
             .rotationEffect(.degrees(isExpanded ? 180 : 0))
+          }
+          .frame(height: customHeight)
+          .contentShape(Rectangle())  // Makes the whole rectangle area tappable
+          .padding(.horizontal)
+          .onTapGesture {
+            withAnimation(.snappy) { isExpanded.toggle() }
+          }
 
-        }
-        .frame(height: customHeight)
-        .contentShape(Rectangle())  // Makes the whole rectangle area tappable
-        .padding(.horizontal)
-        .onTapGesture {
-          withAnimation(.snappy) { isExpanded.toggle() }
-        }
+          if isExpanded {
+            VStack {
+              ForEach(options, id: \.self) { option in
+                HStack {
+                  Text(option)
+                    .foregroundStyle(
+                      selection == option ? Color("PrimaryAdax") : Color("InsideTextAndIcons")
+                    )
+                    .fontWeight(selection == option ? .bold : .regular)
 
-        if isExpanded {
-          VStack {
-            ForEach(options, id: \.self) { option in
-              HStack {
-                Text(option)
-                  .foregroundStyle(
-                    selection == option ? Color("PrimaryAdax") : Color("InsideTextAndIcons")
-                  )
-                  .fontWeight(selection == option ? .bold : .regular)
+                  Spacer()
 
-                Spacer()
-
-              }
-              .frame(height: 40)
-              .padding(.horizontal)
-              .onTapGesture {
-                withAnimation(.snappy) {
-                  selection = option
-                  isExpanded.toggle()
+                }
+                .frame(height: 40)
+                .padding(.horizontal)
+                .onTapGesture {
+                  withAnimation(.snappy) {
+                    selection = option
+                    isExpanded.toggle()
+                  }
                 }
               }
             }
+            .transition(.move(edge: .bottom))
           }
-          .transition(.move(edge: .bottom))
-        }
 
+        }
+        .frame(maxWidth: customWidth)
       }
-      .frame(maxWidth: customWidth)
-      .background(.white)
-      .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-      .shadow(color: Color.black.opacity(0.07), radius: 6, x: 0, y: 3)
     }
     .frame(maxWidth: .infinity)
   }
