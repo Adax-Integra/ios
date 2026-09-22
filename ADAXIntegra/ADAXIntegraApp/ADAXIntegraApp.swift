@@ -9,9 +9,7 @@ import SwiftUI
 
 @main
 struct ADAXIntegraApp: App {
-    var body: some Scene {
-        WindowGroup {
-            ContentView()
-        }
-    }
+  var body: some Scene {
+
+  }
 }
