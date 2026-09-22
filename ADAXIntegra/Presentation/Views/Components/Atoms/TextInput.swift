@@ -16,6 +16,10 @@ struct TextInput: View {
   var customWidth: CGFloat = .infinity
   var customHeight: CGFloat = 50
 
+  // Optional hard cap on characters. When set, extra input is trimmed
+  // to preserve the limit.
+  var maxLength: Int? = nil
+
   @FocusState private var isFocused: Bool
 
   var body: some View {
@@ -28,6 +32,10 @@ struct TextInput: View {
         .scrollContentBackground(.hidden)
         .padding(.horizontal, 14)
         .padding(.vertical, 8)
+        .onChange(of: text) { _, newValue in
+          guard let maxLength, newValue.count > maxLength else { return }
+          text = String(newValue.prefix(maxLength))
+        }
 
       if text.isEmpty {
         Text(placeholder)
