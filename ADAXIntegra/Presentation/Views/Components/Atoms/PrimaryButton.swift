@@ -1,3 +1,5 @@
+// xcode: set sdk=iOS
+
 //
 //  PrimaryButton.swift
 //  ADAXIntegra
