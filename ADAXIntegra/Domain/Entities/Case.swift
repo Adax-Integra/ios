@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftUI
 
 enum CaseState: String {
     case inProgress = "in_progress"
@@ -17,6 +18,14 @@ enum CaseState: String {
         case .inProgress: return "En proceso"
         case .closed: return "Cerrado"
         case .pending: return "Pendiente"
+        }
+    }
+    
+    var indicatorColor: Color {
+        switch self {
+        case .inProgress: return .orange
+        case .closed: return .green
+        case .pending: return .red
         }
     }
 }
