@@ -16,6 +16,8 @@ struct ConfirmationActions: View {
 
   var confirmTitle: String = "Sí"
   var dismissTitle: String = "No"
+  var showsPrompt: Bool = true
+  var showsDismiss: Bool = true
 
   var isDisabled: Bool = false
   var spacing: CGFloat = 12
@@ -23,7 +25,9 @@ struct ConfirmationActions: View {
 
   var body: some View {
     VStack(spacing: 16) {
-      ConfirmationPrompt(prompt)
+      if showsPrompt {
+        ConfirmationPrompt(prompt)
+      }
 
       HStack(spacing: spacing) {
         PrimaryButton(
@@ -33,12 +37,14 @@ struct ConfirmationActions: View {
         )
         .frame(maxWidth: .infinity, minHeight: buttonHeight, maxHeight: buttonHeight)
 
-        SecondaryButton(
-          title: dismissTitle,
-          isDisabled: isDisabled,
-          action: onDismiss
-        )
-        .frame(maxWidth: .infinity, minHeight: buttonHeight, maxHeight: buttonHeight)
+        if showsDismiss {
+          SecondaryButton(
+            title: dismissTitle,
+            isDisabled: isDisabled,
+            action: onDismiss
+          )
+          .frame(maxWidth: .infinity, minHeight: buttonHeight, maxHeight: buttonHeight)
+        }
       }
     }
     .frame(maxWidth: .infinity)
