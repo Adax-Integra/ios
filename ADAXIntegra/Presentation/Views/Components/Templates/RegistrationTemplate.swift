@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+// template that defines the layout of the registration screen
 struct RegistrationTemplate: View {
   @Binding var email: String
   @Binding var countryCode: String?

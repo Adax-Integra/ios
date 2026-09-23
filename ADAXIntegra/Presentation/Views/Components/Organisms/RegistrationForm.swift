@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+// organism that groups and validates registration fields
 struct RegistrationForm: View {
   @Binding var email: String
   @Binding var countryCode: String?
@@ -16,6 +17,7 @@ struct RegistrationForm: View {
 
   let action: () -> Void
 
+  // enables registration if all fields contain valid data
   private var isFormValid: Bool {
     !email.isEmpty && email.contains("@") && countryCode != nil && phoneNumber.count == 10
       && password.count >= 8 && password == confirmPassword

@@ -7,12 +7,13 @@
 
 import SwiftUI
 
+// atom for secure password input with visibility control
 struct PasswordTextField: View {
   var title: String
   let placeholder: String
   @Binding var text: String
 
-  @State private var showPassword: Bool = false
+  @State private var showPassword: Bool = false  // password visible or hidden
 
   var body: some View {
     VStack(alignment: .leading) {

@@ -7,9 +7,11 @@
 
 import SwiftUI
 
+// page that manages the registration form state and actions
 struct RegistrationPage: View {
   @Environment(\.dismiss) private var dismiss
 
+  // local state for the registration form
   @State private var email = ""
   @State private var countryCode: String? = "+52"
   @State private var phoneNumber = ""
