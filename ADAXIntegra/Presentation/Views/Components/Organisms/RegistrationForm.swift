@@ -16,6 +16,11 @@ struct RegistrationForm: View {
 
   let action: () -> Void
 
+  private var isFormValid: Bool {
+    !email.isEmpty && email.contains("@") && countryCode != nil && phoneNumber.count == 10
+      && password.count >= 8 && password == confirmPassword
+  }
+
   var body: some View {
     VStack(spacing: 18) {
       LabeledTextField(
@@ -41,6 +46,16 @@ struct RegistrationForm: View {
         placeholder: "Confirma tu contraseña",
         text: $confirmPassword
       )
+
+      PrimaryButton(
+        customWidth: .infinity,
+        customHeight: 30,
+        title: "Registrarse",
+        isDisabled: !isFormValid,
+      ) {
+        action()
+      }
+      .padding(.top, 8)
     }
   }
 }
