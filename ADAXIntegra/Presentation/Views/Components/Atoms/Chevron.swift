@@ -19,9 +19,9 @@ struct Chevron: View {
 
   var rotation: Double {
     switch direction {
-    case .up: return 90
+    case .up: return -90
     case .right: return 0
-    case .down: return -90
+    case .down: return 90
     case .left: return 180
     }
   }
