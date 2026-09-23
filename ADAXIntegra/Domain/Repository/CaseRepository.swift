@@ -7,5 +7,5 @@
 import Foundation
 
 protocol CaseRepository {
-    func getCases(for userId: UUID) async throws -> [Case]
+    func getCases(for userId: String) async throws -> [Case]
 }

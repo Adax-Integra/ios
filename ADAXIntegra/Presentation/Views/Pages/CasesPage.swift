@@ -9,9 +9,12 @@ import SwiftUI
 struct CasesPage: View {
     @StateObject private var viewModel: CasesViewModel
 
-    init(viewModel: CasesViewModel = CasesViewModel(repository: MockCaseRepository())) {
-        _viewModel = StateObject(wrappedValue: viewModel)
-    }
+    init(viewModel: CasesViewModel = CasesViewModel(
+        repository: RemoteCaseRepository(),
+        userId: "c4d665c3-56b7-4616-b322-69d3ffa261d4")
+    ) {
+            _viewModel = StateObject(wrappedValue: viewModel)
+        }
 
     var body: some View {
         CasesScreenTemplate {

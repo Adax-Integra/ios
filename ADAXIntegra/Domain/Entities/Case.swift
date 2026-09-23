@@ -30,12 +30,20 @@ enum CaseState: String {
     }
 }
 
-struct Case: Identifiable {
-    let id: UUID
-    let recordId: UUID
-    let caseNumber: String?
-    let description: String   // written_description
-    let state: CaseState
-    let createdAt: Date
-    let updatedAt: Date
+struct Case: Identifiable, Codable {
+    let id: String
+    let writtenDescription: String?
+    let writtenHelpsWanted: String?
+    let hasLawyer: Bool
+    let state: String
+    let createdAt: String
+    let updatedAt: String
+    let helps: [String]
+    let violenceTypes: [String]
+
+    enum CodingKeys: String, CodingKey {
+        case id = "caseId"
+        case writtenDescription, writtenHelpsWanted, hasLawyer
+        case state, createdAt, updatedAt, helps, violenceTypes
+    }
 }
