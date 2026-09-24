@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct CaseCard: View {
+struct CaseCardInterna: View {
   let name: String
   let urgency: String
   let state: String
@@ -45,7 +45,7 @@ struct CaseCard: View {
     Color("Background").ignoresSafeArea()
 
     VStack(spacing: 16) {
-      CaseCard(
+      CaseCardInterna(
         name: "Maria López",
         urgency: "Alta",
         state: "En processo",
@@ -53,7 +53,7 @@ struct CaseCard: View {
         categories: ["Violencia Familiar", "Violencia Económica"]
       )
 
-      CaseCard(
+      CaseCardInterna(
         name: "Ana Torres",
         urgency: "Baja",
         state: "Sin empezar",

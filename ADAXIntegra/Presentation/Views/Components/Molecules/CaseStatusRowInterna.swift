@@ -13,7 +13,7 @@ struct CaseStatusRow: View {
 
   // Unrecognized state strings fall back to "Sin empezar" (red) rather than
   // "Finalizado" (green), so an unexpected value doesn't read as resolved.
-  private var dotStatus: StatusDot.Status {
+  private var dotStatus: StatusDotInterna.Status {
     switch state {
     case "En proceso":
       return .enProceso
@@ -34,7 +34,7 @@ struct CaseStatusRow: View {
 
   var body: some View {
     HStack(spacing: 6) {
-      StatusDot(status: dotStatus)
+      StatusDotInterna(status: dotStatus)
 
       Text(state)
         .font(.system(size: 14, weight: .medium))

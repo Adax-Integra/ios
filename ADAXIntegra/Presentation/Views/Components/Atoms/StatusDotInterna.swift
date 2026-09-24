@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct StatusDot: View {
+struct StatusDotInterna: View {
   enum Status {
     case sinEmpezar
     case enProceso
@@ -38,9 +38,9 @@ struct StatusDot: View {
 
 #Preview {
   HStack(spacing: 16) {
-    StatusDot(status: .sinEmpezar)
-    StatusDot(status: .enProceso)
-    StatusDot(status: .finalizado)
+    StatusDotInterna(status: .sinEmpezar)
+    StatusDotInterna(status: .enProceso)
+    StatusDotInterna(status: .finalizado)
   }
   .padding()
 }

@@ -16,7 +16,7 @@ struct CaseListToolbar: View {
   var body: some View {
     VStack(alignment: .leading, spacing: 16) {
       HStack(spacing: 12) {
-        SearchBar(placeholder: "Buscar caso...", text: $searchText)
+        SearchBarInterna(placeholder: "Buscar caso...", text: $searchText)
 
         IconTextSecondaryButton(
           customWidth: 80,

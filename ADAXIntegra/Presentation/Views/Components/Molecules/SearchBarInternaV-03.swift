@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct SearchBar: View {
+struct SearchBarInterna: View {
   var costumWidth: CGFloat = .infinity
   var fieldHeight: CGFloat = 50
 
@@ -41,6 +41,6 @@ struct SearchBar: View {
   ZStack {
     Color("Background").ignoresSafeArea()
 
-    SearchBar(placeholder: "Buscar caso...", text: .constant("")).padding()
+    SearchBarInterna(placeholder: "Buscar caso...", text: .constant("")).padding()
   }
 }
