@@ -29,7 +29,6 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		3E733E99304A24FB00DD7A78 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		7F1098773043AE79009E8A9B /* ADAXIntegra.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ADAXIntegra.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		7F1098843043AE7A009E8A9B /* ADAXIntegraTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ADAXIntegraTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		7F10988E3043AE7A009E8A9B /* ADAXIntegraUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ADAXIntegraUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -109,7 +108,6 @@
 		7F10986E3043AE79009E8A9B = {
 			isa = PBXGroup;
 			children = (
-				3E733E99304A24FB00DD7A78 /* ContentView.swift */,
 				3E733EA7304A25C400DD7A78 /* Domain */,
 				3E733EA6304A25AF00DD7A78 /* Data */,
 				7F77951D304A21C6003EFD8E /* Presentation */,
@@ -308,7 +306,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				3E733E9B304A24FB00DD7A78 /* ContentView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
