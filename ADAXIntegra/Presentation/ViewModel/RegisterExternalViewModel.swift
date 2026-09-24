@@ -29,6 +29,8 @@ final class RegisterExternalViewModel: ObservableObject {
     @Published var errorMessage: String?
     @Published var didSucceed = false
     
+    @Published var result: RegisterExternalResult?
+    
     private let repository: ExternalUserRepository
     
     init(repository: ExternalUserRepository = RemoteExternalUserRepository()) {
@@ -64,7 +66,7 @@ final class RegisterExternalViewModel: ObservableObject {
         errorMessage = nil
         
         do {
-            _ = try await repository.register(makeRequest())
+            result = try await repository.register(makeRequest())
             didSucceed = true
         } catch {
             errorMessage = "No se pudo registrar. Verifica tu conexión e inténtalo de nuevo."

@@ -14,6 +14,17 @@ struct RegisterExternalPage: View {
     var onBack: () -> Void = {}
     
     var body: some View {
+        if viewModel.didSucceed {
+            RegisterConfirmationView(
+                recordId: viewModel.result?.recordId,
+                onDone: onBack
+            )
+        } else {
+            formContent
+        }
+    }
+    
+    private var formContent: some View {
         ZStack {
             Color("Background").ignoresSafeArea()
             ScrollView(showsIndicators: false) {
@@ -29,6 +40,12 @@ struct RegisterExternalPage: View {
                     )
                     .frame(maxWidth: .infinity, minHeight: 52, maxHeight: 52)
                     .padding(.top, 8)
+                    
+                    if let errorMessage = viewModel.errorMessage {
+                        Text(errorMessage)
+                            .font(.system(size: 14))
+                            .foregroundStyle(Color("Error"))
+                    }
                 }
                 .padding(20)
             }
@@ -110,7 +127,7 @@ struct RegisterExternalPage: View {
     
     private var addressSection: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("Direción")
+            Text("Dirección")
                 .font(.system(size: 20, weight: .bold))
                 .foregroundStyle(Color("OnBackground"))
             
