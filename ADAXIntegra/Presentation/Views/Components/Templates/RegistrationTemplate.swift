@@ -9,6 +9,9 @@ import SwiftUI
 
 // template that defines the layout of the registration screen
 struct RegistrationTemplate: View {
+
+  @Binding var name: String
+  @Binding var lastName: String
   @Binding var email: String
   @Binding var countryCode: String?
   @Binding var phoneNumber: String
@@ -36,6 +39,8 @@ struct RegistrationTemplate: View {
             .foregroundColor(Color("InsideTextAndIcons"))
 
           RegistrationForm(
+            name: $name,
+            lastName: $lastName,
             email: $email,
             countryCode: $countryCode,
             phoneNumber: $phoneNumber,

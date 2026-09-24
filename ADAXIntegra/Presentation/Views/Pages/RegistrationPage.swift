@@ -12,6 +12,8 @@ struct RegistrationPage: View {
   @Environment(\.dismiss) private var dismiss
 
   // local state for the registration form
+  @State private var name = ""
+  @State private var lastName = ""
   @State private var email = ""
   @State private var countryCode: String? = "+52"
   @State private var phoneNumber = ""
@@ -20,6 +22,8 @@ struct RegistrationPage: View {
 
   var body: some View {
     RegistrationTemplate(
+      name: $name,
+      lastName: $lastName,
       email: $email,
       countryCode: $countryCode,
       phoneNumber: $phoneNumber,
