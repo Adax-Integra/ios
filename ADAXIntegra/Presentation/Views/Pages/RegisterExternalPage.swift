@@ -171,3 +171,4 @@ struct RegisterExternalPage: View {
 #Preview {
     RegisterExternalPage()
 }
+
