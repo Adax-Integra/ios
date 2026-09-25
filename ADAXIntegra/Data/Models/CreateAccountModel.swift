@@ -17,6 +17,7 @@ struct CreateAccountRequestModel: Encodable {
   let password: String
   let confirmPassword: String
 
+  // changes the swift names to the names used by the backend
   enum CodingKeys: String, CodingKey {
     case name
     case lastName = "last_name"
@@ -28,6 +29,7 @@ struct CreateAccountRequestModel: Encodable {
   }
 }
 
+// response received after creating the account
 struct CreateAccountResponseModel: Decodable {
   let success: Bool
   let data: CreateAccountDataModel

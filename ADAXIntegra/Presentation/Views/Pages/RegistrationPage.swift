@@ -10,6 +10,7 @@ import SwiftUI
 // page that manages the registration form state and actions
 struct RegistrationPage: View {
   @Environment(\.dismiss) private var dismiss
+  @StateObject private var viewModel = RegistrationViewModel()
 
   // local state for the registration form
   @State private var name = ""
@@ -33,7 +34,21 @@ struct RegistrationPage: View {
         dismiss()
       },
       registerAction: {
-        print("Registro presionado")  // temporary
+        guard let countryCode else {
+          return
+        }
+
+        Task {
+          await viewModel.createAccount(
+            name: name,
+            lastName: lastName,
+            email: email,
+            countryCode: countryCode,
+            phone: phoneNumber,
+            password: password,
+            confirmPassword: confirmPassword
+          )
+        }
       }
     )
   }
