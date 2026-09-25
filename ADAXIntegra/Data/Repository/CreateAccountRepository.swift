@@ -28,7 +28,7 @@ final class CreateAccountRepository: CreateAccountRepositoryP {
   private let baseURL = URL(string: "http:localhost:3001")!
 
   func createAccount(input: CreateAccountInput) async throws -> CreateAccountEntity {
-    let url = baseURL.appendingPathComponent("api/external-users/register")
+    let url = baseURL.appendingPathComponent("api/external-user/register")
 
     let body = CreateAccountRequestModel(
       name: input.name,
