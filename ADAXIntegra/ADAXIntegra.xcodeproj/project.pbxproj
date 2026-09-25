@@ -6,6 +6,11 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		3E733E9B304A24FB00DD7A78 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E733E99304A24FB00DD7A78 /* ContentView.swift */; };
+		3EA0CA463064591100BEA9BA /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = 3EA0CA453064591100BEA9BA /* Alamofire */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		7F1098853043AE7A009E8A9B /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -73,6 +78,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3EA0CA463064591100BEA9BA /* Alamofire in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -93,6 +99,13 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		3EA0CA443064591100BEA9BA /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		7F10986E3043AE79009E8A9B = {
 			isa = PBXGroup;
 			children = (
@@ -104,6 +117,7 @@
 				7F1098793043AE79009E8A9B /* ADAXIntegraApp */,
 				7F1098873043AE7A009E8A9B /* ADAXIntegraTests */,
 				7F1098913043AE7A009E8A9B /* ADAXIntegraUITests */,
+				3EA0CA443064591100BEA9BA /* Frameworks */,
 				7F1098783043AE79009E8A9B /* Products */,
 			);
 			sourceTree = "<group>";
@@ -143,6 +157,7 @@
 			);
 			name = ADAXIntegra;
 			packageProductDependencies = (
+				3EA0CA453064591100BEA9BA /* Alamofire */,
 			);
 			productName = ADAXIntegra;
 			productReference = 7F1098773043AE79009E8A9B /* ADAXIntegra.app */;
@@ -202,7 +217,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 2660;
-				LastUpgradeCheck = 2660;
+				LastUpgradeCheck = 2700;
 				TargetAttributes = {
 					7F1098763043AE79009E8A9B = {
 						CreatedOnToolsVersion = 26.6;
@@ -228,6 +243,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				7F5BC9013044AA6B00F74B8B /* XCRemoteSwiftPackageReference "swift-format" */,
+				3EA0CA433064588700BEA9BA /* XCRemoteSwiftPackageReference "Alamofire" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 7F1098783043AE79009E8A9B /* Products */;
@@ -384,6 +400,7 @@
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
@@ -441,6 +458,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				VALIDATE_PRODUCT = YES;
 			};
@@ -640,6 +658,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		3EA0CA433064588700BEA9BA /* XCRemoteSwiftPackageReference "Alamofire" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Alamofire/Alamofire";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.12.2;
+			};
+		};
 		7F5BC9013044AA6B00F74B8B /* XCRemoteSwiftPackageReference "swift-format" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/apple/swift-format.git";
@@ -649,6 +675,14 @@
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		3EA0CA453064591100BEA9BA /* Alamofire */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 3EA0CA433064588700BEA9BA /* XCRemoteSwiftPackageReference "Alamofire" */;
+			productName = Alamofire;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 7F10986F3043AE79009E8A9B /* Project object */;
 }
