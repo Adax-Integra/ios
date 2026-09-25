@@ -102,5 +102,5 @@ struct LoginPage: View {
 }
 // Permite visualizar la pantalla desde Xcode
 #Preview {
-  LoginPage(viewModel: LoginViewModel(repository: MockAuthRepository()))
+  LoginPage(viewModel: LoginViewModel(repository: RemoteAuthRepository()))
 }

@@ -27,11 +27,11 @@ class LoginViewModel: ObservableObject {
   private let repository: AuthRepositoryP
 
   // Se llama con el token cuando el login es exitoso
-  private let onLogin: (String) -> Void
+  private let onLogin: (LoginResult) -> Void
 
   init(
     repository: AuthRepositoryP,
-    onLogin: @escaping (String) -> Void = { _ in }
+    onLogin: @escaping (LoginResult) -> Void = { _ in }
   ) {
     self.repository = repository
     self.onLogin = onLogin
@@ -63,7 +63,7 @@ class LoginViewModel: ObservableObject {
       // Checks if the login returned a result
       if let result {
         isLoggedIn = true
-        onLogin(result.token)
+        onLogin(result)
       } else {
         error = "No se pudo iniciar sesión."
       }
