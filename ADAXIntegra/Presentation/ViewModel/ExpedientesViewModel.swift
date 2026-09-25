@@ -26,7 +26,7 @@ final class ExpedientesViewModel: ObservableObject {
         self.repository = repository
     }
     
-    func ladCases() async {
+    func loadCases() async {
         isLoading = true
         errorMessage = nil
         
