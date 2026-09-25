@@ -9,7 +9,8 @@ import SwiftUI
 
 struct RegisterExternalPage: View {
     @StateObject private var viewModel = RegisterExternalViewModel()
-    @State private var showDatePicker = false
+    @State private var showDateSheet = false
+    @State private var sheetDate = Date()
     
     var onBack: () -> Void = {}
     
@@ -55,7 +56,7 @@ struct RegisterExternalPage: View {
     private var profileSection: some View {
         VStack(alignment: .leading, spacing: 16) {
             LabeledTextField(
-                title: "Nombre",
+                title: "Nombre(s)",
                 placeholder: "Escribe el nombre...",
                 maxLength: 30,
                 text: $viewModel.name
@@ -77,53 +78,88 @@ struct RegisterExternalPage: View {
             .textInputAutocapitalization(.never)
             .autocorrectionDisabled()
             
-            birthDateField
-            
             PhoneField(countryCode: $viewModel.countryCode, phone: $viewModel.phone)
+            birthDateField
         }
     }
     
     private var birthDateField: some View {
         VStack(alignment: .leading, spacing: 6) {
-            FieldLabel("Fecha de nacimiento")
+            FieldLabel("Fecha de Nacimiento")
             
-            SurfaceCard {
-                Button {
-                    withAnimation { showDatePicker.toggle() }
-                } label: {
-                    HStack {
-                        Text(birthDateText)
-                            .foregroundStyle(Color("OnBackground"))
-                        Spacer()
+            SurfaceCard(
+                borderColor: viewModel.birthDateError != nil ? Color("Error") : nil,
+                borderWidth: viewModel.birthDateError != nil ? 1 : 0
+            ) {
+                HStack {
+                    TextField("dd/mm/aaaa", text: $viewModel.birthDateInput)
+                        .keyboardType(.numberPad)
+                        .foregroundStyle(Color("OnBackground"))
+                        .onChange(of: viewModel.birthDateInput) { _, newValue in
+                            viewModel.birthDateInput = formatDateInput(newValue)
+                        }
+                    
+                    Button {
+                        sheetDate = viewModel.birthDate ?? Date()
+                        showDateSheet = true
+                    } label: {
                         Image(systemName: "calendar")
-                            .foregroundStyle(Color("InsideTextAndIcons"))
+                            .foregroundStyle(Color("PrimaryAdax"))
                     }
-                    .padding(.horizontal, 14)
-                    .frame(height: 50)
-                    .contentShape(Rectangle())
+                    .buttonStyle(.plain)
                 }
-                .buttonStyle(.plain)
+                .padding(.horizontal, 14)
+                .frame(height: 50)
             }
-            if showDatePicker {
-                DatePicker(
-                    "",
-                    selection: $viewModel.birthDate,
-                    displayedComponents: .date
-                )
-                .datePickerStyle(.graphical)
-                .labelsHidden()
-                .tint(Color("PrimaryAdax"))
-                .padding(.top, 4)
+            
+            if let error = viewModel.birthDateError {
+                FieldErrorLabel(error)
             }
+        }
+        .sheet(isPresented: $showDateSheet) {
+            dateSheet
         }
     }
     
-    private var birthDateText: String {
-        let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "es_MX")
-        formatter.dateFormat = "dd/MM/yyyy"
-        return formatter.string(from: viewModel.birthDate)
+    private func formatDateInput(_ text: String) -> String {
+        let digits = String(text.filter(\.isNumber).prefix(8))
+        var result = ""
+        for (i, ch) in digits.enumerated() {
+            if i == 2 || i == 4 { result.append("/") }
+            result.append(ch)
+        }
+        return result
     }
+    
+    private var dateSheet: some View {
+        NavigationStack {
+            VStack {
+                DatePicker("", selection: $sheetDate, displayedComponents: .date)
+                    .datePickerStyle(.graphical)
+                    .labelsHidden()
+                    .tint(Color("PrimaryAdax"))
+                    .padding()
+                Spacer()
+            }
+            .navigationTitle("Fecha de nacimiento")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancelar") { showDateSheet = false }
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Listo") {
+                        viewModel.setBirthDate(sheetDate)
+                        showDateSheet = false
+                    }
+                    .fontWeight(.semibold)
+                }
+            }
+        }
+        .tint(Color("PrimaryAdax"))
+        .presentationDetents([.medium])
+    }
+    
     
     private var addressSection: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -157,21 +193,20 @@ struct RegisterExternalPage: View {
                 text: $viewModel.zipCode
             )
             
-            Dropdown(
+            SearchableDropdown(
                 title: "País",
                 prompt: "Selecciona un país",
                 options: viewModel.countries.map(\.name),
-                maxVisibleOptions: 5,
                 selection: $viewModel.country
             )
             
-            Dropdown(
+            SearchableDropdown(
                 title: "Estado",
-                prompt: "Selecciona un estado",
+                prompt: viewModel.country == nil ? "Primero elige un país" : "Selecciona un estado",
                 options: viewModel.stateOptions,
-                maxVisibleOptions: 5,
                 selection: $viewModel.state
             )
+            .disabled(viewModel.country == nil)
             .onChange(of: viewModel.country) { _, _ in
                 viewModel.state = nil
             }

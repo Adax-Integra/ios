@@ -13,7 +13,7 @@ final class RegisterExternalViewModel: ObservableObject {
     @Published var name = ""
     @Published var lastName = ""
     @Published var email = ""
-    @Published var birthDate = Date()
+    @Published var birthDateInput = ""
     @Published var countryCode: String? = "+52"
     @Published var phone = ""
     
@@ -43,6 +43,32 @@ final class RegisterExternalViewModel: ObservableObject {
         Country.first(named: country ?? "", in: countries)?.states ?? []
     }
     
+    var birthDate: Date? { Self.uiDateFormatter.date(from: birthDateInput) }
+    
+    var birthDateError: String? {
+        if birthDateInput.isEmpty { return nil }
+        return birthDate == nil ? "Fecha inválida (usa dd/mm/aaaa)" : nil
+    }
+    
+    func setBirthDate(_ date: Date) {
+        birthDateInput = Self.uiDateFormatter.string(from: date)
+    }
+    
+    static let uiDateFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.locale = Locale(identifier: "es_MX")
+        f.dateFormat = "dd/MM/yyyy"
+        f.isLenient = false
+        return f
+    }()
+    
+    static let backendDateFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.locale = Locale(identifier: "en_US_POSIX")
+        f.dateFormat = "yyyy-MM-dd"
+        return f
+    }()
+    
     var isValid: Bool {
         !name.trimmed.isEmpty
             && !lastName.trimmed.isEmpty
@@ -53,6 +79,7 @@ final class RegisterExternalViewModel: ObservableObject {
             && country != nil
             && state != nil
             && !city.trimmed.isEmpty
+            && birthDateError == nil
     }
     
     private func isValidEmail(_ value: String) -> Bool {
@@ -81,7 +108,7 @@ final class RegisterExternalViewModel: ObservableObject {
                 name: name.trimmed,
                 lastName: lastName.trimmed,
                 email: email.trimmed.lowercased(),
-                birthDate: birthDateString,
+                birthDate: birthDate.map { Self.backendDateFormatter.string(from: $0)},
                 phone: phone.isEmpty ? nil : "\(countryCode ?? "")\(phone)"
             ),
             address: .init(
@@ -94,13 +121,6 @@ final class RegisterExternalViewModel: ObservableObject {
                 city: city.trimmed
             )
         )
-    }
-    
-    private var birthDateString: String {
-        let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "en_US_POSIX")
-        formatter.dateFormat = "yyyy-MM-dd"
-        return formatter.string(from: birthDate)
     }
 }
 
