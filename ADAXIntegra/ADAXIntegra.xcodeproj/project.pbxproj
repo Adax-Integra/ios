@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		3E733E9B304A24FB00DD7A78 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E733E99304A24FB00DD7A78 /* ContentView.swift */; };
 		3EA0CA463064591100BEA9BA /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = 3EA0CA453064591100BEA9BA /* Alamofire */; };
 /* End PBXBuildFile section */
 
