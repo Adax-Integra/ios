@@ -28,4 +28,28 @@ struct APIProtocol {
                 }
         }
     }
+    
+    static func post<Body: Encodable, T: Decodable>(
+        _ path: String,
+        body: Body,
+        as type: T.Type
+    ) async throws -> T {
+        return try await withCheckedThrowingContinuation { continuation in
+            AF.request(
+                APIConfig.baseURL + path,
+                method: .post,
+                parameters: body,
+                encoder: JSONParameterEncoder.default
+            )
+            .validate()
+            .responseDecodable(of: T.self) { response in
+                switch response.result {
+                case .success(let value):
+                    continuation.resume(returning: value)
+                case .failure(let error):
+                    continuation.resume(throwing: APIError.requestFailed(error.localizedDescription))
+                }
+            }
+        }
+    }
 }
