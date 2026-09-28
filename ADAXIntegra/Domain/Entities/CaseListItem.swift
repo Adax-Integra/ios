@@ -42,6 +42,7 @@ extension CaseListItem {
     var stateText: String {
         switch state {
         case "Open": return "En proceso"
+        case "Closed": return "Completado"
         default: return state
         }
     }
