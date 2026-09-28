@@ -11,13 +11,12 @@
     "AlwaysUseLowerCamelCase": true,
     "BeginDocumentationCommentWithOneLineSummary": false,
     "DoNotUseSemicolons": true,
-    "FileHeader": null,
     "FullyIndirectEnum": true,
     "GroupNumericLiterals": true,
     "NoEmptyTrailingClosureParentheses": true,
-    "NoLeadingUnderscoresForGlobalNames": true,
+    "NoLeadingUnderscores": true,
     "NoParensAroundConditions": true,
-    "OrganizeImports": true,
+    "OrderedImports": true,
     "UseShorthandTypeNames": true,
     "UseSynthesizedInitializer": true
   }
