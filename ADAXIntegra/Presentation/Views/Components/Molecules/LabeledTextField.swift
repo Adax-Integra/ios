@@ -45,6 +45,8 @@ struct LabeledTextField: View {
           customHeight: customHeight,
           maxLength: maxLength
         )
+        .textInputAutocapitalization(keyboardType == .emailAddress ? .never : nil)
+        .autocorrectionDisabled(keyboardType == .emailAddress)
       }
 
       if let errorMessage {

@@ -10,6 +10,9 @@ import SwiftUI
 @main
 struct ADAXIntegraApp: App {
   var body: some Scene {
+    WindowGroup {
+      RegistrationPage()
+    }
 
   }
 }

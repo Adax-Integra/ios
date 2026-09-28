@@ -25,7 +25,7 @@ enum CreateAccountRepositoryError: LocalizedError {
 
 // sends the registration form with the backend
 final class CreateAccountRepository: CreateAccountRepositoryP {
-  private let baseURL = URL(string: "http:localhost:3001")!
+  private let baseURL = URL(string: "http://localhost:3001")!
 
   func createAccount(input: CreateAccountInput) async throws -> CreateAccountEntity {
     let url = baseURL.appendingPathComponent("api/external-user/register")
@@ -43,7 +43,7 @@ final class CreateAccountRepository: CreateAccountRepositoryP {
     var request = URLRequest(url: url)
     request.httpMethod = "POST"
     request.setValue(
-      "aaplication/json",
+      "application/json",
       forHTTPHeaderField: "Content-Type"
     )
     request.httpBody = try JSONEncoder().encode(body)

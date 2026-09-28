@@ -51,6 +51,23 @@ struct RegistrationPage: View {
         }
       }
     )
+    .alert(
+      "No se pudo crear la cuenta.",
+      isPresented: Binding(
+        get: {
+          viewModel.errorMessage != nil
+        },
+        set: { isPresented in
+          if !isPresented {
+            viewModel.errorMessage = nil
+          }
+        }
+      )
+    ) {
+      Button("Aceptar", role: .cancel) {}
+    } message: {
+      Text(viewModel.errorMessage ?? "")
+    }
   }
 }
 

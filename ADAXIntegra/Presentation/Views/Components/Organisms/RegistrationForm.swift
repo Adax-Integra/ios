@@ -19,7 +19,6 @@ struct RegistrationForm: View {
   @Binding var confirmPassword: String
 
   let action: () -> Void
-  var onBack: (() -> Void)? = nil
 
   // enables registration if all fields contain valid data
   private var isFormValid: Bool {
@@ -30,25 +29,6 @@ struct RegistrationForm: View {
 
   var body: some View {
     VStack(alignment: .leading, spacing: 18) {
-      Button(action: {
-        onBack?()
-      }) {
-        Image(systemName: "chevron.left")
-          .font(.system(size: 18, weight: .semibold))
-          .foregroundColor(.primary)
-      }
-      .padding(.top, 8)
-
-      VStack(alignment: .leading, spacing: 8) {
-        Text("Crear cuenta")
-          .font(.system(size: 24, weight: .bold))
-          .foregroundColor(.primary)
-
-        Text("Ingresa tus datos para registrarte")
-          .font(.system(size: 14))
-          .foregroundColor(.secondary)
-      }
-      .padding(.bottom, 8)
 
       LabeledTextField(
         title: "Nombre",
