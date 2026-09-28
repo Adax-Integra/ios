@@ -45,6 +45,8 @@ struct LabeledTextField: View {
           customHeight: customHeight,
           maxLength: maxLength
         )
+
+        // prevent automatic capitalization and autocorrection in email fields
         .textInputAutocapitalization(keyboardType == .emailAddress ? .never : nil)
         .autocorrectionDisabled(keyboardType == .emailAddress)
       }
