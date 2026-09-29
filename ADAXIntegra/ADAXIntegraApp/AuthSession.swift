@@ -20,11 +20,15 @@ class AuthSession: ObservableObject {
     token = result.token
     userId = result.userId
     roles = result.roles
+    // Makes the token available to every request sent through APIProtocol
+    APIConfig.token = result.token
   }
 
   func logout() {
     token = nil
     userId = nil
     roles = []
+    // Requests after logout go out without credentials
+    APIConfig.token = nil
   }
 }
