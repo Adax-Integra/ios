@@ -14,7 +14,7 @@ struct CreateCaseRequest: Encodable {
   let writtenHelpsWanted: String
   let hasExternalSupport: Bool
 
-  init(from entity: CaseEntity) {
+  init(from entity: NewCase) {
     writtenDescription = entity.description
     writtenHelpsWanted = entity.helpDetails
     hasExternalSupport = entity.hasExternalSupport

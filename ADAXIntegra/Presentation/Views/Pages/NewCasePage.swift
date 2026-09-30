@@ -119,8 +119,11 @@ struct NewCasePage: View {
 }
 
 #if DEBUG
-  private class PreviewCaseRepository: CaseRepositoryP {
-    func createCase(_ newCase: CaseEntity, userId: String) async -> String? {
+  private struct PreviewCaseRepository: CaseRepository {
+    func getCases(for userId: String) async throws -> [Case] {
+      []
+    }
+    func createCase(_ newCase: NewCase, userId: String) async -> String? {
       UUID().uuidString
     }
   }
