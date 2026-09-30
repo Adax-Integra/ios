@@ -9,6 +9,7 @@
 import Combine
 import Foundation
 
+// keeps changes to the screen's state on the main actor
 @MainActor
 final class RegistrationViewModel: ObservableObject {
   @Published var isLoading = false
@@ -32,9 +33,12 @@ final class RegistrationViewModel: ObservableObject {
     password: String,
     confirmPassword: String
   ) async {
+
+    // marks the start of the request and clears any previous error
     isLoading = true
     errorMessage = nil
 
+    // groups the form values into one object
     let input = CreateAccountInput(
       name: name,
       lastName: lastName,

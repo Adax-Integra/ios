@@ -8,7 +8,7 @@
 
 import Foundation
 
-// data entered by the user in the form
+// groups the information entered in the registration form
 struct CreateAccountInput {
   let name: String
   let lastName: String
@@ -19,7 +19,7 @@ struct CreateAccountInput {
   let confirmPassword: String
 }
 
-// user data returned by the backend
+// holds the account information retured by the repository after registration
 struct CreateAccountEntity {
   let userId: String
   let name: String

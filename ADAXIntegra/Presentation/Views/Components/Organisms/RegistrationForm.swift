@@ -4,12 +4,14 @@
 //
 //  Created by Lakshmi Jara on 22/09/26.
 //
+// G-01
 
 import SwiftUI
 
 // organism that groups and validates registration fields
 struct RegistrationForm: View {
 
+  // connects each field to the values saved in RegistrationPage
   @Binding var name: String
   @Binding var lastName: String
   @Binding var email: String

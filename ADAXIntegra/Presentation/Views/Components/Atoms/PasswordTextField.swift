@@ -4,6 +4,7 @@
 //
 //  Created by Lakshmi Jara on 22/09/26.
 //
+// G-01
 
 import SwiftUI
 
@@ -26,9 +27,9 @@ struct PasswordTextField: View {
           .foregroundColor(Color("InsideTextAndIcons"))
 
         if showPassword {
-          TextField(placeholder, text: $text)
+          TextField(placeholder, text: $text)  // shows password
         } else {
-          SecureField(placeholder, text: $text)
+          SecureField(placeholder, text: $text)  // hides password
         }
 
         Button {

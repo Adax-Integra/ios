@@ -4,12 +4,14 @@
 //
 //  Created by Lakshmi Jara on 22/09/26.
 //
+// G-01
 
 import SwiftUI
 
 // template that defines the layout of the registration screen
 struct RegistrationTemplate: View {
 
+  // connects the form fields to the values saved in RegistrationPage
   @Binding var name: String
   @Binding var lastName: String
   @Binding var email: String
@@ -38,6 +40,7 @@ struct RegistrationTemplate: View {
             .font(.system(size: 16, weight: .regular))
             .foregroundColor(Color("InsideTextAndIcons"))
 
+          // shows the form with  the connected values and register action
           RegistrationForm(
             name: $name,
             lastName: $lastName,

@@ -9,8 +9,8 @@ import SwiftUI
 
 // page that manages the registration form state and actions
 struct RegistrationPage: View {
-  @Environment(\.dismiss) private var dismiss
-  @StateObject private var viewModel = RegistrationViewModel()
+  @Environment(\.dismiss) private var dismiss  // return to previous screen
+  @StateObject private var viewModel = RegistrationViewModel()  // handles account creation and stores any error message
 
   // local state for the registration form
   @State private var name = ""
@@ -37,9 +37,10 @@ struct RegistrationPage: View {
         guard let countryCode else {
           return
         }
-
+        // calls the account creation method
+        // sends the values from the form to the ViewModel
         Task {
-          await viewModel.createAccount(
+          await viewModel.createAccount(  // waits for the account method to finish
             name: name,
             lastName: lastName,
             email: email,
@@ -57,6 +58,7 @@ struct RegistrationPage: View {
         get: {
           viewModel.errorMessage != nil
         },
+        // removes the error message when the alert closes
         set: { isPresented in
           if !isPresented {
             viewModel.errorMessage = nil

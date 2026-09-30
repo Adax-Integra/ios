@@ -6,7 +6,8 @@
 //
 // G-01
 
-// operation needed to create an account
+// defines the account creation method that the repository must provide
 protocol CreateAccountRepositoryP {
+  // receives the registration data and returns the created account
   func createAccount(input: CreateAccountInput) async throws -> CreateAccountEntity
 }
