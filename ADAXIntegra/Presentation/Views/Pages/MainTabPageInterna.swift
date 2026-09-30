@@ -17,11 +17,7 @@ struct MainTabPageInterna: View {
         switch selectedTab {
         case .home: HomePage()
         case .cases:
-          ExpedientesPage(
-            viewModel: (
-              repository: (),
-              userId: userId
-            )
+          ExpedientesPageInterna()
           )
         case .profile: ProfilePage()
         }
