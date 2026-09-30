@@ -7,47 +7,59 @@
 
 import SwiftUI
 
-struct ExpedientesPage: View {
-    @State private var searchText = ""
+struct ExpedientesPageInterna: View {
+    @StateObject private var viewModel = ExpedientesViewModel()
+    @State private var showUrgencyFilter = false
     
     var body: some View {
         ListPageTemplate {
-            PageHeader(title: "Expedientes", backAction: {})
+            PageHeader(title: "Casos", backAction: {})
         } toolbar: {
-            CaseListToolbar(searchText: $searchText, totalCases: 12, onFilterTapped: { }
+            CaseListToolbar(searchText: $viewModel.searchText,
+                            totalCases: viewModel.total,
+                            onFilterTapped: { showUrgencyFilter = true}
             )
         } content: {
-            CaseCardInterna(name: "Maria Lopez",
-                     urgency: "Alta",
-                     state: "En proceso",
-                     updateAt: Date(),
-                     categories: ["Violencia Familiar", "Violencia Económica"]
-            )
-            
-            CaseCardInterna(name: "Ana Torres",
-                     urgency: "Baja",
-                     state: "Sin empezar",
-                     updateAt: nil,
-                     categories: ["Violencia Psicológica"]
-            )
-            
-            CaseCardInterna(name: "Sofia Guzman",
-                     urgency: "Alta",
-                     state: "Sin empezar",
-                     updateAt: Date(),
-                     categories: ["Violencia Fisica"]
-            )
-            CaseCardInterna(name: "Maite Alcantara",
-                     urgency: "Media",
-                     state: "En proceso",
-                     updateAt: Date(),
-                     categories: ["Violencia Fisica" , "Violencia Familiar"]
-            )
+            if viewModel.isLoading && viewModel.cases.isEmpty {
+                ProgressView()
+                    .frame(maxWidth: .infinity)
+                    .padding()
+            } else if let error = viewModel.errorMessage {
+                Text(error)
+                    .foregroundStyle(.secondary)
+                    .padding()
+            } else if viewModel.cases.isEmpty {
+                Text("No hay expedientes")
+                    .foregroundStyle(.secondary)
+                    .padding()
+            } else {
+                ForEach(viewModel.cases) { item in
+                    CaseCardInterna(name: item.displayName,
+                                    urgency: item.urgency,
+                                    state: item.stateText,
+                                    updateAt: item.updatedDate,
+                                    categories: item.violenceTypes
+                    )
+                }
+            }
         }
+        // vuelve a cargar la pestaña cuando se cambia la busqueda o el filtro
+        .task(id: "\(viewModel.searchText)|\(viewModel.urgencyFilter)") {
+            try? await Task.sleep(for: .milliseconds(300))
+            guard !Task.isCancelled else { return }
+            await viewModel.loadCases()
+        }
+        
+        .confirmationDialog("Filtrar por urgencia", isPresented: $showUrgencyFilter) {
+            ForEach(viewModel.urgencyOptions, id: \.self) { option in
+                Button(option) {viewModel.urgencyFilter = option}
+            }
+        }
+        
     }
+    
 }
 
 #Preview {
-    ExpedientesPage()
+    ExpedientesPageInterna()
 }
-
