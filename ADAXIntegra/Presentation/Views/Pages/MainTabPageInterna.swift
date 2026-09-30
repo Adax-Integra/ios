@@ -1,13 +1,13 @@
 //
-//  MainTabView.swift
+//  MainTabPageInterna.swift
 //  ADAXIntegra
 //
-//  Created by armando fuentes on 22/09/26.
+//  Created by armando fuentes on 29/09/26.
 //
 
 import SwiftUI
 
-struct MainTabView: View {
+struct MainTabPageInterna: View {
   @State private var selectedTab: AppTab = .cases
   let userId: String
 
@@ -17,9 +17,9 @@ struct MainTabView: View {
         switch selectedTab {
         case .home: HomePage()
         case .cases:
-          CasesPage(
-            viewModel: CasesViewModel(
-              repository: RemoteCaseRepository(),
+          ExpedientesPage(
+            viewModel: (
+              repository: (),
               userId: userId
             )
           )

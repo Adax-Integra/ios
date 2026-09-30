@@ -13,7 +13,7 @@ struct ADAXIntegraApp: App {
 
   var body: some Scene {
     WindowGroup {
-      RootView()
+      RootPage()
         .environmentObject(session)
     }
   }

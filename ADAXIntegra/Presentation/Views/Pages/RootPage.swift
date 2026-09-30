@@ -7,12 +7,16 @@
 
 import SwiftUI
 
-struct RootView: View {
+struct RootPage: View {
   @EnvironmentObject private var session: AuthSession
 
   var body: some View {
     if session.isLoggedIn, let userId = session.userId {
-      MainTabView(userId: userId)
+        if session.roles.contains("internal"){
+            MainTabPageInterna(userId: userId)
+        } else {
+            MainTabPage(userId: userId)
+        }
     } else {
       LoginPage(
         viewModel: LoginViewModel(
