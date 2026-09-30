@@ -29,7 +29,7 @@ final class NewCaseViewModel: ObservableObject {
 
   // Case confirmed by the user but not sent yet: it waits until the undo toast closes.
   // "Deshacer" only needs to discard it, because nothing reached the backend
-  private var pendingCase: CaseEntity?
+  private var pendingCase: NewCase?
 
   init(
     userId: String,
@@ -38,7 +38,7 @@ final class NewCaseViewModel: ObservableObject {
     self.userId = userId
     // Built here instead of as a default argument so it runs on the main actor
     self.createCaseUseCase =
-      createCaseUseCase ?? CreateCaseUseCase(dataRepository: RemoteCreateCaseRepository.shared)
+      createCaseUseCase ?? CreateCaseUseCase(dataRepository: RemoteCaseRepository())
   }
 
   // Enable "Crear caso" only when both text fields have content besides spaces
@@ -55,7 +55,7 @@ final class NewCaseViewModel: ObservableObject {
   // Stores the case and opens the undo window instead of sending it right away
   func onConfirm() {
     isShowingConfirmation = false
-    pendingCase = CaseEntity(
+    pendingCase = NewCase(
       description: caseDescription,
       helpDetails: helpDetails,
       hasExternalSupport: hasExternalSupport

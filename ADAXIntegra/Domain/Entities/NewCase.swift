@@ -1,5 +1,5 @@
 //
-//  CaseEntity.swift
+//  NewCase.swift
 //  ADAXIntegra
 //
 //  Created by Gerardo Martínez Carbajal on 23/09/26.
@@ -8,7 +8,7 @@
 import Foundation
 
 // Data an "externa" captures to register a new case (HU R-02)
-struct CaseEntity: Equatable {
+struct NewCase: Equatable {
   let description: String
   let helpDetails: String
   let hasExternalSupport: Bool
