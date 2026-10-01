@@ -7,8 +7,8 @@
 
 import SwiftUI
 
-struct ExpedientesPageInterna: View {
-    @StateObject private var viewModel = ExpedientesViewModel()
+struct CasesPageInterna: View {
+    @StateObject private var viewModel = CasesViewModelInterna()
     @State private var showUrgencyFilter = false
     
     var body: some View {
@@ -61,5 +61,5 @@ struct ExpedientesPageInterna: View {
 }
 
 #Preview {
-    ExpedientesPageInterna()
+    CasesPageInterna()
 }
