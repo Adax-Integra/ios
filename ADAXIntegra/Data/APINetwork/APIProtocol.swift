@@ -60,4 +60,20 @@ struct APIProtocol {
       }
     }
   }
+
+  static func put<Body: Encodable, T: Decodable>(
+    _ path: String,
+    body: Body,
+    as type: T.Type
+  ) async throws -> T {
+    return try await withCheckedThrowingContinuation { continuation in
+      AF.request(
+        APIConfig.baseURL + path,
+        method: .put,
+        parameters: body,
+        encoder: JSONParameterEncoder.default
+      )
+      .validate()
+    }
+  }
 }
