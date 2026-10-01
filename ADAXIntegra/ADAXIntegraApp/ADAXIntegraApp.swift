@@ -9,10 +9,12 @@ import SwiftUI
 
 @main
 struct ADAXIntegraApp: App {
+  @StateObject private var session = AuthSession()
+
   var body: some Scene {
     WindowGroup {
-      RegistrationPage()
+      RootView()
+        .environmentObject(session)
     }
-
   }
 }
