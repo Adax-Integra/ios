@@ -67,7 +67,7 @@ final class NewCaseViewModel: ObservableObject {
     pendingCase = nil
   }
 
-  // Called by the View when the toast closes or the screen disappears.
+  // Called by CasesPage when the undo toast closes or the list disappears.
   // Clearing pendingCase first prevents sending the same case twice
   func sendPendingCase() async {
     guard let newCase = pendingCase else { return }
