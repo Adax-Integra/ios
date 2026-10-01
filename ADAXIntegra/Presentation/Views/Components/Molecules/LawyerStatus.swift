@@ -10,13 +10,13 @@ import SwiftUI
 
 struct LawyerStatusRow: View {
     var hasLawyer: Bool
-    var onInfoTapped: () -> Void = {}
 
     var body: some View {
-        HStack(spacing: 8) {
-            // we call the atom  InfoButton
-            
-            InfoButton(size: 16, action: onInfoTapped)
+        HStack(spacing: 12) {
+            Image(systemName: "info.circle")
+                .font(.system(size: 16, weight: .regular))
+                .foregroundColor(.primary)
+                .frame(width: 24, alignment: .center)
             
             Text("¿Cuenta con abogado?")
                 .font(.system(size: 14))
@@ -30,7 +30,7 @@ struct LawyerStatusRow: View {
                 .padding(.horizontal, 16)
                 .padding(.vertical, 4)
                 .background(hasLawyer ? Color.green.opacity(0.15) : Color.red.opacity(0.15))
-                .cornerRadius(6)
+                .cornerRadius(10)
         }
     }
 }
