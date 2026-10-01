@@ -12,6 +12,13 @@ struct PreSubmission: Identifiable, Codable {
   let profile: Profile
   let address: Address
   let documents: Documents
+
+  enum CodingKeys: String, CodingKey {
+    case id = "user_id"
+    case profile
+    case address
+    case documents
+  }
 }
 
 struct Profile: Codable {
