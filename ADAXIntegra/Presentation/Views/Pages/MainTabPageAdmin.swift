@@ -1,14 +1,14 @@
 //
-//  MainTabPageInterna.swift
+//  MainTabPageAdmin.swift
 //  ADAXIntegra
 //
-//  Created by armando fuentes on 29/09/26.
+//  Created by armando fuentes on 01/10/26.
 //
 
 import SwiftUI
 
-struct MainTabPageInterna: View {
-  @State private var selectedTab: InternaTab = .expedientes
+struct MainTabPageAdmin: View {
+  @State private var selectedTab: AdminTab = .expedientes
   let userId: String
 
   var body: some View {
@@ -18,11 +18,12 @@ struct MainTabPageInterna: View {
         case .home: HomePage()
         case .expedientes: ExpedientesPage()
         case .profile: ProfilePage()
+        case .admin: AdminPage()
         }
       }
       .frame(maxHeight: .infinity)
 
-      CustomTabBarInterna(selectedTab: $selectedTab)
+      CustomTabBarAdmin(selectedTab: $selectedTab)
     }
     .ignoresSafeArea(edges: .bottom)
   }

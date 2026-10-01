@@ -1,19 +1,19 @@
 //
-//  CustomTabBar.swift
+//  InternaTabBar.swift
 //  ADAXIntegra
 //
-//  Created by armando fuentes on 22/09/26.
+//  Created by armando fuentes on 01/10/26.
 //
 
 import SwiftUI
 
-enum AppTab: CaseIterable {
-  case home, cases, profile
+enum InternaTab: CaseIterable {
+  case home, expedientes, profile
 
   var icon: String {
     switch self {
     case .home: return "house.fill"
-    case .cases: return "folder.fill"
+    case .expedientes: return "folder.fill"
     case .profile: return "person.fill"
     }
   }
@@ -21,18 +21,18 @@ enum AppTab: CaseIterable {
   var title: String {
     switch self {
     case .home: return "Inicio"
-    case .cases: return "Mis Casos"
+    case .expedientes: return "Expedientes"
     case .profile: return "Perfil"
     }
   }
 }
 
-struct CustomTabBar: View {
-  @Binding var selectedTab: AppTab
+struct CustomTabBarInterna: View {
+  @Binding var selectedTab: InternaTab
 
   var body: some View {
     HStack {
-      ForEach(AppTab.allCases, id: \.self) { tab in
+      ForEach(InternaTab.allCases, id: \.self) { tab in
         Button {
           selectedTab = tab
         } label: {
@@ -54,19 +54,19 @@ struct CustomTabBar: View {
   }
 }
 
-// al final de CustomTabBar.swift
+// al final de CustomTabBarInterna.swift
 
 #Preview {
-  PreviewWrapper()
+  PreviewWrapperInterna()
 }
 
-private struct PreviewWrapper: View {
-  @State private var selectedTab: AppTab = .cases
+private struct PreviewWrapperInterna: View {
+  @State private var selectedTab: InternaTab = .expedientes
 
   var body: some View {
     VStack {
       Spacer()
-      CustomTabBar(selectedTab: $selectedTab)
+      CustomTabBarInterna(selectedTab: $selectedTab)
     }
     .background(Color("BackgroundColor"))
   }
