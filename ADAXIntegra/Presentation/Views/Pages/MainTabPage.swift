@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct MainTabView: View {
+struct MainTabPage: View {
   @State private var selectedTab: AppTab = .cases
   let userId: String
 

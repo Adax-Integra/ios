@@ -10,7 +10,7 @@ import Combine
 
 
 @MainActor
-final class ExpedientesViewModel: ObservableObject {
+final class CasesViewModelInterna: ObservableObject {
     @Published var cases: [CaseListItem] = []
     @Published var total = 0
     @Published var isLoading = false
