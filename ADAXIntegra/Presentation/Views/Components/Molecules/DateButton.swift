@@ -11,6 +11,10 @@ import SwiftUI
 struct DateButton: View {
   var title: String = "Fecha"
   var placeholder: String = "Selecciona tu fecha..."
+
+  var customWidth: CGFloat = .infinity
+  var customHeight: CGFloat = 50
+
   var errorMessage: String? = nil
 
   @Binding var date: Date?
@@ -49,7 +53,12 @@ struct DateButton: View {
                 : Color("OnBackground")
             )
             .padding(.horizontal, 18)
-            .frame(maxWidth: .infinity, minHeight: 50, maxHeight: 50, alignment: .leading)
+            .frame(
+              maxWidth: customWidth,
+              minHeight: customHeight,
+              maxHeight: customHeight,
+              alignment: .leading
+            )
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
