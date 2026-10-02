@@ -54,7 +54,60 @@ final class PreSubmissionViewModel: ObservableObject {
   // Last loaded value from the body
   private var current: PreSubmission?
 
+  /*
+   Copy of the fields taken every time apply() fills the form.
+   Compared on confirm so an unchanged review doesn't send the put request.
+   It is taken here, after the data arrives, and not when the view appears,
+   because the fields are still empty at that moment.
+  */
+  private var original: captureInformation?
+
   private let onFinish: () -> Void
+
+  /*
+   Create a copy of the reviewed fields.
+   Equatable is a protocol used to compare two instances of a type,
+   meaning you can use "==" and "!=" operators.
+   Documents are display-only, so they are not part of the comparison.
+  */
+  private struct captureInformation: Equatable {
+    var firstName: String
+    var lastName: String
+    var birthDate: Date?
+    var countryCode: String?
+    var phone: String
+    var addressLine1: String
+    var addressLine2: String
+    var neighborhood: String
+    var zipCode: String
+    var country: String?
+    var state: String?
+    var municipality: String
+  }
+
+  // What the fields contain right now
+  private var capture: captureInformation {
+    captureInformation(
+      firstName: firstName,
+      lastName: lastName,
+      birthDate: birthDate,
+      countryCode: countryCode,
+      phone: phone,
+      addressLine1: addressLine1,
+      addressLine2: addressLine2,
+      neighborhood: neighborhood,
+      zipCode: zipCode,
+      country: country,
+      state: state,
+      municipality: municipality
+    )
+  }
+
+  // False until the data is loaded, then true if the user changed anything
+  private var hasChanges: Bool {
+    guard let original else { return false }
+    return original != capture
+  }
 
   /*
    The API sends and receives the birth date as "yyyy-MM-dd",
@@ -104,7 +157,11 @@ final class PreSubmissionViewModel: ObservableObject {
     }
   }
 
-  func confirm(hasChanges: Bool) {
+  /*
+   Connected to the template's onConfirm.
+   Skips the request when the user did not change anything.
+   */
+  func confirm() {
     guard hasChanges else {
       onFinish()
       return
@@ -137,7 +194,17 @@ final class PreSubmissionViewModel: ObservableObject {
     firstName = preSubmission.profile.name
     lastName = preSubmission.profile.lastName
     birthDate = Self.birthDateFormatter.date(from: preSubmission.profile.birthDate)
-    phone = preSubmission.profile.phone
+    // The API sends one string like "+521234567890", the form has two fields.
+    // PhoneField fixes the number at 10 digits, so the last 10 are the
+    // number and whatever comes before them is the country code.
+    let fullPhone = preSubmission.profile.phone
+    // Separate country code from phone number
+    if fullPhone.count > 10 {
+      countryCode = String(fullPhone.dropLast(10))
+      phone = String(fullPhone.suffix(10))
+    } else {
+      phone = fullPhone
+    }
 
     addressLine1 = preSubmission.address.addressLine1
     addressLine2 = preSubmission.address.addressLine2
@@ -149,6 +216,8 @@ final class PreSubmissionViewModel: ObservableObject {
 
     identityDocumentUrl = preSubmission.documents.identityDocumentUrl
     proofOfAddressUrl = preSubmission.documents.proofOfAddressUrl
+
+    original = capture
   }
 
   // Builds the entity to send to the backend from the current form fields
@@ -159,7 +228,7 @@ final class PreSubmissionViewModel: ObservableObject {
         name: firstName,
         lastName: lastName,
         birthDate: birthDate.map(Self.birthDateFormatter.string(from:)) ?? base.profile.birthDate,
-        phone: phone
+        phone: (countryCode ?? "") + phone
       ),
       address: Address(
         addressLine1: addressLine1,
@@ -181,7 +250,7 @@ final class PreSubmissionViewModel: ObservableObject {
     firstNameError = isBlank(firstName) ? required : nil
     lastNameError = isBlank(lastName) ? required : nil
     birthDateError = birthDate == nil ? required : nil
-    phoneError = isBlank(phone) ? required : nil
+    phoneError = isBlank(phone) ? required : PhoneField.validationError(for: phone)
     addressLine1Error = isBlank(addressLine1) ? required : nil
     neighborhoodError = isBlank(neighborhood) ? required : nil
     zipCodeError = isBlank(zipCode) ? required : nil
