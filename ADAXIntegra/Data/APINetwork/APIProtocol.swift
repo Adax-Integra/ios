@@ -71,7 +71,8 @@ struct APIProtocol {
         APIConfig.baseURL + path,
         method: .put,
         parameters: body,
-        encoder: JSONParameterEncoder.default
+        encoder: JSONParameterEncoder.default,
+        headers: authHeaders
       )
       .validate()
       .responseDecodable(of: T.self) { response in
@@ -104,7 +105,8 @@ struct APIProtocol {
           }
         },
         to: APIConfig.baseURL + path,
-        method: .put
+        method: .put,
+        headers: authHeaders
       )
       .validate()
       .responseDecodable(of: T.self) { response in
