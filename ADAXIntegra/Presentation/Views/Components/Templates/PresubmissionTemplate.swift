@@ -7,26 +7,7 @@
 
 import SwiftUI
 
-// Template for the "Verificar información" screen. Composes the following
-// molecules into a scrollable layout:
-//   - "PageHeader"          (title + back button)
-//   - "LabeledTextField"    (first name)
-//   - "LabeledTextField"    (last name)
-//   - "PhoneField"          (country code + phone)
-//   - "Dropdown"            (country)
-//   - "Dropdown"            (state)
-//   - "LabeledTextField"    (municipality)
-//   - "FileCard"            (official ID)
-//   - "FileCard"            (proof of address)
-//   - "ConfirmationActions" (prompt + Sí / No buttons)
-//
-// Fields and document actions start locked. Only the back button and the
-// Sí / No confirmation stay tappable. Tapping "No" unlocks the form so the
-// user can correct the information. The confirm button then becomes
-// "Terminar". Finishing the pre-submission tell us  whether any field actually
-// changed, so the caller can skip an update when the data is the same as when
-// the screen appeared.
-//
+// Template for the "Verificar información"
 struct PresubmissionTemplate: View {
   // Header
   var title: String = "Verificar información"
@@ -40,40 +21,76 @@ struct PresubmissionTemplate: View {
 
   // Last name
   var lastNameTitle: String = "Apellido(s)"
-  var lastNamePlaceholder: String = "Escribe tu apellido(s)..."
+  var lastNamePlaceholder: String = "Escribe tu(s) apellido(s)..."
   @Binding var lastName: String
   var lastNameError: String? = nil
+
+  // Birth date
+  var birthDateTitle: String = "Fecha de nacimiento"
+  var birthDatePlaceholder: String = "Selecciona tu fecha..."
+  @Binding var birthDate: Date?
+  var birthDateError: String? = nil
 
   // Phone
   var phoneTitle: String = "Teléfono celular"
   var phonePlaceholder: String = "Tu número aquí..."
-  var countryCodes: [String] = ["+52", "+1"]
   @Binding var countryCode: String?
   @Binding var phone: String
   var phoneError: String? = nil
 
+  // Address line 1
+  var addressLine1Title: String = "Dirección línea 1"
+  var addressLine1Placeholder: String = "Calle y número..."
+  @Binding var addressLine1: String
+  var addressLine1Error: String? = nil
+
+  // Address line 2
+  var addressLine2Title: String = "Dirección línea 2"
+  var addressLine2Placeholder: String = "Interior..."
+  @Binding var addressLine2: String
+  var addressLine2Error: String? = nil
+
+  // Neighborhood
+  var neighborhoodTitle: String = "Colonia"
+  var neighborhoodPlaceholder: String = "Escribe tu colonia..."
+  @Binding var neighborhood: String
+  var neighborhoodError: String? = nil
+
+  // Zip code
+  var zipCodeTitle: String = "Código postal"
+  var zipCodePlaceholder: String = "Tu código postal..."
+  @Binding var zipCode: String
+  var zipCodeError: String? = nil
+
   // Country / State
-  //
-  // The "Estado" dropdown is driven by the currently selected country: its
-  // options are the "states" array of the matching "Country" entry in
-  // "countries". Defaults to the full "Country.all" catalog
   var countryTitle: String = "País"
   var countryPrompt: String = "Opción Seleccionada"
-  var countries: [Country] = Country.all
+  var countries: [Country]
   @Binding var country: String?
 
   var stateTitle: String = "Estado"
   var statePrompt: String = "Opción Seleccionada"
   @Binding var state: String?
 
-  // State options are the states of the selected country
+  // Phone codes come from the country catalog
+  private var phoneCountryCodes: [String] {
+    Country.dialCodes(in: countries)
+  }
+
+  private var countryOptions: [String] {
+    countries.map(\.nameEs)
+  }
+
+  /*
+   State options are the Spanish names of the selected country's states.
+  */
   private var stateOptions: [String] {
-    Country.first(named: country ?? "", in: countries)?.states ?? []
+    Country.first(name: country ?? "", in: countries)?.stateNames ?? []
   }
 
   // Municipality
   var municipalityTitle: String = "Ciudad / Municipio"
-  var municipalityPlaceholder: String = "Tu texto aquí..."
+  var municipalityPlaceholder: String = "Tu ciudad o municipio aquí..."
   @Binding var municipality: String
   var municipalityError: String? = nil
 
@@ -92,17 +109,11 @@ struct PresubmissionTemplate: View {
   var dismissTitle: String = "No"
   var doneTitle: String = "Terminar"
   var isConfirmationDisabled: Bool = false
-  // Called when the user finishes. "hasChanges" is false when every field
-  // still matches the values shown on appear, including a "Terminar" tap
-  // after opening edit mode and changing nothing.
-  var onConfirm: (_ hasChanges: Bool) -> Void
+  var onConfirm: () -> Void
   var onDismiss: () -> Void
 
-  // Starts locked. "No" changes this so the user can edit the reviewed data.
+  // Starts locked
   @State private var isEditing = false
-  // Compared on confirm so an unchanged review
-  // does not look like an update.
-  @State private var original: ReviewedInfo?
 
   // Layout
   var horizontalPadding: CGFloat = 20
@@ -123,7 +134,7 @@ struct PresubmissionTemplate: View {
 
           ConfirmationActions(
             prompt: confirmationPrompt,
-            onConfirm: finishReview,
+            onConfirm: onConfirm,
             onDismiss: unlockForEditing,
             confirmTitle: isEditing ? doneTitle : confirmTitle,
             dismissTitle: dismissTitle,
@@ -137,7 +148,6 @@ struct PresubmissionTemplate: View {
         .padding(.vertical, 16)
       }
     }
-    .onAppear(perform: captureOriginalIfNeeded)
   }
 
   // Form fields
@@ -157,19 +167,54 @@ struct PresubmissionTemplate: View {
         text: $lastName
       )
 
+      DateButton(
+        title: birthDateTitle,
+        placeholder: birthDatePlaceholder,
+        errorMessage: birthDateError,
+        date: $birthDate
+      )
+
       PhoneField(
         title: phoneTitle,
         placeholder: phonePlaceholder,
-        countryCodes: countryCodes,
+        countryCodes: phoneCountryCodes,
         errorMessage: phoneError,
         countryCode: $countryCode,
         phone: $phone
       )
 
+      LabeledTextField(
+        title: addressLine1Title,
+        placeholder: addressLine1Placeholder,
+        errorMessage: addressLine1Error,
+        text: $addressLine1
+      )
+
+      LabeledTextField(
+        title: addressLine2Title,
+        placeholder: addressLine2Placeholder,
+        errorMessage: addressLine2Error,
+        text: $addressLine2
+      )
+
+      LabeledTextField(
+        title: neighborhoodTitle,
+        placeholder: neighborhoodPlaceholder,
+        errorMessage: neighborhoodError,
+        text: $neighborhood
+      )
+
+      LabeledTextField(
+        title: zipCodeTitle,
+        placeholder: zipCodePlaceholder,
+        errorMessage: zipCodeError,
+        text: $zipCode
+      )
+
       Dropdown(
         title: countryTitle,
         prompt: countryPrompt,
-        options: countries.map(\.name),
+        options: countryOptions,
         maxVisibleOptions: 5,
         selection: $country
       )
@@ -181,10 +226,14 @@ struct PresubmissionTemplate: View {
         maxVisibleOptions: 5,
         selection: $state
       )
-      // Watches country binding and calls the closure when the value changes.
-      // The two parameters (_, _) are the old and new values, respectively.
-      // We don't need to use the old value, so we use _ as a placeholder.
-      .onChange(of: country) { _, _ in
+      /*
+       Clear the state only when the user picks
+       a country whose states do not include it.
+      */
+      .onChange(of: country) { _, newCountry in
+        guard isEditing else { return }
+        let names = Country.first(name: newCountry ?? "", in: countries)?.stateNames ?? []
+        if let state, names.contains(state) { return }
         state = nil
       }
 
@@ -209,51 +258,11 @@ struct PresubmissionTemplate: View {
     }
   }
 
-  // Current information
-  private var currentInfo: ReviewedInfo {
-    ReviewedInfo(
-      firstName: firstName,
-      lastName: lastName,
-      countryCode: countryCode,
-      phone: phone,
-      country: country,
-      state: state,
-      municipality: municipality
-    )
-  }
-
-  // Functions to manage the editing state and the review process
-  private var hasChanges: Bool {
-    guard let original else { return false }
-    return original != currentInfo
-  }
-
-  private func captureOriginalIfNeeded() {
-    guard original == nil else { return }
-    original = currentInfo
-  }
-
+  // Unlocks the fields when the user says the information is not correct
   private func unlockForEditing() {
     isEditing = true
     onDismiss()
   }
-
-  private func finishReview() {
-    onConfirm(hasChanges)
-  }
-}
-
-// Create a copy of the reviewed fields. Documents are display-only on this screen,
-// so they are not part of the comparison.
-// Equatable is used to compare the original and current information.
-private struct ReviewedInfo: Equatable {
-  var firstName: String
-  var lastName: String
-  var countryCode: String?
-  var phone: String
-  var country: String?
-  var state: String?
-  var municipality: String
 }
 
 #Preview {
@@ -261,14 +270,20 @@ private struct ReviewedInfo: Equatable {
     onBack: { print("Back") },
     firstName: .constant(""),
     lastName: .constant(""),
+    birthDate: .constant(nil),
     countryCode: .constant("+52"),
     phone: .constant(""),
+    addressLine1: .constant(""),
+    addressLine2: .constant(""),
+    neighborhood: .constant(""),
+    zipCode: .constant(""),
+    countries: [],
     country: .constant(nil),
     state: .constant(nil),
     municipality: .constant(""),
     officialIdImage: Image("placeholderImage"),
     proofOfAddressImage: Image("placeholderImage"),
-    onConfirm: { hasChanges in print(hasChanges ? "Terminar, con cambios" : "Sin cambios") },
+    onConfirm: { print("Terminar") },
     onDismiss: { print("No") }
   )
 }
