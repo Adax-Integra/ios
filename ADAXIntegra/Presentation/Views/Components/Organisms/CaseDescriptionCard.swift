@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct DescriptionCard: View {
+struct CaseDescriptionCard: View {
     var description: String
 
     var body: some View {
@@ -33,7 +33,7 @@ struct DescriptionCard: View {
     ZStack {
         Color(UIColor.systemGray6).ignoresSafeArea()
         
-        DescriptionCard(
+        CaseDescriptionCard(
             description: "Se realizó la segunda sesión de acompañamiento psicológico. La beneficiaria muestra avances en el manejo de ansiedad. Se recomienda continuar con sesiones semanales."
         )
         .padding()
