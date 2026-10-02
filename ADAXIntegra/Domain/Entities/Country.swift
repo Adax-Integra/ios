@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct Country: Identifiable, Decodable {
+struct Country: Identifiable, Codable {
   let id: String
   let iso2: String
   let nameEn: String
@@ -46,7 +46,7 @@ struct Country: Identifiable, Decodable {
   }
 }
 
-struct CountryState: Identifiable, Decodable {
+struct CountryState: Identifiable, Codable {
   let id: String
   let nameEn: String
   let nameEs: String
