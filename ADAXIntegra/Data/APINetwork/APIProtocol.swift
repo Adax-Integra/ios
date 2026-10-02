@@ -74,6 +74,14 @@ struct APIProtocol {
         encoder: JSONParameterEncoder.default
       )
       .validate()
+      .responseDecodable(of: T.self) { response in
+        switch response.result {
+        case .success(let value):
+          continuation.resume(returning: value)
+        case .failure(let error):
+          continuation.resume(throwing: APIError.requestFailed(error.localizedDescription))
+        }
+      }
     }
   }
 }
