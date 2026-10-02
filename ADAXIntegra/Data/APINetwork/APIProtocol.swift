@@ -84,4 +84,26 @@ struct APIProtocol {
       }
     }
   }
+
+  static func upload<T: Decodable>(
+    _ path: String, data: Data, name: String, fileName: String, mimeType: String, as type: T.Type
+  ) async throws -> T {
+    try await withCheckedThrowingContinuation { continuation in
+      AF.upload(
+        multipartFormData: { form in
+          form.append(data, withName: name, fileName: fileName, mimeType: mimeType)
+        },
+        to: APIConfig.baseURL + path
+      )
+      .validate()
+      .responseDecodable(of: T.self) { response in
+        switch response.result {
+        case .success(let value):
+          continuation.resume(returning: value)
+        case .failure(let error):
+          continuation.resume(throwing: APIError.requestFailed(error.localizedDescription))
+        }
+      }
+    }
+  }
 }
