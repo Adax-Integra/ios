@@ -12,7 +12,7 @@ struct ProfileSummaryCard: View {
     var userName: String
     var recordId: String
     var lastModified: String
-    var accompanimentType: String
+    var createdAt: String
     var onEditTapped: () -> Void
 
     var body: some View {
@@ -45,7 +45,7 @@ struct ProfileSummaryCard: View {
                     Text("Última Modificación")
                         .font(.system(size: 12))
                         .foregroundColor(.gray)
-                    Text("Tipo de acompañamiento")
+                    Text("Fecha de Creación")
                         .font(.system(size: 12))
                         .foregroundColor(.gray)
                         .fixedSize(horizontal: false, vertical: true)
@@ -55,7 +55,7 @@ struct ProfileSummaryCard: View {
                     Text(lastModified)
                         .font(.system(size: 12, weight: .regular))
                         .foregroundColor(.primary)
-                    Text(accompanimentType)
+                    Text(createdAt)
                         .font(.system(size: 12, weight: .regular))
                         .foregroundColor(.primary)
                         .fixedSize(horizontal: false, vertical: true)
@@ -79,7 +79,7 @@ struct ProfileSummaryCard: View {
             userName: " ",
             recordId: " ",
             lastModified: " ",
-            accompanimentType: " ",
+            createdAt: " ",
             onEditTapped: {
                 print("Edit tapped")
             }
