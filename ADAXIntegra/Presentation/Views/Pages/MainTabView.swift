@@ -21,7 +21,9 @@ struct MainTabView: View {
             viewModel: CasesViewModel(
               repository: RemoteCaseRepository(),
               userId: userId
-            )
+            ),
+            // R-02: lets CasesPage open "Nuevo caso" for this user
+            userId: userId
           )
         case .profile: ProfilePage()
         }

@@ -12,12 +12,18 @@ enum APIError: Error {
 }
 
 struct APIProtocol {
+  // Adds the session token to every request when the user is logged in
+  private static var authHeaders: HTTPHeaders {
+    guard let token = APIConfig.token else { return [] }
+    return [.authorization(bearerToken: token)]
+  }
+
   static func get<T: Decodable>(
     _ path: String,
     as type: T.Type
   ) async throws -> T {
     return try await withCheckedThrowingContinuation { continuation in
-      AF.request(APIConfig.baseURL + path)
+      AF.request(APIConfig.baseURL + path, headers: authHeaders)
         .validate()
         .responseDecodable(of: T.self) { response in
           switch response.result {
@@ -40,7 +46,8 @@ struct APIProtocol {
         APIConfig.baseURL + path,
         method: .post,
         parameters: body,
-        encoder: JSONParameterEncoder.default
+        encoder: JSONParameterEncoder.default,
+        headers: authHeaders
       )
       .validate()
       .responseDecodable(of: T.self) { response in
