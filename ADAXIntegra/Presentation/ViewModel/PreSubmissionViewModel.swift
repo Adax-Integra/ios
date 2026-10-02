@@ -35,6 +35,10 @@ final class PreSubmissionViewModel: ObservableObject {
   @Published private(set) var identityDocumentUrl: String?
   @Published private(set) var proofOfAddressUrl: String?
 
+  // Files the user picked. They stay nil until the user chooses a new one
+  @Published private(set) var newIdentityDocument: DocumentFile?
+  @Published private(set) var newProofOfAddress: DocumentFile?
+
   @Published var firstNameError: String?
   @Published var lastNameError: String?
   @Published var birthDateError: String?
@@ -103,10 +107,10 @@ final class PreSubmissionViewModel: ObservableObject {
     )
   }
 
-  // False until the data is loaded, then true if the user changed anything
+  // False until the data is loaded, then true if the user changed a field or picked a file
   private var hasChanges: Bool {
     guard let original else { return false }
-    return original != capture
+    return original != capture || newIdentityDocument != nil || newProofOfAddress != nil
   }
 
   /*
@@ -175,15 +179,36 @@ final class PreSubmissionViewModel: ObservableObject {
       do {
         let updated = try await repository.editPreSubmission(
           for: userId,
-          with: makePreSubmission(base: current)
+          with: makePreSubmission(base: current),
+          identityDocument: newIdentityDocument,
+          proofOfAddress: newProofOfAddress
         )
         apply(updated)
+        // The response already has the new signed URLs, so the picked files are done
+        newIdentityDocument = nil
+        newProofOfAddress = nil
         isLoading = false
         onFinish()
       } catch {
         errorMessage = "No se pudo guardar tu información."
         isLoading = false
       }
+    }
+  }
+
+  // Called by the view when the user picks a file. Rejects files over 5 MB.
+  func selectDocument(_ file: DocumentFile, for kind: DocumentKind) {
+    guard !file.isTooLarge else {
+      errorMessage = "El archivo no debe pesar más de 5 MB."
+      return
+    }
+    errorMessage = nil
+
+    switch kind {
+    case .identity:
+      newIdentityDocument = file
+    case .proofOfAddress:
+      newProofOfAddress = file
     }
   }
 
@@ -194,9 +219,10 @@ final class PreSubmissionViewModel: ObservableObject {
     firstName = preSubmission.profile.name
     lastName = preSubmission.profile.lastName
     birthDate = Self.birthDateFormatter.date(from: preSubmission.profile.birthDate)
-    // The API sends one string like "+521234567890", the form has two fields.
-    // PhoneField fixes the number at 10 digits, so the last 10 are the
-    // number and whatever comes before them is the country code.
+    /*
+     The API sends one string like "+521234567890", due to the form having two fields.
+     We need to add separate the country code from the phone number.
+     */
     let fullPhone = preSubmission.profile.phone
     // Separate country code from phone number
     if fullPhone.count > 10 {
