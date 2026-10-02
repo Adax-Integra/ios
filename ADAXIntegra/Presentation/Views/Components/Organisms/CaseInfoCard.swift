@@ -9,8 +9,8 @@
 import SwiftUI
 
 struct CaseInfoCard: View {
-    var violenceType: String
-    var location: String
+   // var violenceType: String
+  //  var location: String
     var hasLawyer: Bool
     
     var body: some View {
@@ -22,8 +22,8 @@ struct CaseInfoCard: View {
             VStack(alignment: .leading, spacing: 12) {
 // we call up the molecules previously made
                 
-                DetailRow(iconName: "tag", text: violenceType)
-                DetailRow(iconName: "mappin.and.ellipse", iconColor: .orange, text: location)
+         //       DetailRow(iconName: "tag", text: violenceType)
+        //        DetailRow(iconName: "mappin.and.ellipse", iconColor: .orange, text: location)
                 LawyerStatusRow(hasLawyer: hasLawyer)
             }
         }
@@ -39,8 +39,8 @@ struct CaseInfoCard: View {
         Color(UIColor.systemGray6).ignoresSafeArea()
         
         CaseInfoCard(
-            violenceType: "Acoso cibernético",
-            location: "Querétaro",
+         //   violenceType: "Acoso cibernético",
+        //    location: "Querétaro",
             hasLawyer: true
         )
         .padding()
