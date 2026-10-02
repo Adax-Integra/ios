@@ -85,15 +85,26 @@ struct APIProtocol {
     }
   }
 
-  static func upload<T: Decodable>(
-    _ path: String, data: Data, name: String, fileName: String, mimeType: String, as type: T.Type
+  // PUT that sends text fields and files in one multipart request.
+  static func putMultipart<T: Decodable>(
+    _ path: String,
+    fields: [String: String],
+    files: [String: DocumentFile],
+    as type: T.Type
   ) async throws -> T {
     try await withCheckedThrowingContinuation { continuation in
       AF.upload(
         multipartFormData: { form in
-          form.append(data, withName: name, fileName: fileName, mimeType: mimeType)
+          for (name, value) in fields {
+            form.append(Data(value.utf8), withName: name)
+          }
+          for (name, file) in files {
+            form.append(
+              file.data, withName: name, fileName: file.fileName, mimeType: file.mimeType)
+          }
         },
-        to: APIConfig.baseURL + path
+        to: APIConfig.baseURL + path,
+        method: .put
       )
       .validate()
       .responseDecodable(of: T.self) { response in
