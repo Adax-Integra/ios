@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct MainTabView: View {
+struct MainTabPage: View {
   @State private var selectedTab: AppTab = .cases
   let userId: String
 
@@ -21,7 +21,9 @@ struct MainTabView: View {
             viewModel: CasesViewModel(
               repository: RemoteCaseRepository(),
               userId: userId
-            )
+            ),
+            // R-02: lets CasesPage open "Nuevo caso" for this user
+            userId: userId
           )
         case .profile: ProfilePage()
         }

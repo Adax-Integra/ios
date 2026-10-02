@@ -1,38 +1,40 @@
 //
-//  CustomTabBar.swift
+//  AdminTabBar.swift
 //  ADAXIntegra
 //
-//  Created by armando fuentes on 22/09/26.
+//  Created by armando fuentes on 01/10/26.
 //
 
 import SwiftUI
 
-enum AppTab: CaseIterable {
-  case home, cases, profile
+enum AdminTab: CaseIterable {
+  case home, expedientes, profile, admin
 
   var icon: String {
     switch self {
     case .home: return "house.fill"
-    case .cases: return "folder.fill"
+    case .expedientes: return "folder.fill"
     case .profile: return "person.fill"
+    case .admin: return "wrench.and.screwdriver.fill"
     }
   }
 
   var title: String {
     switch self {
     case .home: return "Inicio"
-    case .cases: return "Mis Casos"
+    case .expedientes: return "Expedientes"
     case .profile: return "Perfil"
+    case .admin: return "Administra"
     }
   }
 }
 
-struct CustomTabBar: View {
-  @Binding var selectedTab: AppTab
+struct CustomTabBarAdmin: View {
+  @Binding var selectedTab: AdminTab
 
   var body: some View {
     HStack {
-      ForEach(AppTab.allCases, id: \.self) { tab in
+      ForEach(AdminTab.allCases, id: \.self) { tab in
         Button {
           selectedTab = tab
         } label: {
@@ -54,19 +56,17 @@ struct CustomTabBar: View {
   }
 }
 
-// al final de CustomTabBar.swift
-
 #Preview {
-  PreviewWrapper()
+  PreviewWrapperAdmin()
 }
 
-private struct PreviewWrapper: View {
-  @State private var selectedTab: AppTab = .cases
+private struct PreviewWrapperAdmin: View {
+  @State private var selectedTab: AdminTab = .expedientes
 
   var body: some View {
     VStack {
       Spacer()
-      CustomTabBar(selectedTab: $selectedTab)
+      CustomTabBarAdmin(selectedTab: $selectedTab)
     }
     .background(Color("BackgroundColor"))
   }
