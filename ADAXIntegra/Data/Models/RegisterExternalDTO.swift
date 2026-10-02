@@ -51,11 +51,13 @@ struct RegisterExternalRequest: Encodable {
 struct RegisterExternalResult: Decodable {
     let userId: String
     let recordId: String
+    let recordNumber: String?
     let addressId: String
     
     enum CodingKeys: String, CodingKey {
         case userId = "user_id"
         case recordId = "record_id"
+        case recordNumber = "record_number"
         case addressId = "address_id"
     }
 }

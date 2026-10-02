@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct RegisterConfirmationView: View {
-    var recordId: String?
+    var recordNumber: String?
     var onDone: () -> Void
     
     var body: some View {
@@ -37,8 +37,8 @@ struct RegisterConfirmationView: View {
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 24)
                 
-                if let recordId {
-                    Text("Folio del expediente: \(recordId)")
+                if let recordNumber {
+                    Text("Folio del expediente: \(recordNumber)")
                         .font(.system(size: 13, weight: .medium))
                         .foregroundStyle(Color("InsideTextAndIcons"))
                 }
@@ -55,5 +55,5 @@ struct RegisterConfirmationView: View {
 }
 
 #Preview {
-    RegisterConfirmationView(recordId: "c1e7234c-dc8a-492a", onDone: {})
+    RegisterConfirmationView(recordNumber: "EXP-2026-0001", onDone: {})
 }

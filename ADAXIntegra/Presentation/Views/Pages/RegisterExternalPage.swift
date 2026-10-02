@@ -17,7 +17,7 @@ struct RegisterExternalPage: View {
     var body: some View {
         if viewModel.didSucceed {
             RegisterConfirmationView(
-                recordId: viewModel.result?.recordId,
+                recordNumber: viewModel.result?.recordNumber,
                 onDone: onBack
             )
         } else {
