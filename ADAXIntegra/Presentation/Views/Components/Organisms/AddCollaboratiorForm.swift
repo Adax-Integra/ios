@@ -26,11 +26,11 @@ struct AddCollaboratiorForm: View {
             
             Divider()
             
-            FormTextField(label: "Nombre(s)", text: $firstName)
-            FormTextField(label: "Apellido", text: $lastName)
-            FormTextField(label: "Correo",keyboard: .emailAddress, text: $email)
-            FormTextField(label: "Contraseña", isSecure: true, text: $password)
-            FormTextField(label: "Telefono", placeholder: "10 digitos", keyboard: .phonePad, text: $phone)
+            FormTextField(label: "Nombre(s)", placeholder: "Tu nombre(s) aqui", text: $firstName)
+            FormTextField(label: "Apellido", placeholder: "Tus apellido(s) aqui", text: $lastName)
+            FormTextField(label: "Correo", placeholder: "tu@correo.com", keyboard: .emailAddress, text: $email)
+            FormTextField(label: "Contraseña", placeholder: "Tu contraseña aqui", isSecure: true, text: $password)
+            FormTextField(label: "Teléfono", placeholder: "10 dígitos", keyboard: .phonePad, text: $phone)
             
             FormActions(
                 isPrimaryDisabled: isSaveDisabled, onPrimary: onSave, onSecondary: onCancel

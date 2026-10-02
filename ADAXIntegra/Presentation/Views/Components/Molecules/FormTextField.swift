@@ -28,7 +28,7 @@ struct FormTextField: View {
             Text(label.uppercased())
                 .font(.caption)
                 .fontWeight(.semibold)
-                .foregroundColor(Color("OnBackgorund").opacity(0.7))
+                .foregroundColor(.secondary)
                 .padding(.leading, 4)
             
             HStack {
@@ -58,12 +58,14 @@ struct FormTextField: View {
             
             .padding(.horizontal, 16)
             .frame(height: 52)
-            .background(Color.white)
+            .background(Color(red: 0.94, green: 0.93, blue: 0.98))
             .cornerRadius(12)
             .overlay(
                 RoundedRectangle(cornerRadius: 12)
-                    .stroke(errorMessage == nil ? Color.clear : Color("Error"), lineWidth: 1.5)
-            )
+                    .stroke(errorMessage == nil ? Color.gray.opacity(0.25) : Color("Error"),
+                            lineWidth: errorMessage == nil ? 1 : 1.5
+                           )
+                )
     
         
             if let errorMessage {
@@ -81,7 +83,7 @@ struct FormTextField: View {
         FormTextField(label: "Nombre(s)", text: .constant(""))
         FormTextField(label: "Email", keyboard: .emailAddress, text: .constant(""))
         FormTextField(label: "Contraseña", isSecure: true, text: .constant(""))
-        FormTextField(label: "Telefono", placeholder: "10 dígitos", errorMessage: "Tiene que tener 10 dígitos", text: .constant("")
+        FormTextField(label: "Teléfono", placeholder: "10 dígitos", errorMessage: "Tiene que tener 10 dígitos", text: .constant("")
         )
     }
     .padding()
