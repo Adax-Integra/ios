@@ -196,6 +196,16 @@ final class PreSubmissionViewModel: ObservableObject {
     }
   }
 
+  /*
+   Signed URLs expire. When a document fails to load the view asks for new ones.
+   Only the URLs are updated so the user's unsaved edits are not overwritten.
+  */
+  func refreshDocumentUrls() async {
+    guard let fresh = try? await repository.getPreSubmission(for: userId) else { return }
+    identityDocumentUrl = fresh.documents.identityDocumentUrl
+    proofOfAddressUrl = fresh.documents.proofOfAddressUrl
+  }
+
   // Called by the view when the user picks a file. Rejects files over 5 MB.
   func selectDocument(_ file: DocumentFile, for kind: DocumentKind) {
     guard !file.isTooLarge else {
