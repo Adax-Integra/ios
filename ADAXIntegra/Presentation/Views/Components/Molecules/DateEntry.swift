@@ -42,26 +42,24 @@ struct DateButton: View {
         borderColor: errorMessage != nil ? Color("Error") : nil,
         borderWidth: errorMessage != nil ? 1 : 0
       ) {
-        Button {
-          isPresented = true
-        } label: {
-          Text(label)
-            .font(.system(size: 16, weight: .regular))
-            .foregroundColor(
-              date == nil
-                ? Color("InsideTextAndIcons").opacity(0.6)
-                : Color("OnBackground")
-            )
-            .padding(.horizontal, 18)
-            .frame(
-              maxWidth: customWidth,
-              minHeight: customHeight,
-              maxHeight: customHeight,
-              alignment: .leading
-            )
-            .contentShape(Rectangle())
-        }
-        .buttonStyle(.plain)
+        // Not a Button: a disabled Button is dimmed by SwiftUI and the date looked grayer
+        // than the other fields when the form is locked
+        Text(label)
+          .font(.system(size: 16, weight: .regular))
+          .foregroundColor(
+            date == nil
+              ? Color("InsideTextAndIcons").opacity(0.6)
+              : Color("OnBackground")
+          )
+          .padding(.horizontal, 18)
+          .frame(
+            maxWidth: customWidth,
+            minHeight: customHeight,
+            maxHeight: customHeight,
+            alignment: .leading
+          )
+          .contentShape(Rectangle())
+          .onTapGesture { isPresented = true }
       }
 
       if let errorMessage {

@@ -64,12 +64,12 @@ struct PresubmissionTemplate: View {
 
   // Country / State
   var countryTitle: String = "País"
-  var countryPrompt: String = "Opción Seleccionada"
+  var countryPrompt: String = "Selecciona tu país..."
   var countries: [Country]
   @Binding var country: String?
 
   var stateTitle: String = "Estado"
-  var statePrompt: String = "Opción Seleccionada"
+  var statePrompt: String = "Selecciona tu estado..."
   @Binding var state: String?
 
   // Phone codes come from the country catalog
@@ -134,28 +134,37 @@ struct PresubmissionTemplate: View {
     ZStack {
       Color("Background").ignoresSafeArea()
 
-      ScrollView(showsIndicators: false) {
-        VStack(alignment: .leading, spacing: sectionSpacing) {
-          PageHeader(title: title, backAction: onBack)
+      /*
+       A ScrollView cannot scroll by itself from code. ScrollViewReader gives us
+       the proxy, which we use to scroll back to the top when the user presses "No"
+      */
+      ScrollViewReader { proxy in
+        ScrollView(showsIndicators: false) {
+          VStack(alignment: .leading, spacing: sectionSpacing) {
+            PageHeader(title: title, backAction: onBack)
+              // The id is what proxy.scrollTo looks for to know where to scroll
+              .id(Self.topAnchor)
 
-          formFields
-            .disabled(!isEditing)
-            .allowsHitTesting(isEditing)
+            formFields
+              .disabled(!isEditing)
+              .allowsHitTesting(isEditing)
 
-          ConfirmationActions(
-            prompt: confirmationPrompt,
-            onConfirm: onConfirm,
-            onDismiss: unlockForEditing,
-            confirmTitle: isEditing ? doneTitle : confirmTitle,
-            dismissTitle: dismissTitle,
-            showsPrompt: !isEditing,
-            showsDismiss: !isEditing,
-            isDisabled: isConfirmationDisabled
-          )
-          .padding(.top, bottomActionsSpacing - sectionSpacing)
+            ConfirmationActions(
+              prompt: confirmationPrompt,
+              onConfirm: onConfirm,
+              // The proxy only exists inside ScrollViewReader, so it is passed to the function
+              onDismiss: { unlockForEditing(scrollingWith: proxy) },
+              confirmTitle: isEditing ? doneTitle : confirmTitle,
+              dismissTitle: dismissTitle,
+              showsPrompt: !isEditing,
+              showsDismiss: !isEditing,
+              isDisabled: isConfirmationDisabled
+            )
+            .padding(.top, bottomActionsSpacing - sectionSpacing)
+          }
+          .padding(.horizontal, horizontalPadding)
+          .padding(.vertical, 16)
         }
-        .padding(.horizontal, horizontalPadding)
-        .padding(.vertical, 16)
       }
     }
   }
@@ -177,7 +186,7 @@ struct PresubmissionTemplate: View {
         text: $lastName
       )
 
-      DateButton(
+      DateEntry(
         title: birthDateTitle,
         placeholder: birthDatePlaceholder,
         errorMessage: birthDateError,
@@ -234,6 +243,8 @@ struct PresubmissionTemplate: View {
         prompt: statePrompt,
         options: stateOptions,
         maxVisibleOptions: 5,
+        // The states come from the country, so there are none until one is picked
+        isDisabled: stateOptions.isEmpty,
         selection: $state
       )
       /*
@@ -276,9 +287,20 @@ struct PresubmissionTemplate: View {
     }
   }
 
-  // Unlocks the fields when the user says the information is not correct
-  private func unlockForEditing() {
+  // Id of the header, the scroll target to bring the user back to the first field
+  private static let topAnchor = "presubmission-top"
+
+  /*
+   Unlocks the fields when the user says the information is not correct
+   and scrolls to the top so editing starts from the first field
+  */
+  private func unlockForEditing(scrollingWith proxy: ScrollViewProxy) {
     isEditing = true
+    /*
+     Without the proxy the form would stay where the user was, usually at the bottom
+     next to the buttons, and the first field would be out of sight
+    */
+    withAnimation { proxy.scrollTo(Self.topAnchor, anchor: .top) }
     onDismiss()
   }
 }
