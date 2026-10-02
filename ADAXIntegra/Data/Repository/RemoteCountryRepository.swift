@@ -8,7 +8,7 @@
 struct RemoteCountryRepository: CountryRepository {
   func getCountries() async throws -> [Country] {
     let response = try await APIProtocol.get(
-      "countries-states",
+      "/countries-states",
       as: APIResponse<[Country]>.self
     )
     return response.data
