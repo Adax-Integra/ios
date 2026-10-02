@@ -9,9 +9,9 @@ import Foundation
 
 struct PreSubmission: Identifiable, Codable {
   let id: String
-  let profile: Profile
-  let address: Address
-  let documents: Documents
+  let profile: Profile?
+  let address: Address?
+  let documents: Documents?
 
   enum CodingKeys: String, CodingKey {
     case id = "user_id"
@@ -22,10 +22,10 @@ struct PreSubmission: Identifiable, Codable {
 }
 
 struct Profile: Codable {
-  let name: String
-  let lastName: String
-  let birthDate: String
-  let phone: String
+  let name: String?
+  let lastName: String?
+  let birthDate: String?
+  let phone: String?
 
   enum CodingKeys: String, CodingKey {
     case name
@@ -36,13 +36,13 @@ struct Profile: Codable {
 }
 
 struct Address: Codable {
-  let addressLine1: String
-  let addressLine2: String
-  let neighborhood: String
-  let zipCode: String
-  let country: String
-  let state: String
-  let city: String
+  let addressLine1: String?
+  let addressLine2: String?
+  let neighborhood: String?
+  let zipCode: String?
+  let country: String?
+  let state: String?
+  let city: String?
 
   enum CodingKeys: String, CodingKey {
     case addressLine1 = "address_line_1"
@@ -56,9 +56,9 @@ struct Address: Codable {
 }
 
 struct Documents: Identifiable, Codable {
-  let id: String
-  let identityDocumentUrl: String
-  let proofOfAddressUrl: String
+  let id: String?
+  let identityDocumentUrl: String?
+  let proofOfAddressUrl: String?
 
   enum CodingKeys: String, CodingKey {
     case id = "document_id"
