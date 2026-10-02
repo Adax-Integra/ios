@@ -14,4 +14,14 @@ struct RemotePreSubmissionRepository: PreSubmissionRepository {
       as: APIResponse<PreSubmission>.self)
     return response.data
   }
+
+  func editPreSubmission(for userId: String, with preSubmission: PreSubmission) async throws
+    -> PreSubmission
+  {
+    let response = try await APIProtocol.put(
+      "external-users/\(userId)/pre-submission",
+      body: preSubmission,
+      as: APIResponse<PreSubmission>.self)
+    return response.data
+  }
 }

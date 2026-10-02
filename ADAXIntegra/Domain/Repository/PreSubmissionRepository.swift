@@ -9,4 +9,8 @@ import Foundation
 
 protocol PreSubmissionRepository {
   func getPreSubmission(for userId: String) async throws -> PreSubmission
+
+  // for and with are just labels to make the parameters be read like a sentence
+  func editPreSubmission(for userId: String, with preSubmission: PreSubmission) async throws
+    -> PreSubmission
 }
