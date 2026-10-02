@@ -50,6 +50,8 @@ final class PreSubmissionViewModel: ObservableObject {
 
   @Published var isLoading: Bool = false
   @Published var errorMessage: String?
+  // True after a successful save, shows the confirmation message
+  @Published var isShowingSuccess: Bool = false
 
   private let repository: PreSubmissionRepository
   private let countryRepository: CountryRepository
@@ -65,6 +67,9 @@ final class PreSubmissionViewModel: ObservableObject {
    because the fields are still empty at that moment.
   */
   private var original: captureInformation?
+
+  // True once the user said the information is not correct, so "Terminar" always saves
+  private var isEditing = false
 
   private let onFinish: () -> Void
 
@@ -161,12 +166,18 @@ final class PreSubmissionViewModel: ObservableObject {
     }
   }
 
+  // Connected to the template's onDismiss, called when the user presses "No"
+  func startEditing() {
+    isEditing = true
+  }
+
   /*
    Connected to the template's onConfirm.
-   Skips the request when the user did not change anything.
+   Skips the request when the user said the information is correct
+   and did not change anything. After pressing "No" it always saves.
    */
   func confirm() {
-    guard hasChanges else {
+    guard hasChanges || isEditing else {
       onFinish()
       return
     }
@@ -188,12 +199,19 @@ final class PreSubmissionViewModel: ObservableObject {
         newIdentityDocument = nil
         newProofOfAddress = nil
         isLoading = false
-        onFinish()
+        // onFinish runs when the user closes the message
+        isShowingSuccess = true
       } catch {
         errorMessage = "No se pudo guardar tu información."
         isLoading = false
       }
     }
+  }
+
+  // Called when the user closes the success message
+  func acknowledgeSuccess() {
+    isShowingSuccess = false
+    onFinish()
   }
 
   /*
@@ -202,8 +220,8 @@ final class PreSubmissionViewModel: ObservableObject {
   */
   func refreshDocumentUrls() async {
     guard let fresh = try? await repository.getPreSubmission(for: userId) else { return }
-    identityDocumentUrl = fresh.documents.identityDocumentUrl
-    proofOfAddressUrl = fresh.documents.proofOfAddressUrl
+    identityDocumentUrl = fresh.documents?.identityDocumentUrl
+    proofOfAddressUrl = fresh.documents?.proofOfAddressUrl
   }
 
   // Called by the view when the user picks a file. Rejects files over 5 MB.
@@ -226,14 +244,18 @@ final class PreSubmissionViewModel: ObservableObject {
   private func apply(_ preSubmission: PreSubmission) {
     current = preSubmission
 
-    firstName = preSubmission.profile.name
-    lastName = preSubmission.profile.lastName
-    birthDate = Self.birthDateFormatter.date(from: preSubmission.profile.birthDate)
+    // Profile, address and documents are null until the user fills them in for the first time
+    let profile = preSubmission.profile
+    let address = preSubmission.address
+
+    firstName = profile?.name ?? ""
+    lastName = profile?.lastName ?? ""
+    birthDate = profile?.birthDate.flatMap(Self.birthDateFormatter.date(from:))
     /*
      The API sends one string like "+521234567890", due to the form having two fields.
      We need to add separate the country code from the phone number.
      */
-    let fullPhone = preSubmission.profile.phone
+    let fullPhone = profile?.phone ?? ""
     // Separate country code from phone number
     if fullPhone.count > 10 {
       countryCode = String(fullPhone.dropLast(10))
@@ -242,16 +264,16 @@ final class PreSubmissionViewModel: ObservableObject {
       phone = fullPhone
     }
 
-    addressLine1 = preSubmission.address.addressLine1
-    addressLine2 = preSubmission.address.addressLine2
-    neighborhood = preSubmission.address.neighborhood
-    zipCode = preSubmission.address.zipCode
-    country = preSubmission.address.country
-    state = preSubmission.address.state
-    municipality = preSubmission.address.city
+    addressLine1 = address?.addressLine1 ?? ""
+    addressLine2 = address?.addressLine2 ?? ""
+    neighborhood = address?.neighborhood ?? ""
+    zipCode = address?.zipCode ?? ""
+    country = address?.country
+    state = address?.state
+    municipality = address?.city ?? ""
 
-    identityDocumentUrl = preSubmission.documents.identityDocumentUrl
-    proofOfAddressUrl = preSubmission.documents.proofOfAddressUrl
+    identityDocumentUrl = preSubmission.documents?.identityDocumentUrl
+    proofOfAddressUrl = preSubmission.documents?.proofOfAddressUrl
 
     original = capture
   }
@@ -263,7 +285,7 @@ final class PreSubmissionViewModel: ObservableObject {
       profile: Profile(
         name: firstName,
         lastName: lastName,
-        birthDate: birthDate.map(Self.birthDateFormatter.string(from:)) ?? base.profile.birthDate,
+        birthDate: birthDate.map(Self.birthDateFormatter.string(from:)) ?? base.profile?.birthDate,
         phone: (countryCode ?? "") + phone
       ),
       address: Address(
@@ -271,8 +293,8 @@ final class PreSubmissionViewModel: ObservableObject {
         addressLine2: addressLine2,
         neighborhood: neighborhood,
         zipCode: zipCode,
-        country: country ?? base.address.country,
-        state: state ?? base.address.state,
+        country: country ?? base.address?.country,
+        state: state ?? base.address?.state,
         city: municipality
       ),
       documents: base.documents
