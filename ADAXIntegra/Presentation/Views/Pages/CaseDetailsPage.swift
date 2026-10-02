@@ -38,6 +38,9 @@ struct CaseDetailsPage: View {
                     CaseDescriptionCard(
                         description: "Se realizó la segunda sesión de acompañamiento psicológico. La beneficiaria muestra avances en el manejo de ansiedad. Se recomienda continuar con sesiones semanales."
                     )
+                    CaseHelpWanted(
+                        helpwanted: "La externa busca La externa busca tener un  acompañamiento en la presentación de denuncia formal y juicio de divorcio."
+                    )
                 },
                 bottomActions: {
                     CloseCaseAction(
