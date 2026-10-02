@@ -96,12 +96,22 @@ struct PresubmissionTemplate: View {
 
   // Documents
   var officialIdTitle: String = "Identificación oficial"
-  var officialIdImage: Image
+  var officialIdUrl: String? = nil
+  var officialIdFile: DocumentFile? = nil
   var onOfficialIdInfo: (() -> Void)? = nil
+  var onOfficialIdPick: ((DocumentFile) -> Void)? = nil
 
   var proofOfAddressTitle: String = "Comprobante de domicilio"
-  var proofOfAddressImage: Image
+  var proofOfAddressUrl: String? = nil
+  var proofOfAddressFile: DocumentFile? = nil
   var onProofOfAddressInfo: (() -> Void)? = nil
+  var onProofOfAddressPick: ((DocumentFile) -> Void)? = nil
+
+  // Called with a message when a picked file cannot be read
+  var onDocumentPickError: ((String) -> Void)? = nil
+
+  // Called when a saved document fails to load, to refresh the signed URLs
+  var onDocumentLoadFailure: (() async -> Void)? = nil
 
   // Confirmation
   var confirmationPrompt: String = "¿Esta información esta correcta y actualizada?"
@@ -246,14 +256,22 @@ struct PresubmissionTemplate: View {
 
       FileCard(
         title: officialIdTitle,
-        image: officialIdImage,
-        infoAction: onOfficialIdInfo
+        url: officialIdUrl,
+        pickedFile: officialIdFile,
+        infoAction: onOfficialIdInfo,
+        onPick: onOfficialIdPick,
+        onPickError: onDocumentPickError,
+        onLoadFailure: onDocumentLoadFailure
       )
 
       FileCard(
         title: proofOfAddressTitle,
-        image: proofOfAddressImage,
-        infoAction: onProofOfAddressInfo
+        url: proofOfAddressUrl,
+        pickedFile: proofOfAddressFile,
+        infoAction: onProofOfAddressInfo,
+        onPick: onProofOfAddressPick,
+        onPickError: onDocumentPickError,
+        onLoadFailure: onDocumentLoadFailure
       )
     }
   }
@@ -281,8 +299,6 @@ struct PresubmissionTemplate: View {
     country: .constant(nil),
     state: .constant(nil),
     municipality: .constant(""),
-    officialIdImage: Image("placeholderImage"),
-    proofOfAddressImage: Image("placeholderImage"),
     onConfirm: { print("Terminar") },
     onDismiss: { print("No") }
   )
