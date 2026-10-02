@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-struct ProfileSummaryCard: View {
+struct RecordCaseSummary: View {
     var userName: String
     var recordId: String
     var lastModified: String
@@ -75,7 +75,7 @@ struct ProfileSummaryCard: View {
     ZStack {
         Color(UIColor.systemGray6).ignoresSafeArea()
         
-        ProfileSummaryCard(
+        RecordCaseSummary(
             userName: " ",
             recordId: " ",
             lastModified: " ",

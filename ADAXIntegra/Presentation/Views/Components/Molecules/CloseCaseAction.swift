@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct CaseActionButtons: View {
+struct CloseCaseAction: View {
     let onCloseCaseTapped: () -> Void
     let onCancelTapped: () -> Void
 
@@ -37,7 +37,7 @@ struct CaseActionButtons: View {
     ZStack {
         Color(UIColor.systemGray6).ignoresSafeArea()
         
-        CaseActionButtons(
+        CloseCaseAction(
             onCloseCaseTapped: { print("Abrir modal de confirmación") },
             onCancelTapped: { print("Regresar a expedientes") }
         )

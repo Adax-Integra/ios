@@ -1,5 +1,5 @@
 //
-//  CloseCaseModal.swift
+//  CloseCase.swift
 //
 //  Created by Oscar Alexander Vilchis Soto on 01/10/26.
 //
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct CloseCaseModal: View {
+struct CloseCase: View {
     let onConfirm: () -> Void
     let onCancel: () -> Void
 
@@ -68,7 +68,7 @@ struct CloseCaseModal: View {
     ZStack {
         Color.black.opacity(0.4).ignoresSafeArea()
         
-        CloseCaseModal(
+        CloseCase(
             onConfirm: { print("Confirmar tap") },
             onCancel: { print("Cancelar tap") }
         )
