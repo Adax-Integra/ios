@@ -12,8 +12,15 @@ struct CasesPage: View {
   // closes and the undo toast can be shown on this list
   @StateObject private var newCaseViewModel: NewCaseViewModel
   @State private var isShowingNewCase = false
+  // R-01: the user reviews the preSubmission before creating a case
+  @State private var isShowingPreSubmission = false
+  // Set when the review finishes, so "Nuevo caso" opens once the review has closed
+  @State private var shouldOpenNewCase = false
+  private let userId: String
+  private let countryRepository = CachedCountryRepository(remote: RemoteCountryRepository())
 
   init(viewModel: CasesViewModel, userId: String) {
+    self.userId = userId
     _viewModel = StateObject(wrappedValue: viewModel)
     _newCaseViewModel = StateObject(wrappedValue: NewCaseViewModel(userId: userId))
   }
@@ -31,7 +38,7 @@ struct CasesPage: View {
     .overlay(alignment: .bottomTrailing) {
       if !newCaseViewModel.isShowingUndoToast {
         FloatingActionButton(systemName: "plus", accessibilityLabel: "Nuevo caso") {
-          isShowingNewCase = true
+          isShowingPreSubmission = true
         }
         .padding(.trailing, 16)
         .padding(.bottom, 70)
@@ -64,6 +71,31 @@ struct CasesPage: View {
       Text(newCaseViewModel.messageAlert)
     }
     .task { await viewModel.loadCases() }
+    /*
+     R-01: first the user confirms or edits the preSubmission,
+     then "Nuevo caso" opens.
+    */
+    .fullScreenCover(
+      isPresented: $isShowingPreSubmission,
+      onDismiss: {
+        guard shouldOpenNewCase else { return }
+        shouldOpenNewCase = false
+        isShowingNewCase = true
+      }
+    ) {
+      PreSubmissionPage(
+        viewModel: PreSubmissionViewModel(
+          repository: RemotePreSubmissionRepository(),
+          countryRepository: countryRepository,
+          userId: userId,
+          onFinish: {
+            shouldOpenNewCase = true
+            isShowingPreSubmission = false
+          }
+        ),
+        onBack: { isShowingPreSubmission = false }
+      )
+    }
     .fullScreenCover(isPresented: $isShowingNewCase) {
       NewCasePage(viewModel: newCaseViewModel)
     }
