@@ -46,7 +46,7 @@ struct PreSubmissionPage: View {
       onDocumentLoadFailure: { await viewModel.refreshDocumentUrls() },
       isConfirmationDisabled: viewModel.isLoading,
       onConfirm: viewModel.confirm,
-      onDismiss: {}
+      onDismiss: viewModel.startEditing
     )
     // Loads the catalog and the saved information when the screen appears
     .task { await viewModel.load() }
@@ -57,6 +57,12 @@ struct PreSubmissionPage: View {
           .ignoresSafeArea()
           .overlay { ProgressView() }
       }
+    }
+    // Confirms the save and then sends the user to onFinish
+    .alert("Listo", isPresented: $viewModel.isShowingSuccess) {
+      Button("Aceptar") { viewModel.acknowledgeSuccess() }
+    } message: {
+      Text("Información actualizada correctamente.")
     }
     // Shows the load and save errors, and clears the message when closed
     .alert(
