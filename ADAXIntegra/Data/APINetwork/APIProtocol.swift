@@ -60,4 +60,26 @@ struct APIProtocol {
       }
     }
   }
+    // Function patch that performs an asynchronous HTTP PATCH request without a body, we recieve the path, the decodable response type and we return the decoded model instance of type
+    static func patch<T: Decodable>(
+      _ path: String,
+      as type: T.Type
+    ) async throws -> T {
+      return try await withCheckedThrowingContinuation { continuation in
+        AF.request(
+          APIConfig.baseURL + path,
+          method: .patch,
+          headers: authHeaders
+        )
+        .validate()
+        .responseDecodable(of: T.self) { response in
+          switch response.result {
+          case .success(let value):
+            continuation.resume(returning: value)
+          case .failure(let error):
+            continuation.resume(throwing: APIError.requestFailed(error.localizedDescription))
+          }
+        }
+      }
+    }
 }

@@ -10,6 +10,7 @@
 import SwiftUI
 
 struct CaseDetailsTemplate<Content: View, BottomActions: View>: View {
+    // Display number for the case shown in the header, the status of the case (Open/Closed) and the back button
     var caseNumber: String
     var status: String
     var onBack: () -> Void
@@ -22,7 +23,7 @@ struct CaseDetailsTemplate<Content: View, BottomActions: View>: View {
             HStack(spacing: 12) {
                 BackButton(action: onBack)
                 
-                Text("Caso \(caseNumber)")
+                Text(" \(caseNumber)")
                     .font(.title2)
                     .fontWeight(.bold)
                     .foregroundColor(.primary)
@@ -42,7 +43,7 @@ struct CaseDetailsTemplate<Content: View, BottomActions: View>: View {
                 .padding(.horizontal, 16)
                 .padding(.bottom, 24)
             }
-
+            // Holds the close action buttons pinned to the bottom of the screen
             VStack {
                 bottomActions
             }
