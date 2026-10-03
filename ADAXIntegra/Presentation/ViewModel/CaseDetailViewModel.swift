@@ -14,11 +14,14 @@ import Combine
 @MainActor
 final class CaseDetailViewModel: ObservableObject {
     //Published Properties (UI State) (case detail holds the full casedetails to display, is loading indicates
-    //wheter the data is being fetched and error Message stores various error messages to show feedback on UI
+    //wheter the data is being fetched and error Message stores various error messages to show feedback on UI, as well as the toast molecule to express a message of succes or error
     @Published var caseDetail: CaseDetail?
     @Published var isLoading = false
     @Published var errorMessage: String?
-
+    @Published var showToast = false
+    @Published var toastMessage = ""
+    
+    
     private let caseId: String
     private let getCaseDetailUseCase: GetCaseDetailUseCaseProtocol
     private let closeCaseUseCase: CloseCaseUseCaseProtocol
@@ -48,11 +51,13 @@ final class CaseDetailViewModel: ObservableObject {
         do {
             let success = try await closeCaseUseCase.execute(caseId: caseId)
             if success {
-                // Reload so the UI reflects the new state (Closed) from the backend
+                toastMessage = "El caso se cerró correctamente."
+                showToast = true
                 await loadCase()
             }
         } catch {
-            errorMessage = "No se pudo cerrar el caso."
+            toastMessage = "No se pudo cerrar el caso. Es posible que ya esté cerrado."
+            showToast = true
         }
     }
 }

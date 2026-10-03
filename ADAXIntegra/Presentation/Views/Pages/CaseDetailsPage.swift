@@ -102,9 +102,13 @@ struct CaseDetailsPage: View {
         .task {
             await viewModel.loadCase()
         }
+        .toast(
+            isPresented: $viewModel.showToast,
+            message: viewModel.toastMessage
+        )
     }
 }
-
+// we use a real case ID to see in the preview
 #Preview {
-    CaseDetailsPage(caseId: "5487d17a-2f8f-46ad-aff4-4ec0601cb550")
+    CaseDetailsPage(caseId: "2b8882aa-1247-4cc7-abaa-f52488131726")
 }
