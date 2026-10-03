@@ -11,18 +11,7 @@ import Foundation
 @MainActor
 final class PreSubmissionViewModel: ObservableObject {
 
-  @Published var firstName: String = ""
-  @Published var lastName: String = ""
-  @Published var birthDate: Date?
-  @Published var countryCode: String? = "+52"
-  @Published var phone: String = ""
-  @Published var addressLine1: String = ""
-  @Published var addressLine2: String = ""
-  @Published var neighborhood: String = ""
-  @Published var zipCode: String = ""
-  @Published var country: String?
-  @Published var state: String?
-  @Published var municipality: String = ""
+  @Published var form = PreSubmissionModel()
 
   /*
    Catalog for the country, state and phone code dropdowns.
@@ -39,14 +28,7 @@ final class PreSubmissionViewModel: ObservableObject {
   @Published private(set) var newIdentityDocument: DocumentFile?
   @Published private(set) var newProofOfAddress: DocumentFile?
 
-  @Published var firstNameError: String?
-  @Published var lastNameError: String?
-  @Published var birthDateError: String?
-  @Published var phoneError: String?
-  @Published var addressLine1Error: String?
-  @Published var neighborhoodError: String?
-  @Published var zipCodeError: String?
-  @Published var municipalityError: String?
+  @Published var errors = PreSubmissionErrors()
 
   @Published var isLoading: Bool = false
   @Published var errorMessage: String?
@@ -66,56 +48,17 @@ final class PreSubmissionViewModel: ObservableObject {
    It is taken here, after the data arrives, and not when the view appears,
    because the fields are still empty at that moment.
   */
-  private var original: captureInformation?
+  private var original: PreSubmissionModel?
 
   // True once the user said the information is not correct, so "Terminar" always saves
   private var isEditing = false
 
   private let onFinish: () -> Void
 
-  /*
-   Create a copy of the reviewed fields.
-   Equatable is a protocol used to compare two instances of a type,
-   meaning you can use "==" and "!=" operators.
-   Documents are display-only, so they are not part of the comparison.
-  */
-  private struct captureInformation: Equatable {
-    var firstName: String
-    var lastName: String
-    var birthDate: Date?
-    var countryCode: String?
-    var phone: String
-    var addressLine1: String
-    var addressLine2: String
-    var neighborhood: String
-    var zipCode: String
-    var country: String?
-    var state: String?
-    var municipality: String
-  }
-
-  // What the fields contain right now
-  private var capture: captureInformation {
-    captureInformation(
-      firstName: firstName,
-      lastName: lastName,
-      birthDate: birthDate,
-      countryCode: countryCode,
-      phone: phone,
-      addressLine1: addressLine1,
-      addressLine2: addressLine2,
-      neighborhood: neighborhood,
-      zipCode: zipCode,
-      country: country,
-      state: state,
-      municipality: municipality
-    )
-  }
-
   // False until the data is loaded, then true if the user changed a field or picked a file
   private var hasChanges: Bool {
     guard let original else { return false }
-    return original != capture || newIdentityDocument != nil || newProofOfAddress != nil
+    return original != form || newIdentityDocument != nil || newProofOfAddress != nil
   }
 
   /*
@@ -248,9 +191,12 @@ final class PreSubmissionViewModel: ObservableObject {
     let profile = preSubmission.profile
     let address = preSubmission.address
 
-    firstName = profile?.name ?? ""
-    lastName = profile?.lastName ?? ""
-    birthDate = profile?.birthDate.flatMap(Self.birthDateFormatter.date(from:))
+    // Fill a copy so the view updates once
+    var form = self.form
+
+    form.firstName = profile?.name ?? ""
+    form.lastName = profile?.lastName ?? ""
+    form.birthDate = profile?.birthDate.flatMap(Self.birthDateFormatter.date(from:))
     /*
      The API sends one string like "+521234567890", due to the form having two fields.
      We need to add separate the country code from the phone number.
@@ -258,24 +204,25 @@ final class PreSubmissionViewModel: ObservableObject {
     let fullPhone = profile?.phone ?? ""
     // Separate country code from phone number
     if fullPhone.count > 10 {
-      countryCode = String(fullPhone.dropLast(10))
-      phone = String(fullPhone.suffix(10))
+      form.countryCode = String(fullPhone.dropLast(10))
+      form.phone = String(fullPhone.suffix(10))
     } else {
-      phone = fullPhone
+      form.phone = fullPhone
     }
 
-    addressLine1 = address?.addressLine1 ?? ""
-    addressLine2 = address?.addressLine2 ?? ""
-    neighborhood = address?.neighborhood ?? ""
-    zipCode = address?.zipCode ?? ""
-    country = address?.country
-    state = address?.state
-    municipality = address?.city ?? ""
+    form.addressLine1 = address?.addressLine1 ?? ""
+    form.addressLine2 = address?.addressLine2 ?? ""
+    form.neighborhood = address?.neighborhood ?? ""
+    form.zipCode = address?.zipCode ?? ""
+    form.country = address?.country
+    form.state = address?.state
+    form.municipality = address?.city ?? ""
+
+    self.form = form
+    original = form
 
     identityDocumentUrl = preSubmission.documents?.identityDocumentUrl
     proofOfAddressUrl = preSubmission.documents?.proofOfAddressUrl
-
-    original = capture
   }
 
   // Builds the entity to send to the backend from the current form fields
@@ -283,19 +230,20 @@ final class PreSubmissionViewModel: ObservableObject {
     PreSubmission(
       id: base.id,
       profile: Profile(
-        name: firstName,
-        lastName: lastName,
-        birthDate: birthDate.map(Self.birthDateFormatter.string(from:)) ?? base.profile?.birthDate,
-        phone: (countryCode ?? "") + phone
+        name: form.firstName,
+        lastName: form.lastName,
+        birthDate: form.birthDate.map(Self.birthDateFormatter.string(from:))
+          ?? base.profile?.birthDate,
+        phone: (form.countryCode ?? "") + form.phone
       ),
       address: Address(
-        addressLine1: addressLine1,
-        addressLine2: addressLine2,
-        neighborhood: neighborhood,
-        zipCode: zipCode,
-        country: country ?? base.address?.country,
-        state: state ?? base.address?.state,
-        city: municipality
+        addressLine1: form.addressLine1,
+        addressLine2: form.addressLine2,
+        neighborhood: form.neighborhood,
+        zipCode: form.zipCode,
+        country: form.country ?? base.address?.country,
+        state: form.state ?? base.address?.state,
+        city: form.municipality
       ),
       documents: base.documents
     )
@@ -305,20 +253,17 @@ final class PreSubmissionViewModel: ObservableObject {
   private func validate() -> Bool {
     let required = "Este campo es obligatorio."
 
-    firstNameError = isBlank(firstName) ? required : nil
-    lastNameError = isBlank(lastName) ? required : nil
-    birthDateError = birthDate == nil ? required : nil
-    phoneError = isBlank(phone) ? required : PhoneField.validationError(for: phone)
-    addressLine1Error = isBlank(addressLine1) ? required : nil
-    neighborhoodError = isBlank(neighborhood) ? required : nil
-    zipCodeError = isBlank(zipCode) ? required : nil
-    municipalityError = isBlank(municipality) ? required : nil
-
-    // Adds all the error message in one array and check that every one is null
-    return [
-      firstNameError, lastNameError, birthDateError, phoneError, addressLine1Error,
-      neighborhoodError, zipCodeError, municipalityError,
-    ].allSatisfy { $0 == nil }
+    errors = PreSubmissionErrors(
+      firstName: isBlank(form.firstName) ? required : nil,
+      lastName: isBlank(form.lastName) ? required : nil,
+      birthDate: form.birthDate == nil ? required : nil,
+      phone: isBlank(form.phone) ? required : PhoneField.validationError(for: form.phone),
+      addressLine1: isBlank(form.addressLine1) ? required : nil,
+      neighborhood: isBlank(form.neighborhood) ? required : nil,
+      zipCode: isBlank(form.zipCode) ? required : nil,
+      municipality: isBlank(form.municipality) ? required : nil
+    )
+    return errors.isEmpty
   }
 
   // Validator to make sure users aren't sending blank data
