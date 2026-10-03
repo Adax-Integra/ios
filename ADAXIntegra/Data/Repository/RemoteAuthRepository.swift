@@ -7,12 +7,7 @@
 
 import Foundation
 
-private struct LoginRequestBody: Encodable {
-  let email: String
-  let password: String
-}
-
-class RemoteAuthRepository: AuthRepositoryP {
+class RemoteAuthRepository: AuthRepository {
   func login(email: String, password: String) async -> LoginResult? {
     do {
       let response = try await APIProtocol.post(
