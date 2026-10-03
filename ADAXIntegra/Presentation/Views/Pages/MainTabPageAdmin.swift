@@ -16,7 +16,7 @@ struct MainTabPageAdmin: View {
       Group {
         switch selectedTab {
         case .home: HomePage()
-        case .expedientes: ExpedientesPage()
+        case .expedientes: NavigationStack { ExpedientesPage() }
         case .profile: ProfilePage()
         case .admin: AdminPage()
         }
