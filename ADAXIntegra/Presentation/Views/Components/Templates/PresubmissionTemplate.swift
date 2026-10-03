@@ -226,8 +226,13 @@ struct PresubmissionTemplate: View {
       LabeledTextField(
         title: zipCodeTitle,
         placeholder: zipCodePlaceholder,
+        keyboardType: .numberPad,
+        maxLength: 5,
         errorMessage: zipCodeError,
-        text: $zipCode
+        text: Binding(
+          get: { zipCode },
+          set: { zipCode = $0.filter(\.isNumber) }
+        )
       )
 
       Dropdown(
