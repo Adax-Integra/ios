@@ -9,7 +9,7 @@ import SwiftUI
 
 struct ExpedientesListPage: View {
   var body: some View {
-    Text("Expedientes Placeholder")
-      .navigationTitle("Expedientes")
+    RecordsPageInterna()
+          .toolbar(.hidden, for: .navigationBar)
   }
 }

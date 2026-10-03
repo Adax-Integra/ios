@@ -10,11 +10,12 @@ import SwiftUI
 struct RecordsPageInterna: View {
     @StateObject private var viewModel = RecordsViewModel()
     @State private var showRegister = false
+    @Environment(\.dismiss) private var dismiss
     
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
             ListPageTemplate {
-                PageHeader(title: "Expedientes",  backAction: {})
+                PageHeader(title: "Expedientes",  backAction: { dismiss() })
             } toolbar: {
                 toolbar
             } content: {
