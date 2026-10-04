@@ -9,5 +9,5 @@ import Foundation
 
 protocol CollaboratorRepository {
     
-    func createCollaborator(_ collaborator: NewColaborator) async throws -> Collaborator
+    func createCollaborator(_ collaborator: NewCollaborator) async throws -> Collaborator
 }

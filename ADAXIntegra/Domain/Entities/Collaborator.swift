@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct NewColaborator: Encodable {
+struct NewCollaborator: Encodable {
     let name: String
     let lastName: String
     let email: String
