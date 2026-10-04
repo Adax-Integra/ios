@@ -8,8 +8,7 @@
 import SwiftUI
 
 struct PrivacyNoticePage: View {
-  // Starts unchecked: consent must be given by the user, never preselected
-  @State private var hasAccepted = false
+  @StateObject private var viewModel = PrivacyNoticeViewModel()
   @State private var showExitModal = false
 
   let onContinue: () -> Void
@@ -36,14 +35,14 @@ struct PrivacyNoticePage: View {
           PrivacyNoticeSummary()
 
           SurfaceCard {
-            ConsentCheckboxRow(isChecked: $hasAccepted, onNoticeTapped: {})
+            ConsentCheckboxRow(isChecked: $viewModel.hasAccepted, onNoticeTapped: {})
               .padding(16)
           }
 
           FormActions(
             primaryTitle: "Continuar",
             secondaryTitle: "No continuar",
-            isPrimaryDisabled: !hasAccepted,
+            isPrimaryDisabled: !viewModel.canContinue,
             onPrimary: onContinue,
             onSecondary: { showExitModal = true }
           )
@@ -56,6 +55,23 @@ struct PrivacyNoticePage: View {
       if showExitModal {
         exitModal
       }
+    }
+    .onAppear {
+      Task {
+        await viewModel.loadCurrentPolicy()
+      }
+    }
+    .overlay {
+      if viewModel.isLoading {
+        Color.black.opacity(0.15)
+          .ignoresSafeArea()
+          .overlay { ProgressView() }
+      }
+    }
+    .alert("Algo salió mal", isPresented: $viewModel.showAlert) {
+      Button("Entendido", role: .cancel) {}
+    } message: {
+      Text(viewModel.messageAlert)
     }
   }
 
