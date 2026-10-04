@@ -7,84 +7,94 @@
 
 import SwiftUI
 
-// Template for the "Verificar información" screen. Composes the following
-// molecules into a scrollable layout:
-//   - "PageHeader"          (title + back button)
-//   - "LabeledTextField"    (first name)
-//   - "LabeledTextField"    (last name)
-//   - "PhoneField"          (country code + phone)
-//   - "Dropdown"            (country)
-//   - "Dropdown"            (state)
-//   - "LabeledTextField"    (municipality)
-//   - "FileCard"            (official ID)
-//   - "FileCard"            (proof of address)
-//   - "ConfirmationActions" (prompt + Sí / No buttons)
-//
-// Fields and document actions start locked. Only the back button and the
-// Sí / No confirmation stay tappable. Tapping "No" unlocks the form so the
-// user can correct the information. The confirm button then becomes
-// "Terminar". Finishing the pre-submission tell us  whether any field actually
-// changed, so the caller can skip an update when the data is the same as when
-// the screen appeared.
-//
+// Template for the "Verificar información"
 struct PresubmissionTemplate: View {
   // Header
   var title: String = "Verificar información"
   var onBack: () -> Void
 
+  // Form values and the error message of each field
+  @Binding var form: PreSubmissionModel
+  var errors = PreSubmissionErrors()
+
   // First name
   var firstNameTitle: String = "Nombre"
   var firstNamePlaceholder: String = "Escribe tu nombre..."
-  @Binding var firstName: String
-  var firstNameError: String? = nil
 
   // Last name
   var lastNameTitle: String = "Apellido(s)"
-  var lastNamePlaceholder: String = "Escribe tu apellido(s)..."
-  @Binding var lastName: String
-  var lastNameError: String? = nil
+  var lastNamePlaceholder: String = "Escribe tu(s) apellido(s)..."
+
+  // Birth date
+  var birthDateTitle: String = "Fecha de nacimiento"
+  var birthDatePlaceholder: String = "Selecciona tu fecha..."
 
   // Phone
   var phoneTitle: String = "Teléfono celular"
   var phonePlaceholder: String = "Tu número aquí..."
-  var countryCodes: [String] = ["+52", "+1"]
-  @Binding var countryCode: String?
-  @Binding var phone: String
-  var phoneError: String? = nil
+
+  // Address line 1
+  var addressLine1Title: String = "Dirección línea 1"
+  var addressLine1Placeholder: String = "Calle y número..."
+
+  // Address line 2
+  var addressLine2Title: String = "Dirección línea 2"
+  var addressLine2Placeholder: String = "Interior..."
+
+  // Neighborhood
+  var neighborhoodTitle: String = "Colonia"
+  var neighborhoodPlaceholder: String = "Escribe tu colonia..."
+
+  // Zip code
+  var zipCodeTitle: String = "Código postal"
+  var zipCodePlaceholder: String = "Tu código postal..."
 
   // Country / State
-  //
-  // The "Estado" dropdown is driven by the currently selected country: its
-  // options are the "states" array of the matching "Country" entry in
-  // "countries". Defaults to the full "Country.all" catalog
   var countryTitle: String = "País"
-  var countryPrompt: String = "Opción Seleccionada"
-  var countries: [Country] = Country.all
-  @Binding var country: String?
+  var countryPrompt: String = "Selecciona tu país..."
+  var countries: [Country]
 
   var stateTitle: String = "Estado"
-  var statePrompt: String = "Opción Seleccionada"
-  @Binding var state: String?
+  var statePrompt: String = "Selecciona tu estado..."
 
-  // State options are the states of the selected country
+  // Phone codes come from the country catalog
+  private var phoneCountryCodes: [String] {
+    Country.dialCodes(in: countries)
+  }
+
+  private var countryOptions: [String] {
+    countries.map(\.nameEs)
+  }
+
+  /*
+   State options are the Spanish names of the selected country's states.
+  */
   private var stateOptions: [String] {
-    Country.first(named: country ?? "", in: countries)?.states ?? []
+    Country.first(name: form.country ?? "", in: countries)?.stateNames ?? []
   }
 
   // Municipality
   var municipalityTitle: String = "Ciudad / Municipio"
-  var municipalityPlaceholder: String = "Tu texto aquí..."
-  @Binding var municipality: String
-  var municipalityError: String? = nil
+  var municipalityPlaceholder: String = "Tu ciudad o municipio aquí..."
 
   // Documents
   var officialIdTitle: String = "Identificación oficial"
-  var officialIdImage: Image
+  var officialIdUrl: String? = nil
+  var officialIdFile: DocumentFile? = nil
   var onOfficialIdInfo: (() -> Void)? = nil
+  var onOfficialIdPick: ((DocumentFile) -> Void)? = nil
 
   var proofOfAddressTitle: String = "Comprobante de domicilio"
-  var proofOfAddressImage: Image
+  var proofOfAddressUrl: String? = nil
+  var proofOfAddressFile: DocumentFile? = nil
   var onProofOfAddressInfo: (() -> Void)? = nil
+  var onProofOfAddressPick: ((DocumentFile) -> Void)? = nil
+
+  // Called with a message when a picked file cannot be read
+  var onDocumentPickError: ((String) -> Void)? = nil
+
+  // Called when a saved document fails to load, to refresh the signed URLs
+  var onDocumentLoadFailure: (() async -> Void)? = nil
 
   // Confirmation
   var confirmationPrompt: String = "¿Esta información esta correcta y actualizada?"
@@ -92,17 +102,11 @@ struct PresubmissionTemplate: View {
   var dismissTitle: String = "No"
   var doneTitle: String = "Terminar"
   var isConfirmationDisabled: Bool = false
-  // Called when the user finishes. "hasChanges" is false when every field
-  // still matches the values shown on appear, including a "Terminar" tap
-  // after opening edit mode and changing nothing.
-  var onConfirm: (_ hasChanges: Bool) -> Void
+  var onConfirm: () -> Void
   var onDismiss: () -> Void
 
-  // Starts locked. "No" changes this so the user can edit the reviewed data.
+  // Starts locked
   @State private var isEditing = false
-  // Compared on confirm so an unchanged review
-  // does not look like an update.
-  @State private var original: ReviewedInfo?
 
   // Layout
   var horizontalPadding: CGFloat = 20
@@ -113,31 +117,39 @@ struct PresubmissionTemplate: View {
     ZStack {
       Color("Background").ignoresSafeArea()
 
-      ScrollView(showsIndicators: false) {
-        VStack(alignment: .leading, spacing: sectionSpacing) {
-          PageHeader(title: title, backAction: onBack)
+      /*
+       A ScrollView cannot scroll by itself from code. ScrollViewReader gives us
+       the proxy, which we use to scroll back to the top when the user presses "No"
+      */
+      ScrollViewReader { proxy in
+        ScrollView(showsIndicators: false) {
+          VStack(alignment: .leading, spacing: sectionSpacing) {
+            PageHeader(title: title, backAction: onBack)
+              // The id is what proxy.scrollTo looks for to know where to scroll
+              .id(Self.topAnchor)
 
-          formFields
-            .disabled(!isEditing)
-            .allowsHitTesting(isEditing)
+            formFields
+              .disabled(!isEditing)
+              .allowsHitTesting(isEditing)
 
-          ConfirmationActions(
-            prompt: confirmationPrompt,
-            onConfirm: finishReview,
-            onDismiss: unlockForEditing,
-            confirmTitle: isEditing ? doneTitle : confirmTitle,
-            dismissTitle: dismissTitle,
-            showsPrompt: !isEditing,
-            showsDismiss: !isEditing,
-            isDisabled: isConfirmationDisabled
-          )
-          .padding(.top, bottomActionsSpacing - sectionSpacing)
+            ConfirmationActions(
+              prompt: confirmationPrompt,
+              onConfirm: onConfirm,
+              // The proxy only exists inside ScrollViewReader, so it is passed to the function
+              onDismiss: { unlockForEditing(scrollingWith: proxy) },
+              confirmTitle: isEditing ? doneTitle : confirmTitle,
+              dismissTitle: dismissTitle,
+              showsPrompt: !isEditing,
+              showsDismiss: !isEditing,
+              isDisabled: isConfirmationDisabled
+            )
+            .padding(.top, bottomActionsSpacing - sectionSpacing)
+          }
+          .padding(.horizontal, horizontalPadding)
+          .padding(.vertical, 16)
         }
-        .padding(.horizontal, horizontalPadding)
-        .padding(.vertical, 16)
       }
     }
-    .onAppear(perform: captureOriginalIfNeeded)
   }
 
   // Form fields
@@ -146,32 +158,72 @@ struct PresubmissionTemplate: View {
       LabeledTextField(
         title: firstNameTitle,
         placeholder: firstNamePlaceholder,
-        errorMessage: firstNameError,
-        text: $firstName
+        errorMessage: errors.firstName,
+        text: $form.firstName
       )
 
       LabeledTextField(
         title: lastNameTitle,
         placeholder: lastNamePlaceholder,
-        errorMessage: lastNameError,
-        text: $lastName
+        errorMessage: errors.lastName,
+        text: $form.lastName
+      )
+
+      DateEntry(
+        title: birthDateTitle,
+        placeholder: birthDatePlaceholder,
+        errorMessage: errors.birthDate,
+        date: $form.birthDate
       )
 
       PhoneField(
         title: phoneTitle,
         placeholder: phonePlaceholder,
-        countryCodes: countryCodes,
-        errorMessage: phoneError,
-        countryCode: $countryCode,
-        phone: $phone
+        countryCodes: phoneCountryCodes,
+        errorMessage: errors.phone,
+        countryCode: $form.countryCode,
+        phone: $form.phone
+      )
+
+      LabeledTextField(
+        title: addressLine1Title,
+        placeholder: addressLine1Placeholder,
+        errorMessage: errors.addressLine1,
+        text: $form.addressLine1
+      )
+
+      // Optional, so it never shows an error
+      LabeledTextField(
+        title: addressLine2Title,
+        placeholder: addressLine2Placeholder,
+        text: $form.addressLine2
+      )
+
+      LabeledTextField(
+        title: neighborhoodTitle,
+        placeholder: neighborhoodPlaceholder,
+        errorMessage: errors.neighborhood,
+        text: $form.neighborhood
+      )
+
+      LabeledTextField(
+        title: zipCodeTitle,
+        placeholder: zipCodePlaceholder,
+        keyboardType: .numberPad,
+        maxLength: 5,
+        errorMessage: errors.zipCode,
+        text: Binding(
+          get: { form.zipCode },
+          set: { form.zipCode = $0.filter(\.isNumber) }
+        )
       )
 
       Dropdown(
         title: countryTitle,
         prompt: countryPrompt,
-        options: countries.map(\.name),
+        options: countryOptions,
         maxVisibleOptions: 5,
-        selection: $country
+        selection: $form.country
       )
 
       Dropdown(
@@ -179,96 +231,74 @@ struct PresubmissionTemplate: View {
         prompt: statePrompt,
         options: stateOptions,
         maxVisibleOptions: 5,
-        selection: $state
+        // The states come from the country, so there are none until one is picked
+        isDisabled: stateOptions.isEmpty,
+        selection: $form.state
       )
-      // Watches country binding and calls the closure when the value changes.
-      // The two parameters (_, _) are the old and new values, respectively.
-      // We don't need to use the old value, so we use _ as a placeholder.
-      .onChange(of: country) { _, _ in
-        state = nil
+      /*
+       Clear the state only when the user picks
+       a country whose states do not include it.
+      */
+      .onChange(of: form.country) { _, newCountry in
+        guard isEditing else { return }
+        let names = Country.first(name: newCountry ?? "", in: countries)?.stateNames ?? []
+        if let state = form.state, names.contains(state) { return }
+        form.state = nil
       }
 
       LabeledTextField(
         title: municipalityTitle,
         placeholder: municipalityPlaceholder,
-        errorMessage: municipalityError,
-        text: $municipality
+        errorMessage: errors.municipality,
+        text: $form.municipality
       )
 
       FileCard(
         title: officialIdTitle,
-        image: officialIdImage,
-        infoAction: onOfficialIdInfo
+        url: officialIdUrl,
+        pickedFile: officialIdFile,
+        infoAction: onOfficialIdInfo,
+        onPick: onOfficialIdPick,
+        onPickError: onDocumentPickError,
+        onLoadFailure: onDocumentLoadFailure
       )
 
       FileCard(
         title: proofOfAddressTitle,
-        image: proofOfAddressImage,
-        infoAction: onProofOfAddressInfo
+        url: proofOfAddressUrl,
+        pickedFile: proofOfAddressFile,
+        infoAction: onProofOfAddressInfo,
+        onPick: onProofOfAddressPick,
+        onPickError: onDocumentPickError,
+        onLoadFailure: onDocumentLoadFailure
       )
     }
   }
 
-  // Current information
-  private var currentInfo: ReviewedInfo {
-    ReviewedInfo(
-      firstName: firstName,
-      lastName: lastName,
-      countryCode: countryCode,
-      phone: phone,
-      country: country,
-      state: state,
-      municipality: municipality
-    )
-  }
+  // Id of the header, the scroll target to bring the user back to the first field
+  private static let topAnchor = "presubmission-top"
 
-  // Functions to manage the editing state and the review process
-  private var hasChanges: Bool {
-    guard let original else { return false }
-    return original != currentInfo
-  }
-
-  private func captureOriginalIfNeeded() {
-    guard original == nil else { return }
-    original = currentInfo
-  }
-
-  private func unlockForEditing() {
+  /*
+   Unlocks the fields when the user says the information is not correct
+   and scrolls to the top so editing starts from the first field
+  */
+  private func unlockForEditing(scrollingWith proxy: ScrollViewProxy) {
     isEditing = true
+    /*
+     Without the proxy the form would stay where the user was, usually at the bottom
+     next to the buttons, and the first field would be out of sight
+    */
+    withAnimation { proxy.scrollTo(Self.topAnchor, anchor: .top) }
     onDismiss()
   }
-
-  private func finishReview() {
-    onConfirm(hasChanges)
-  }
-}
-
-// Create a copy of the reviewed fields. Documents are display-only on this screen,
-// so they are not part of the comparison.
-// Equatable is used to compare the original and current information.
-private struct ReviewedInfo: Equatable {
-  var firstName: String
-  var lastName: String
-  var countryCode: String?
-  var phone: String
-  var country: String?
-  var state: String?
-  var municipality: String
 }
 
 #Preview {
   PresubmissionTemplate(
     onBack: { print("Back") },
-    firstName: .constant(""),
-    lastName: .constant(""),
-    countryCode: .constant("+52"),
-    phone: .constant(""),
-    country: .constant(nil),
-    state: .constant(nil),
-    municipality: .constant(""),
-    officialIdImage: Image("placeholderImage"),
-    proofOfAddressImage: Image("placeholderImage"),
-    onConfirm: { hasChanges in print(hasChanges ? "Terminar, con cambios" : "Sin cambios") },
+    form: .constant(PreSubmissionModel()),
+    countries: [],
+    onConfirm: { print("Terminar") },
     onDismiss: { print("No") }
   )
 }
