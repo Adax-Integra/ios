@@ -37,6 +37,7 @@ final class RegistrationViewModel: ObservableObject {
     // marks the start of the request and clears any previous error
     isLoading = true
     errorMessage = nil
+    accountCreated = false
 
     // groups the form values into one object
     let input = CreateAccountInput(

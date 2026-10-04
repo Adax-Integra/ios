@@ -49,6 +49,10 @@ struct RegistrationPage: View {
             password: password,
             confirmPassword: confirmPassword
           )
+          // returns to login after the account is created successfully
+          if viewModel.accountCreated {
+            dismiss()
+          }
         }
       }
     )
