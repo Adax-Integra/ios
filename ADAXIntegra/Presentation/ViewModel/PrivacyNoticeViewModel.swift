@@ -42,4 +42,8 @@ final class PrivacyNoticeViewModel: ObservableObject {
 
     isLoading = false
   }
+  func showDocumentUnavailable() {
+    messageAlert = "El documento no está disponible por ahora. Intenta de nuevo más tarde."
+    showAlert = true
+  }
 }

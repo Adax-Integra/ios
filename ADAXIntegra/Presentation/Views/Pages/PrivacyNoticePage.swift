@@ -10,6 +10,7 @@ import SwiftUI
 struct PrivacyNoticePage: View {
   @StateObject private var viewModel = PrivacyNoticeViewModel()
   @State private var showExitModal = false
+  @Environment(\.openURL) private var openURL
 
   let onContinue: () -> Void
   let onBack: () -> Void
@@ -35,8 +36,17 @@ struct PrivacyNoticePage: View {
           PrivacyNoticeSummary()
 
           SurfaceCard {
-            ConsentCheckboxRow(isChecked: $viewModel.hasAccepted, onNoticeTapped: {})
-              .padding(16)
+            ConsentCheckboxRow(
+              isChecked: $viewModel.hasAccepted,
+              onNoticeTapped: {
+                if let link = viewModel.policy?.documentUrl, let url = URL(string: link) {
+                  openURL(url)
+                } else {
+                  viewModel.showDocumentUnavailable()
+                }
+              }
+            )
+            .padding(16)
           }
 
           FormActions(
