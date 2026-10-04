@@ -85,7 +85,7 @@ struct LoginPage: View {
         Button {
           // Boton para recuperar contraseña
         } label: {
-          Text("¿Olvidaste u contraseña?")
+          Text("¿Olvidaste tu contraseña?")
             .font(.system(size: 16))
             .foregroundColor(Color("SecondaryAdax"))
         }
