@@ -21,7 +21,7 @@ struct PrivacyNoticePage: View {
 
       ScrollView {
         VStack(alignment: .leading, spacing: 16) {
-          PageHeader(title: "Aviso de privacidad", backAction: onBack)
+          PageHeader(title: "Aviso de privacidad", backAction: { showExitModal = true })
 
           Text("Tu información está segura con nosotras")
             .font(.system(size: 15, weight: .semibold))
@@ -53,7 +53,13 @@ struct PrivacyNoticePage: View {
             primaryTitle: "Continuar",
             secondaryTitle: "No continuar",
             isPrimaryDisabled: !viewModel.canContinue,
-            onPrimary: onContinue,
+            onPrimary: {
+              Task {
+                if await viewModel.registerConsent() {
+                  onContinue()
+                }
+              }
+            },
             onSecondary: { showExitModal = true }
           )
           .padding(.top, 8)
@@ -66,9 +72,7 @@ struct PrivacyNoticePage: View {
         exitModal
       }
     }
-
     .task { await viewModel.loadCurrentPolicy() }
-
     .overlay {
       if viewModel.isLoading {
         Color.black.opacity(0.15)
@@ -96,13 +100,13 @@ struct PrivacyNoticePage: View {
             .foregroundColor(Color("OnBackground"))
 
           Text(
-            "Para poder acompañarte necesitamos tu consentimiento, sin él no podemos crear tu expediente ni dar seguimiento a tu caso."
+            "Para poder acompañarte necesitamos tu consentimiento, sin él no podemos dar seguimiento a tu caso."
           )
           .font(.system(size: 15))
           .foregroundColor(Color("InsideTextAndIcons"))
 
           Text(
-            "Si sales ahora no se guarda ningún dato tuyo y puedes volver a intentarlo cuando quieras."
+            "Si sales ahora se cerrará tu sesión. Podrás aceptar el aviso la próxima vez que entres."
           )
           .font(.system(size: 15))
           .foregroundColor(Color("InsideTextAndIcons"))
