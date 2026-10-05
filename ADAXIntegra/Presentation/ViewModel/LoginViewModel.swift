@@ -24,13 +24,13 @@ class LoginViewModel: ObservableObject {
   @Published var error: String?
 
   // Used to log in
-  private let repository: AuthRepositoryP
+  private let repository: AuthRepository
 
   // Se llama con el token cuando el login es exitoso
   private let onLogin: (LoginResult) -> Void
 
   init(
-    repository: AuthRepositoryP,
+    repository: AuthRepository,
     onLogin: @escaping (LoginResult) -> Void = { _ in }
   ) {
     self.repository = repository

@@ -7,32 +7,56 @@
 
 import Foundation
 
-// Reference entity representing a country the app supports for address /
-// identification data. "states" contains the country's first-level
-// administrative divisions (estados), in Spanish, alphabetically sorted.
-struct Country: Identifiable, Hashable, Codable {
-  // ISO 3166-1 alpha-2 code (e.g. "MX", "US").
-  let isoCode: String
+struct Country: Identifiable, Codable {
+  let id: String
+  let iso2: String
+  let nameEn: String
+  let nameEs: String
+  let phoneCode: String
+  let states: [CountryState]
 
-  // Spanish display name (e.g. "México", "Estados Unidos de América")
-  let name: String
-
-  // E.164 dial code with leading "+" (e.g. "+52", "+1")
-  let dialCode: String
-
-  let states: [String]
-
-  var id: String { isoCode }
-
-  // Method to find the country with the given name in the list of countries.
-  static func first(named name: String, in list: [Country] = Country.all) -> Country? {
-    list.first { $0.name == name }
+  enum CodingKeys: String, CodingKey {
+    case id = "country_id"
+    case iso2
+    case nameEn = "name_en"
+    case nameEs = "name_es"
+    case phoneCode = "phone_code"
+    case states
   }
 
-  // List of dial codes for phone-country dropdowns. Duplicates
-  // are collapsed (e.g. "+1" for both US and Canada)
-  static var allDialCodes: [String] {
+  /*
+   Convert country's own states into a list of options for the
+   state dropdown
+  */
+  var stateNames: [String] {
+    states.map(\.nameEs)
+  }
+
+  // Returns the first country matching the country in spanish
+  static func first(name: String, in list: [Country]) -> Country? {
+    list.first { $0.nameEs == name }
+  }
+
+  // Builds a list of countries' phone codes for the dropdown buttons
+  static func dialCodes(in list: [Country]) -> [String] {
+    // Create a set to hold each value we give it only once
     var seen = Set<String>()
-    return all.compactMap { seen.insert($0.dialCode).inserted ? $0.dialCode : nil }
+    // Builds a new array based on the iteration of seen
+    return list.compactMap { seen.insert($0.phoneCode).inserted ? $0.phoneCode : nil }
   }
+}
+
+struct CountryState: Identifiable, Codable {
+  let id: String
+  let nameEn: String
+  let nameEs: String
+  let code: String
+
+  enum CodingKeys: String, CodingKey {
+    case id = "state_id"
+    case nameEn = "name_en"
+    case nameEs = "name_es"
+    case code
+  }
+
 }
