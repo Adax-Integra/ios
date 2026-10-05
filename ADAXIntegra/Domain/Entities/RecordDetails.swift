@@ -27,4 +27,20 @@ struct RecordDetails: Identifiable, Codable {
     case helps
     case violenceTypes
   }
+
+  var createdDateString: String {
+    createdAt.dateString
+  }
+
+  var createdTimeString: String {
+    createdAt.timeString
+  }
+
+  var updatedDateString: String {
+    updatedAt.dateString
+  }
+
+  var updatedTimeString: String {
+    updatedAt.timeString
+  }
 }
