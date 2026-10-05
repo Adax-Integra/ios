@@ -10,4 +10,10 @@ import Foundation
 protocol PrivacyPolicyRepository {
   // GET /privacy-policy/current
   func getCurrentPolicy() async throws -> PrivacyPolicy
+
+  // GET /privacy-policy/consent
+  func getConsentStatus() async throws -> ConsentStatus
+
+  // POST /privacy-policy/consent
+  func registerConsent(policyId: String) async throws -> ConsentRecord
 }
