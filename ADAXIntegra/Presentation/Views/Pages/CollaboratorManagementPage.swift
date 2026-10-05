@@ -19,22 +19,28 @@ struct CollaboratorManagementPage: View {
         ZStack {
             Color("Background").ignoresSafeArea()
             
-            VStack {
-                PageHeader(title: "Gestión de Colaboradoras",
-                           backAction: { dismiss() },
-                           subtitle: "Administra las cuentas de colaboradoras"
-                )
+            VStack(spacing: 16) {
+                PageHeader(
+                    title: "Gestión de Colaboradoras",
+                    backAction: { dismiss() },
+                    subtitle: "Administra las cuentas de colaboradoras"
+                    )
                 
-                PrimaryButton(
-                    customHeight: 20,
-                    title: "Agregar Colaboradora",
-                    isDisabled: false
-                ) {
+                // Opens form isted of navegation
+                Button {
                     viewModel.openForm()
+                } label: {
+                    MenuRow(
+                        icon: "person.badge.plus",
+                        title: "Agregar colaboradora",
+                        subtitle: "Registra una nueva cuenta"
+                    )
                 }
+                .buttonStyle(.plain)
                 
                 Spacer()
             }
+            
             .padding()
             
             if viewModel.isFormVisible{
@@ -89,7 +95,7 @@ struct CollaboratorManagementPage: View {
     private var showGeneralError: Binding<Bool> {
         Binding(
             get: { viewModel.generalError != nil },
-            set: { if $0 { viewModel.generalError = nil } }
+            set: { if !$0 { viewModel.generalError = nil } }
         )
     }
     
@@ -98,7 +104,7 @@ struct CollaboratorManagementPage: View {
     private var showSuccess: Binding<Bool> {
         Binding (
             get: { viewModel.successMessage != nil },
-            set: { if $0 { viewModel.successMessage = nil } }
+            set: { if !$0 { viewModel.successMessage = nil } }
         )
     }
 }
