@@ -66,11 +66,9 @@ struct PrivacyNoticePage: View {
         exitModal
       }
     }
-    .onAppear {
-      Task {
-        await viewModel.loadCurrentPolicy()
-      }
-    }
+
+    .task { await viewModel.loadCurrentPolicy() }
+
     .overlay {
       if viewModel.isLoading {
         Color.black.opacity(0.15)
