@@ -91,9 +91,10 @@ final class CollaboratorManagementViewModel: ObservableObject {
         )
             // Final message after colaborator is saved
             do {
-                let created = try await repository.createCollaborator(newCollaborador)
-                successMessage = "Se agregó a \(created.name) \(created.lastName) como colaboradora."
+                _ = try await repository.createCollaborator(newCollaborador)
+                successMessage = "Se agregó a \(newCollaborador.name) \(newCollaborador.lastName) como colaboradora."
                 resetForm()
+                isFormVisible = false
             } catch {
                 print("Error al crear colaboradora: ", error)
                 handle(error)

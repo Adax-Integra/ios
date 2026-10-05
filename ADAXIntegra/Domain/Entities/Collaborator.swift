@@ -25,15 +25,15 @@ struct NewCollaborator: Encodable {
 }
 
 
-struct Collaborator: Identifiable, Decodable {
+struct Collaborator: Decodable {
     
-    let id: String
-    let name: String
-    let lastName: String
-    let email: String
-    let password: String
-    let phone: String
-    let role: String
+    let id: String?
+    let name: String?
+    let lastName: String?
+    let email: String?
+    let password: String?
+    let phone: String?
+    let role: String?
     
     
     enum CodingKeys: String, CodingKey {
