@@ -51,6 +51,9 @@ struct RegisterExternalPage: View {
                 .padding(20)
             }
         }
+        .task {
+            await viewModel.loadCountries()
+        }
     }
     
     private var profileSection: some View {
@@ -196,7 +199,7 @@ struct RegisterExternalPage: View {
             SearchableDropdown(
                 title: "País",
                 prompt: "Selecciona un país",
-                options: viewModel.countries.map(\.name),
+                options: viewModel.countries.map(\.nameEs),
                 selection: $viewModel.country
             )
             
