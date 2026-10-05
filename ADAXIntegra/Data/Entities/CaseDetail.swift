@@ -5,10 +5,11 @@
 //  Entity for US V-11 full case detail
 //  Decodes the backend's RAW response directly into camelCase Swift properties
 //
-
 import Foundation
 
-/// Represents the complete details of a case decoded directly from the backend JSON response.
+// Full detail of a single case, as returned by GET /cases/:caseId
+// the backend sends the raw information, so each property below corresponds to the exact snake_case key returned by Supabase
+
 struct CaseDetail: Decodable {
     let caseId: String
     let caseNumber: String?
@@ -19,12 +20,14 @@ struct CaseDetail: Decodable {
     let recordId: String?
     let createdAt: String?
     let updatedAt: String?
-    let user: CaseDetailUser
-    let steps: [CaseDetailStep]
-    let helps: [CaseDetailHelp]
-    let violenceTypes: [CaseDetailViolenceType]
 
-    private enum CodingKeys: String, CodingKey {
+    // Raw nested shapes as they arrive in the JSON
+    let record: CaseDetailRecord
+    let caseSteps: [CaseDetailStep]
+    let caseViolence: [CaseDetailViolenceWrapper]
+    let caseHelp: [CaseDetailHelpWrapper]
+
+    enum CodingKeys: String, CodingKey {
         case caseId = "case_id"
         case caseNumber = "case_number"
         case writtenDescription = "written_description"
@@ -40,38 +43,20 @@ struct CaseDetail: Decodable {
         case caseHelp = "case_help"
     }
 
-    private enum RecordCodingKeys: String, CodingKey {
-        case user
-    }
-    // Custom initializer to handle custom decoding logic and fallbacks
-    init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-
-        caseId = try container.decode(String.self, forKey: .caseId)
-        caseNumber = try container.decodeIfPresent(String.self, forKey: .caseNumber)
-        writtenDescription = try container.decodeIfPresent(String.self, forKey: .writtenDescription)
-        writtenHelpsWanted = try container.decodeIfPresent(String.self, forKey: .writtenHelpsWanted)
-        hasLawyer = try container.decodeIfPresent(Bool.self, forKey: .hasLawyer) ?? false
-        state = try container.decode(String.self, forKey: .state)
-        recordId = try container.decodeIfPresent(String.self, forKey: .recordId)
-        createdAt = try container.decodeIfPresent(String.self, forKey: .createdAt)
-        updatedAt = try container.decodeIfPresent(String.self, forKey: .updatedAt)
-
-        let recordContainer = try? container.nestedContainer(keyedBy: RecordCodingKeys.self, forKey: .record)
-        user = try recordContainer?.decode(CaseDetailUser.self, forKey: .user)
-            ?? CaseDetailUser(userId: nil, name: nil, lastName: nil)
-
-        steps = try container.decodeIfPresent([CaseDetailStep].self, forKey: .caseSteps) ?? []
-
-        // helps with "unwraping" the case_violence/case_help arrive info when tey arrive like json because of backend so the app only deals with the inner content
-        let violenceWrappers = try container.decodeIfPresent([CaseDetailViolenceWrapper].self, forKey: .caseViolence) ?? []
-        violenceTypes = violenceWrappers.map { $0.violenceTypes }
-
-        let helpWrappers = try container.decodeIfPresent([CaseDetailHelpWrapper].self, forKey: .caseHelp) ?? []
-        helps = helpWrappers.map { $0.helpTypes }
-    }
+    // we unwrap supabase join structure so  we "help" the View and ViewModel by not letting them deal with raw JSON structure
+    var user: CaseDetailUser { record.user }
+    var steps: [CaseDetailStep] { caseSteps }
+    var helps: [CaseDetailHelp] { caseHelp.map { $0.helpTypes } }
+    var violenceTypes: [CaseDetailViolenceType] { caseViolence.map { $0.violenceTypes } }
 }
 
+
+// Intermediate container as the backend nests the external user info
+struct CaseDetailRecord: Decodable {
+    let user: CaseDetailUser
+}
+
+// Basic info about the external who the case belongs to
 struct CaseDetailUser: Decodable {
     let userId: String?
     let name: String?
@@ -83,7 +68,8 @@ struct CaseDetailUser: Decodable {
         case lastName = "last_name"
     }
 }
-// Represents a step/stage associated with the case.
+
+
 struct CaseDetailStep: Decodable, Identifiable {
     let caseStepId: String?
     let stepNumber: Int?
@@ -95,6 +81,8 @@ struct CaseDetailStep: Decodable, Identifiable {
         case status
     }
 
+    // identifiable needs a non-optional id for ForEach/List to work so  this fallback
+    // avoids a crash if it's ever missing the caseStepId
     var id: String { caseStepId ?? UUID().uuidString }
 }
 
@@ -110,7 +98,8 @@ struct CaseDetailHelp: Decodable, Identifiable {
     var id: String { helpId ?? UUID().uuidString }
 }
 
-private struct CaseDetailHelpWrapper: Decodable {
+// Supabase returns each help item as { "help_types": {...} } This wrapper matches that structure so Swift  can decode it into  CaseDetailHelp
+struct CaseDetailHelpWrapper: Decodable {
     let helpTypes: CaseDetailHelp
 
     enum CodingKeys: String, CodingKey {
@@ -132,7 +121,8 @@ struct CaseDetailViolenceType: Decodable, Identifiable {
     var id: String { violenceId ?? UUID().uuidString }
 }
 
-private struct CaseDetailViolenceWrapper: Decodable {
+// Same thing as CaseDetailHelpWrapper but for  "case_violence"
+struct CaseDetailViolenceWrapper: Decodable {
     let violenceTypes: CaseDetailViolenceType
 
     enum CodingKeys: String, CodingKey {
@@ -140,8 +130,9 @@ private struct CaseDetailViolenceWrapper: Decodable {
     }
 }
 
-// Represents the response model for closing a case (PATCH /cases/:caseId/close)
-// Decodes automatically using standard camelCase since backend formats this specific endpoint
+
+// Response from PATCH /cases/:caseId/close  but is the contrary of CaseDetail because
+// this endpoint is in  camelCase
 struct CloseCaseResult: Decodable {
     let caseId: String
     let state: String
