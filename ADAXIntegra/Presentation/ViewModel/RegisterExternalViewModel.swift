@@ -32,15 +32,28 @@ final class RegisterExternalViewModel: ObservableObject {
     @Published var result: RegisterExternalResult?
     
     private let repository: ExternalUserRepository
+    private let countryRepository: CountryRepository
     
-    init(repository: ExternalUserRepository = RemoteExternalUserRepository()) {
+    @Published private(set) var countries: [Country] = []
+    
+    init(
+        repository: ExternalUserRepository = RemoteExternalUserRepository(),
+        countryRepository: CountryRepository = CachedCountryRepository(remote: RemoteCountryRepository())
+    ) {
         self.repository = repository
+        self.countryRepository = countryRepository
     }
     
-    let countries: [Country] = Country.all
+    func loadCountries() async {
+        do {
+            countries = try await countryRepository.getCountries()
+        } catch {
+            errorMessage = "No se pudieron cargar los países."
+        }
+    }
     
     var stateOptions: [String] {
-        Country.first(named: country ?? "", in: countries)?.states ?? []
+        Country.first(name: country ?? "", in: countries)?.stateNames ?? []
     }
     
     var birthDate: Date? { Self.uiDateFormatter.date(from: birthDateInput) }
