@@ -32,7 +32,6 @@ struct CreateAccountRequestModel: Encodable {
 // response received after creating the account
 struct CreateAccountResponseModel: Decodable {
   let success: Bool
-  let data: CreateAccountDataModel
 }
 
 struct CreateAccountDataModel: Decodable {

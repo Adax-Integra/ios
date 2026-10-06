@@ -8,16 +8,15 @@
 
 // passes the registration data to the repository and returns the created account to the ViewModel
 
-final class CreateAccountUseCase {
-  private let repository: CreateAccountRepositoryP
+struct CreateAccountUseCase {
+  private let repository: CreateAccountRepository
 
-  init(repository: CreateAccountRepositoryP) {
+  init(repository: CreateAccountRepository) {
     self.repository = repository
   }
 
-  // recives the form data and waits for the repository's response
-  // returns the account information or passes the error to the ViewModel
-  func execute(input: CreateAccountInput) async throws -> CreateAccountEntity {
+  // waits for the request to finish and passes any error to the ViewModel
+  func execute(input: CreateAccountInput) async throws {
     try await repository.createAccount(input: input)
   }
 }

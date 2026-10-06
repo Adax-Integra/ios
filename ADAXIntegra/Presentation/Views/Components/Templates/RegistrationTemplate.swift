@@ -20,6 +20,13 @@ struct RegistrationTemplate: View {
   @Binding var password: String
   @Binding var confirmPassword: String
 
+  var countries: [Country]
+
+  // phone codes from teh country catalog
+  private var phoneCountryCodes: [String] {
+    Country.dialCodes(in: countries)
+  }
+
   let backAction: () -> Void
   let registerAction: () -> Void
 
@@ -49,6 +56,7 @@ struct RegistrationTemplate: View {
             phoneNumber: $phoneNumber,
             password: $password,
             confirmPassword: $confirmPassword,
+            countryCodes: phoneCountryCodes,
             action: registerAction
           )
         }

@@ -15,12 +15,25 @@ final class RegistrationViewModel: ObservableObject {
   @Published var isLoading = false
   @Published var errorMessage: String?
   @Published var accountCreated = false
+  // stores the country catalog for the phone dropdown
+  @Published private(set) var countries: [Country] = []
 
+  private let countryRepository: CountryRepository
   private let createAccountUseCase: CreateAccountUseCase
 
   init() {
-    let repository = CreateAccountRepository()
+    let repository = RemoteCreateAccountRepository()
     createAccountUseCase = CreateAccountUseCase(repository: repository)
+    countryRepository = RemoteCountryRepository()
+  }
+
+  // loads teh country catalog for the phone codes
+  func loadCountries() async {
+    do {
+      countries = try await countryRepository.getCountries()
+    } catch {
+      errorMessage = "No se pudieron cargar las ladas."
+    }
   }
 
   // sends the form data to create the account
@@ -51,13 +64,19 @@ final class RegistrationViewModel: ObservableObject {
     )
 
     do {
-      let account = try await createAccountUseCase.execute(input: input)
+      try await createAccountUseCase.execute(input: input)
+      accountCreated = true
 
-      if !account.userId.isEmpty {
-        accountCreated = true
-      }
     } catch {
-      errorMessage = error.localizedDescription
+      // reads the error detail stored by APIProtocol
+      if let apiError = error as? APIError {
+        switch apiError {
+        case .requestFailed(let message):
+          errorMessage = message
+        }
+      } else {
+        errorMessage = error.localizedDescription
+      }
     }
 
     isLoading = false

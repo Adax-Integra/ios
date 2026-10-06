@@ -20,6 +20,9 @@ struct RegistrationForm: View {
   @Binding var password: String
   @Binding var confirmPassword: String
 
+  // recives the phone codes provided by the template
+  var countryCodes: [String]
+
   let action: () -> Void
 
   // enables registration if all fields contain valid data
@@ -52,6 +55,7 @@ struct RegistrationForm: View {
       )
 
       PhoneField(
+        countryCodes: countryCodes,
         countryCode: $countryCode,
         phone: $phoneNumber
       )
@@ -97,6 +101,7 @@ struct RegistrationForm: View {
     phoneNumber: $phoneNumber,
     password: $password,
     confirmPassword: $confirmPassword,
+    countryCodes: ["+52", "+1"],
     action: { print("Formulario enviado") }
   )
   .padding()

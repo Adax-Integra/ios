@@ -30,6 +30,7 @@ struct RegistrationPage: View {
       phoneNumber: $phoneNumber,
       password: $password,
       confirmPassword: $confirmPassword,
+      countries: viewModel.countries,
       backAction: {
         dismiss()
       },
@@ -56,6 +57,9 @@ struct RegistrationPage: View {
         }
       }
     )
+    .task {
+      await viewModel.loadCountries()
+    }
     .alert(
       "No se pudo crear la cuenta.",
       isPresented: Binding(
