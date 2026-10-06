@@ -12,6 +12,7 @@ struct RecordDetails: Identifiable, Codable {
   let writtenDescription: String
   let writtenHelpsWanted: String
   let hasLawyer: Bool
+  let state: String  // State as in status
   let createdAt: Date
   let updatedAt: Date
   let helps: [String]
@@ -22,6 +23,7 @@ struct RecordDetails: Identifiable, Codable {
     case writtenDescription
     case writtenHelpsWanted
     case hasLawyer
+    case state
     case createdAt
     case updatedAt
     case helps
