@@ -48,6 +48,16 @@ struct ExpedientesPage: View {
           )
         }
 
+        NavigationLink {
+
+        } label: {
+          MenuRow(
+            icon: "arrow.down.document",
+            title: "Reportes",
+            subtitle: "Descarga el reporte mensual"
+          )
+        }
+
       }
       .padding(16)
     }
