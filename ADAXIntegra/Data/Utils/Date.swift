@@ -22,8 +22,15 @@ import Foundation
 */
 
 extension Date {
-  // Formatter to use to parse Date with timestamp w/o timezone to string
-  private static let formatter = ISO8601DateFormatter()
+  /*
+   Formatter to use to parse Date with timestamp w/o timezone to string.
+   Invoked closure, used to configure a property with custom logic.
+  */
+  private static let formatter: ISO8601DateFormatter = {
+    let formatter = ISO8601DateFormatter()
+    formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+    return formatter
+  }()
 
   /*
    This is not a stored variable,
