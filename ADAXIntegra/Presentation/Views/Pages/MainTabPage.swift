@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct MainTabPage: View {
-  @State private var selectedTab: AppTab = .cases
+  @State private var selectedTab: AppTab = .home
   let userId: String
 
   var body: some View {
