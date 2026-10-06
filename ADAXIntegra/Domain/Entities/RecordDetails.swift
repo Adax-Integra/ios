@@ -45,4 +45,9 @@ struct RecordDetails: Identifiable, Codable {
   var updatedTimeString: String {
     updatedAt.timeString
   }
+
+  // Backend sends each help with a "\n" at the end
+  var cleanHelps: [String] {
+    helps.map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+  }
 }
