@@ -20,7 +20,7 @@ enum CreateAccountRepositoryError: LocalizedError {
     case .server(let message):
       return message
     }
-  }
+  } 
 }
 
 // sends the registration form with the backend
