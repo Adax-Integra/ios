@@ -21,7 +21,9 @@ struct PrivacyNoticePage: View {
 
       ScrollView {
         VStack(alignment: .leading, spacing: 16) {
-          PageHeader(title: "Aviso de privacidad", backAction: { showExitModal = true })
+          Text("Aviso de privacidad")
+            .font(.system(size: 28, weight: .bold))
+            .foregroundColor(Color("OnBackground"))
 
           Text("Tu información está segura con nosotras")
             .font(.system(size: 15, weight: .semibold))
