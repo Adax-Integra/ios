@@ -10,7 +10,7 @@ import Foundation
 
 // We don't add @MainActor
 final class RecordDetailsViewModel: ObservableObject {
-  @Published var recordDetails: RecordDetails?
+  @Published var recordDetails: [RecordDetails] = []
   @Published var isLoading: Bool = false
   @Published var errorMessage: String?
 
@@ -30,7 +30,7 @@ final class RecordDetailsViewModel: ObservableObject {
       let result = try await repository.getRecordFromExternal(for: externalId)
       guard !Task.isCancelled else { return }
       recordDetails = result
-      if result == nil {
+      if result.isEmpty {
         errorMessage = "No se ha encontrado ningún caso perteneciente a este expediente"
       }
     } catch {
