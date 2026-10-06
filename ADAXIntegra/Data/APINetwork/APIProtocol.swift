@@ -9,6 +9,8 @@ import Foundation
 
 enum APIError: Error {
   case requestFailed(String)
+  // The backend answered with an error status (400, 403, 404, 409, ...)
+  case server(statusCode: Int, message: String?)
 }
 
 struct APIProtocol {
@@ -81,6 +83,39 @@ struct APIProtocol {
           continuation.resume(returning: value)
         case .failure(let error):
           continuation.resume(throwing: APIError.requestFailed(error.localizedDescription))
+        }
+      }
+    }
+  }
+
+  // G-07: Unlike the other methods, it keeps the status code so
+  // the ViewModel can tell a duplicated email (409) from other errors
+  static func patch<Body: Encodable, T: Decodable>(
+    _ path: String,
+    body: Body,
+    as type: T.Type
+  ) async throws -> T {
+    return try await withCheckedThrowingContinuation { continuation in
+      AF.request(
+        APIConfig.baseURL + path,
+        method: .patch,
+        parameters: body,
+        encoder: JSONParameterEncoder.default,
+        headers: authHeaders
+      )
+      .validate()
+      .responseDecodable(of: T.self) { response in
+        switch response.result {
+        case .success(let value): continuation.resume(returning: value)
+        case .failure(let error):
+          if let statusCode = response.response?.statusCode, statusCode >= 400 {
+            let message = response.data.flatMap {
+              try? JSONDecoder().decode(APIErrorBody.self, from: $0)
+            }?.error
+            continuation.resume(throwing: APIError.server(statusCode: statusCode, message: message))
+          } else {
+            continuation.resume(throwing: APIError.requestFailed(error.localizedDescription))
+          }
         }
       }
     }
