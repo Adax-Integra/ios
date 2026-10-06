@@ -61,22 +61,6 @@ final class PreSubmissionViewModel: ObservableObject {
     return original != form || newIdentityDocument != nil || newProofOfAddress != nil
   }
 
-  /*
-   The API sends and receives the birth date as "yyyy-MM-dd",
-   while DateButton works with a Date.
-   Instead of creating a function for formatting the date,
-   it's better if we create a value and reuse evertime it
-   is called.
-  */
-  private static let birthDateFormatter: DateFormatter = {
-    // Creates an empty formatter
-    let formatter = DateFormatter()
-    // Make the format the same for every user or phone regardless of region
-    formatter.locale = Locale(identifier: "en_US_POSIX")
-    formatter.dateFormat = "yyyy-MM-dd"
-    return formatter
-  }()
-
   init(
     repository: PreSubmissionRepository,
     countryRepository: CountryRepository,
@@ -196,7 +180,8 @@ final class PreSubmissionViewModel: ObservableObject {
 
     form.firstName = profile?.name ?? ""
     form.lastName = profile?.lastName ?? ""
-    form.birthDate = profile?.birthDate.flatMap(Self.birthDateFormatter.date(from:))
+
+    form.birthDate = profile?.birthDate.flatMap(Date.parseBirthDate)
     /*
      The API sends one string like "+521234567890", due to the form having two fields.
      We need to add separate the country code from the phone number.
@@ -232,8 +217,7 @@ final class PreSubmissionViewModel: ObservableObject {
       profile: Profile(
         name: form.firstName,
         lastName: form.lastName,
-        birthDate: form.birthDate.map(Self.birthDateFormatter.string(from:))
-          ?? base.profile?.birthDate,
+        birthDate: form.birthDate?.birthDateString ?? base.profile?.birthDate,
         phone: (form.countryCode ?? "") + form.phone
       ),
       address: Address(
