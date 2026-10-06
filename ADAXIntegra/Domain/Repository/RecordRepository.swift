@@ -8,5 +8,5 @@
 import Foundation
 
 protocol RecordRepository {
-  func getRecordFromExternal(for externalId: String) async throws -> RecordDetails?
+  func getRecordFromExternal(for externalId: String) async throws -> [RecordDetails]
 }

@@ -6,10 +6,10 @@
 //
 
 struct RemoteRecordRepository: RecordRepository {
-  func getRecordFromExternal(for externalId: String) async throws -> RecordDetails? {
+  func getRecordFromExternal(for externalId: String) async throws -> [RecordDetails] {
     let response = try await APIProtocol.get(
       "/internal-users/\(externalId)/allCases",
-      as: APIResponse<RecordDetails>.self)
+      as: APIResponse<[RecordDetails]>.self)
     return response.data
   }
 }

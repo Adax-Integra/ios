@@ -9,10 +9,11 @@ import Foundation
 
 struct RecordDetails: Identifiable, Codable {
   let id: String
-  let writtenDescription: String
-  let writtenHelpsWanted: String
+  // Backend DTO sends null for these when they are empty
+  let writtenDescription: String?
+  let writtenHelpsWanted: String?
   let hasLawyer: Bool
-  let state: String  // State as in status
+  let state: String?  // State as in status
   let createdAt: Date
   let updatedAt: Date
   let helps: [String]
