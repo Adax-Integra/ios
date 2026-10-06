@@ -12,29 +12,25 @@ struct AdminPage: View {
     
     var body: some View {
         NavigationStack {
-            ZStack {
-                Color("Background").ignoresSafeArea()
-                
-                VStack(alignment: .leading, spacing: 24) {
-                    Text("Administración")
-                        .font(.system(size: 28, weight: .bold))
-                        .foregroundColor(Color("OnBackground"))
-                    
-                    PrimaryButton(
-                        customHeight: 20,
-                        title: "Gestion de colaboradoras",
-                        isDisabled: false
-                    ) {
-                        showCollaboratorManagment = true
+            ScrollView {
+                    VStack(alignment: .leading, spacing: 16) {
+                      Text("Administración").font(.system(size: 22, weight: .bold))
+                      Text("Administra la plataforma").font(.system(size: 13, weight: .medium))
+                        .foregroundStyle(Color("IconColor"))
+
+                      NavigationLink {
+                        CollaboratorManagementPage()
+                      } label: {
+                        MenuRow(
+                          icon: "person.2",
+                          title: "Gestión de colaboradoras",
+                          subtitle: "Alta y control de cuentas"
+                        )
+                      }
                     }
-                    
-                    Spacer()
-                }
-                .padding()
+                    .padding(16)
             }
-            .navigationDestination(isPresented: $showCollaboratorManagment) {
-                CollaboratorManagementPage()
-            }
+            .background(Color("BackgroundColor"))
         }
     }
 }
