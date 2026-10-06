@@ -10,8 +10,3 @@ struct APIResponse<T: Decodable>: Decodable {
   let success: Bool
   let data: T
 }
-
-// Error body sent by the backend: { success: false, error: "..." }
-nonisolated struct APIErrorBody: Decodable {
-  let error: String?
-}
