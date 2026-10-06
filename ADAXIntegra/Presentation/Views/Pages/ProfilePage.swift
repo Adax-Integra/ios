@@ -10,6 +10,7 @@ import SwiftUI
 struct ProfilePage: View {
   @EnvironmentObject private var session: AuthSession
   @StateObject private var viewModel = ProfileViewModel()
+  @State private var showLogoutConfirmation = false
 
   var body: some View {
     ZStack {
@@ -28,6 +29,12 @@ struct ProfilePage: View {
       }
     }
     .task { await viewModel.loadProfile(for: session.userId) }
+    .alert("Cerrar sesión", isPresented: $showLogoutConfirmation) {
+      Button("Cerrar sesión") { session.logout() }
+      Button("Cancelar", role: .cancel) {}
+    } message: {
+      Text("¿Quieres cerrar tu sesión?")
+    }
   }
 
   private var content: some View {
@@ -59,7 +66,7 @@ struct ProfilePage: View {
       PrimaryButton(
         title: "Cerrar sesión",
         isDisabled: false,
-        action: { session.logout() }
+        action: { showLogoutConfirmation = true }
       )
     }
     .padding(20)
