@@ -8,38 +8,39 @@
 import SwiftUI
 
 struct CloseCaseAction: View {
-    let onCloseCaseTapped: () -> Void
-    let onCancelTapped: () -> Void
+  let onCloseCaseTapped: () -> Void
+  let onCancelTapped: () -> Void
 
-    var body: some View {
-        VStack(spacing: 16) {
-            PrimaryButton(
-                customWidth: 343,
-                customHeight: 40,
-                title: "Cerrar Caso",
-                isDisabled: false,
-                action: onCloseCaseTapped
-            )
-            
-            SecondaryButton(
-                customWidth: 343,
-                customHeight: 50,
-                title: "Cancelar",
-                isDisabled: false,
-                action: onCancelTapped
-            )
-        }
-        .padding(.vertical, 16)
+  var body: some View {
+    HStack(spacing: 16) {
+      PrimaryButton(
+        customWidth: 150,
+        customHeight: 23,
+        title: "Cerrar Caso",
+        isDisabled: false,
+        action: onCloseCaseTapped
+      )
+
+      SecondaryButton(
+        customWidth: 163,
+        customHeight: 50,
+        title: "Cancelar",
+        isDisabled: false,
+        action: onCancelTapped
+      )
     }
+    .padding(.vertical, 16)
+    .padding(.horizontal, 16)
+  }
 }
 
 #Preview {
-    ZStack {
-        Color(UIColor.systemGray6).ignoresSafeArea()
-        
-        CloseCaseAction(
-            onCloseCaseTapped: { print("Abrir modal de confirmación") },
-            onCancelTapped: { print("Regresar a expedientes") }
-        )
-    }
+  ZStack {
+    Color(UIColor.systemGray6).ignoresSafeArea()
+
+    CloseCaseAction(
+      onCloseCaseTapped: { print("Abrir modal de confirmación") },
+      onCancelTapped: { print("Regresar a expedientes") }
+    )
+  }
 }

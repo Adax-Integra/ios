@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct HomePage: View {
-    var body: some View {
-        Text("Inicio")
-    }
+  var body: some View {
+    Text("Inicio")
+  }
 }
