@@ -16,6 +16,7 @@ struct CaseDetailsPage: View {
     
     
     @State private var showCloseModal = false
+    @State private var showCommentsModal = false
     @Environment(\.dismiss) private var dismiss
 
     init(caseId: String) {
@@ -66,6 +67,13 @@ struct CaseDetailsPage: View {
                     CaseHelpWanted(
                         helpwanted: viewModel.caseDetail?.writtenHelpsWanted ?? ""
                     )
+                    CaseCommentsSection(
+                        viewModel: viewModel,
+                        onTap: {
+                            showCommentsModal = true
+                        }
+                    )
+                    
                 },
                 bottomActions: {
                     CloseCaseAction(
@@ -101,11 +109,15 @@ struct CaseDetailsPage: View {
         }
         .task {
             await viewModel.loadCase()
+            await viewModel.loadComments()
         }
         .toast(
             isPresented: $viewModel.showToast,
             message: viewModel.toastMessage
         )
+        .sheet(isPresented: $showCommentsModal) {
+            CommentsView(viewModel: viewModel)
+        }
     }
 }
 // we use a real case ID to see in the preview

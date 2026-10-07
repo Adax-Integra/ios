@@ -23,15 +23,37 @@ struct Comment: Identifiable, Codable {
         case timeSent
         case author
     }
-}
 
+    //  property to display a datewith good format
+    var formattedTime: String {
+        guard let timeSent = timeSent else { return "—" }
+        
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        
+        var date = formatter.date(from: timeSent)
+        
+        // Fallback without fractional seconds
+        if date == nil {
+            let fallbackFormatter = ISO8601DateFormatter()
+            date = fallbackFormatter.date(from: timeSent)
+        }
+        
+        guard let validDate = date else { return timeSent }
+        
+        let displayFormatter = DateFormatter()
+        displayFormatter.locale = Locale(identifier: "es_MX")
+        displayFormatter.dateFormat = "d MMM, h:mm a"
+        return displayFormatter.string(from: validDate)
+    }
+}
 // Represents the author details of a comment
+
 struct CommentAuthor: Codable {
     let userId: String?
     let name: String?
     let lastName: String?
 
-// We return de authors name
     var fullName: String {
         let first = name ?? ""
         let last = lastName ?? ""
