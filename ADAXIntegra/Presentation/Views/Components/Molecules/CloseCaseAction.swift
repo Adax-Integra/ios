@@ -12,17 +12,17 @@ struct CloseCaseAction: View {
     let onCancelTapped: () -> Void
 
     var body: some View {
-        VStack(spacing: 16) {
+        HStack(spacing: 16) {
             PrimaryButton(
-                customWidth: 343,
-                customHeight: 40,
-                title: "Cerrar Caso",
-                isDisabled: false,
-                action: onCloseCaseTapped
-            )
+                    customWidth: 150,
+                    customHeight: 23,
+                    title: "Cerrar Caso",
+                    isDisabled: false,
+                    action: onCloseCaseTapped
+                )
             
             SecondaryButton(
-                customWidth: 343,
+                customWidth: 163,
                 customHeight: 50,
                 title: "Cancelar",
                 isDisabled: false,
@@ -30,6 +30,7 @@ struct CloseCaseAction: View {
             )
         }
         .padding(.vertical, 16)
+        .padding(.horizontal, 16) 
     }
 }
 

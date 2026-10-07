@@ -37,10 +37,10 @@ struct CloseCase: View {
             }
             
             // We call the buttons for primary and secondary button atom
-            VStack(spacing: 12) {
+            HStack(spacing: 12) {
                 PrimaryButton(
                     customWidth: 280,
-                    customHeight: 48,
+                    customHeight: 20,
                     title: "Sí, cerrar",
                     isDisabled: false,
                     action: onConfirm
