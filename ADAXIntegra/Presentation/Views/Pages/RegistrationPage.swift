@@ -20,6 +20,7 @@ struct RegistrationPage: View {
   @State private var phoneNumber = ""
   @State private var password = ""
   @State private var confirmPassword = ""
+  @State private var showSuccess = false
 
   var body: some View {
     RegistrationTemplate(
@@ -52,7 +53,7 @@ struct RegistrationPage: View {
           )
           // returns to login after the account is created successfully
           if viewModel.accountCreated {
-            dismiss()
+            showSuccess = true
           }
         }
       }
@@ -77,6 +78,13 @@ struct RegistrationPage: View {
       Button("Aceptar", role: .cancel) {}
     } message: {
       Text(viewModel.errorMessage ?? "")
+    }
+    .alert("Cuenta creada", isPresented: $showSuccess) {
+      Button("Ir a iniciar sesión") {
+        dismiss()
+      }
+    } message: {
+      Text("Tu cuenta se creó correctamente.")
     }
   }
 }
