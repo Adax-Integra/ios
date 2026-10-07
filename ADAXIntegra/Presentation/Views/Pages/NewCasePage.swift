@@ -103,8 +103,15 @@ struct NewCasePage: View {
     func createCase(_ newCase: NewCase, userId: String) async -> String? {
       UUID().uuidString
     }
-  }
 
+    func getCaseDetail(caseId: String) async throws -> CaseDetail {
+      fatalError("not used in this preview")
+    }
+
+    func closeCase(caseId: String) async throws -> Bool {
+      true
+    }
+  }
   #Preview {
     NewCasePage(
       viewModel: NewCaseViewModel(

@@ -52,10 +52,10 @@ struct AdminPage: View {
             }
             .background(Color("BackgroundColor"))
         }
-      
     }
+  }
 }
 
 #Preview {
-    AdminPage()
+  AdminPage()
 }
