@@ -10,16 +10,17 @@ import SwiftUI
 struct CasesPageInterna: View {
     @Environment(\.dismiss) private var dismiss
     @StateObject private var viewModel = CasesViewModelInterna()
-    @State private var showUrgencyFilter = false
     
     var body: some View {
         ListPageTemplate {
             PageHeader(title: "Casos", backAction: { dismiss() })
         } toolbar: {
-            CaseListToolbar(searchText: $viewModel.searchText,
+            CaseListToolbar(
+                            searchText: $viewModel.searchText,
+                            selectedFilter: $viewModel.urgencyFilter,
                             totalCases: viewModel.total,
-                            onFilterTapped: { showUrgencyFilter = true}
-            )
+                            filterOptions: viewModel.urgencyOptions
+                        )
         } content: {
             if viewModel.isLoading && viewModel.cases.isEmpty {
                 ProgressView()
@@ -50,12 +51,6 @@ struct CasesPageInterna: View {
             try? await Task.sleep(for: .milliseconds(300))
             guard !Task.isCancelled else { return }
             await viewModel.loadCases()
-        }
-        
-        .confirmationDialog("Filtrar por urgencia", isPresented: $showUrgencyFilter) {
-            ForEach(viewModel.urgencyOptions, id: \.self) { option in
-                Button(option) {viewModel.urgencyFilter = option}
-            }
         }
         
     }
