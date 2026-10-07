@@ -25,11 +25,43 @@ struct RegistrationForm: View {
 
   let action: () -> Void
 
+  private var fullName: String {
+    let firstName = name.trimmingCharacters(in: .whitespacesAndNewlines)
+    let surname = lastName.trimmingCharacters(in: .whitespacesAndNewlines)
+    return "\(firstName) \(surname)"
+  }
+
+  private var isNameValid: Bool {
+    let firstName = name.trimmingCharacters(in: .whitespacesAndNewlines)
+    let surname = lastName.trimmingCharacters(in: .whitespacesAndNewlines)
+    let fullName = "\(firstName) \(surname)"
+
+    return !firstName.isEmpty && !surname.isEmpty && fullName.count <= 100
+  }
+
+  private var isEmailValid: Bool {
+    email.range(
+      of: #"^[^\s@]+@[^\s@]+\.[^\s@]+$"#,
+      options: .regularExpression
+    ) != nil
+  }
+
+  // checks the password requirements
+  private var isPasswordValid: Bool {
+    password.count >= 8 && password.count <= 24
+      && password.rangeOfCharacter(from: .uppercaseLetters) != nil
+      && password.rangeOfCharacter(from: .decimalDigits) != nil
+      && password.rangeOfCharacter(from: .punctuationCharacters.union(.symbols)) != nil
+  }
+
   // enables registration if all fields contain valid data
   private var isFormValid: Bool {
-    !name.isEmpty && !lastName.isEmpty && !email.isEmpty && email.contains("@")
-      && countryCode != nil && phoneNumber.count == 10
-      && password.count >= 8 && password == confirmPassword
+    isNameValid && isEmailValid
+      && countryCode != nil
+      && phoneNumber.count == 10
+      && phoneNumber.allSatisfy { $0.isNumber }
+      && isPasswordValid
+      && password == confirmPassword
   }
 
   var body: some View {
@@ -41,11 +73,19 @@ struct RegistrationForm: View {
         text: $name
       )
 
-      LabeledTextField(
-        title: "Apellido",
-        placeholder: "Ingresa tu apellido",
-        text: $lastName
-      )
+      VStack(alignment: .leading, spacing: 6) {
+        LabeledTextField(
+          title: "Apellido",
+          placeholder: "Ingresa tu apellido",
+          text: $lastName
+        )
+
+        if fullName.count > 100 {
+          Text("El nombre completo debe tener máximo 100 caracteres.")
+            .font(.caption)
+            .foregroundStyle(.red)
+        }
+      }
 
       LabeledTextField(
         title: "Correo electrónico",
@@ -60,23 +100,38 @@ struct RegistrationForm: View {
         phone: $phoneNumber
       )
 
-      PasswordTextField(
-        title: "Contraseña",
-        placeholder: "Ingresa tu contraseña",
-        text: $password
-      )
+      VStack(alignment: .leading, spacing: 6) {
+        PasswordTextField(
+          title: "Contraseña",
+          placeholder: "Ingresa tu contraseña",
+          text: $password
+        )
 
-      PasswordTextField(
-        title: "Confirmar contraseña",
-        placeholder: "Confirma tu contraseña",
-        text: $confirmPassword
-      )
+        Text("Debe tener entre 8 y 24 caracteres, una mayúscula, un número y un carácter especial.")
+          .font(.caption)
+          .foregroundStyle(.secondary)
+          .fixedSize(horizontal: false, vertical: true)
+      }
+
+      VStack(alignment: .leading, spacing: 6) {
+        PasswordTextField(
+          title: "Confirmar contraseña",
+          placeholder: "Confirma tu contraseña",
+          text: $confirmPassword
+        )
+
+        if !confirmPassword.isEmpty && password != confirmPassword {
+          Text("Las contraseñas no coinciden.")
+            .font(.caption)
+            .foregroundStyle(.red)
+        }
+      }
 
       PrimaryButton(
         customWidth: .infinity,
         customHeight: 30,
         title: "Registrarse",
-        isDisabled: !isFormValid,
+        isDisabled: !isFormValid
       ) {
         action()
       }
@@ -84,6 +139,7 @@ struct RegistrationForm: View {
     }
   }
 }
+
 #Preview {
   @Previewable @State var name = ""
   @Previewable @State var lastName = ""
