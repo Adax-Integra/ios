@@ -73,12 +73,26 @@ final class RegistrationViewModel: ObservableObject {
         switch apiError {
         case .requestFailed(let message):
           errorMessage = message
+
+        case .server(let statusCode, let data):
+          errorMessage =
+            statusCode == 409
+            ? "Este correo ya está registrado."
+            : "No pudimos crear tu cuenta. Intenta de nuevo."
+
+          // uses the backend message when ir is available
+          if let data,
+            let response = try? JSONSerialization.jsonObject(with: data),
+            let body = response as? [String: Any],
+            let message = body["message"] as? String
+          {
+            errorMessage = message
+          }
         }
       } else {
         errorMessage = error.localizedDescription
       }
     }
-
     isLoading = false
   }
 }

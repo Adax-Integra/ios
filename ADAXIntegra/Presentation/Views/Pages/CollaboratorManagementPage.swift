@@ -10,57 +10,58 @@ import SwiftUI
 struct CollaboratorManagementPage: View {
 
   @Environment(\.dismiss) private var dismiss
-
-  @State private var showForm = false
-  @State private var firstName = ""
-  @State private var lastName = ""
-  @State private var email = ""
-  @State private var password = ""
-  @State private var phone = ""
-
-  // Temporal validator the real one will go within the ViewModel
-
-  private var isFormIncomplete: Bool {
-    [firstName, lastName, email, password, phone]
-      .contains { $0.trimmingCharacters(in: .whitespaces).isEmpty }
-  }
+  @StateObject private var viewModel = CollaboratorManagementViewModel()
 
   var body: some View {
     ZStack {
       Color("Background").ignoresSafeArea()
 
-      VStack {
+      VStack(spacing: 16) {
         PageHeader(
           title: "Gestión de Colaboradoras",
           backAction: { dismiss() },
           subtitle: "Administra las cuentas de colaboradoras"
         )
 
-        PrimaryButton(
-          customHeight: 20,
-          title: "Agregar Colaboradora",
-          isDisabled: false
-        ) {
-          showForm = true
+        // Opens form isted of navegation
+        Button {
+          viewModel.openForm()
+        } label: {
+          MenuRow(
+            icon: "person.badge.plus",
+            title: "Agregar colaboradora",
+            subtitle: "Registra una nueva cuenta"
+          )
         }
+        .buttonStyle(.plain)
 
         Spacer()
       }
+
       .padding()
 
-      if showForm {
+      if viewModel.isFormVisible {
         Color.black.opacity(0.5)
           .ignoresSafeArea()
 
         ScrollView {
           AddCollaboratiorForm(
-            firstName: $firstName, lastName: $lastName, email: $email, password: $password,
-            phone: $phone, isSaveDisabled: isFormIncomplete,
+            firstName: $viewModel.firstName,
+            lastName: $viewModel.lastName,
+            email: $viewModel.email,
+            password: $viewModel.password,
+            phone: $viewModel.phone,
+            isSaveDisabled: viewModel.isSaveDisabled,
+            saveTitle: viewModel.isSaving ? "Guardando..." : "Guardar",
+            nameError: viewModel.fieldErrors[.name],
+            lastNameError: viewModel.fieldErrors[.lastName],
+            emailError: viewModel.fieldErrors[.email],
+            passwordError: viewModel.fieldErrors[.password],
+            phoneError: viewModel.fieldErrors[.phone],
             onSave: {
-              print("Guardar colaboradora: ", firstName, lastName, email, phone)
-              closeForm()
+              Task { await viewModel.save() }
             },
-            onCancel: { closeForm() }
+            onCancel: { viewModel.cancelForm() }
           )
 
           .padding()
@@ -69,17 +70,38 @@ struct CollaboratorManagementPage: View {
         .transition(.opacity)
       }
     }
-    .animation(.easeInOut(duration: 0.2), value: showForm)
+    .animation(.easeInOut(duration: 0.2), value: viewModel.isFormVisible)
     .navigationBarBackButtonHidden(true)
+    // error for all the the possible fields
+    .alert("No se pudo guardar", isPresented: showGeneralError) {
+      Button("Aceptar", role: .cancel) {}
+    } message: {
+      Text(viewModel.generalError ?? "")
+    }
+    // Confirmation after creating a collaborator
+    .alert("Colaboradora agregada", isPresented: showSuccess) {
+      Button("Aceptar", role: .cancel) {}
+    } message: {
+      Text(viewModel.successMessage ?? "")
+    }
   }
 
-  private func closeForm() {
-    firstName = ""
-    lastName = ""
-    email = ""
-    password = ""
-    phone = ""
-    showForm = false
+  // shos alerts while there is a general error and clears the form when it is closed
+
+  private var showGeneralError: Binding<Bool> {
+    Binding(
+      get: { viewModel.generalError != nil },
+      set: { if !$0 { viewModel.generalError = nil } }
+    )
+  }
+
+  // Show alert while there´s a success message and clears the form when it is closed
+
+  private var showSuccess: Binding<Bool> {
+    Binding(
+      get: { viewModel.successMessage != nil },
+      set: { if !$0 { viewModel.successMessage = nil } }
+    )
   }
 }
 

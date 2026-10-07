@@ -14,6 +14,12 @@ struct AddCollaboratiorForm: View {
   @Binding var password: String
   @Binding var phone: String
   var isSaveDisabled: Bool = false
+  var saveTitle: String = "Guardar"
+  var nameError: String? = nil
+  var lastNameError: String? = nil
+  var emailError: String? = nil
+  var passwordError: String? = nil
+  var phoneError: String? = nil
   let onSave: () -> Void
   let onCancel: () -> Void
 
@@ -24,19 +30,30 @@ struct AddCollaboratiorForm: View {
         .foregroundColor(Color("OnBackground"))
 
       Divider()
-
-      FormTextField(label: "Nombre(s)", placeholder: "Tu nombre(s) aqui", text: $firstName)
-      FormTextField(label: "Apellido", placeholder: "Tus apellido(s) aqui", text: $lastName)
+      //errorMessage: nameError
       FormTextField(
-        label: "Correo", placeholder: "tu@correo.com", keyboard: .emailAddress, text: $email)
+        label: "Nombre(s)", placeholder: "Tu nombre(s) aqui", errorMessage: nameError,
+        text: $firstName)
       FormTextField(
-        label: "Contraseña", placeholder: "Tu contraseña aqui", isSecure: true, text: $password)
-      FormTextField(label: "Teléfono", placeholder: "10 dígitos", keyboard: .phonePad, text: $phone)
+        label: "Apellido", placeholder: "Tus apellido(s) aqui", errorMessage: lastNameError,
+        text: $lastName)
+      FormTextField(
+        label: "Correo", placeholder: "tu@correo.com", keyboard: .emailAddress,
+        errorMessage: emailError, text: $email)
+      FormTextField(
+        label: "Contraseña", placeholder: "Tu contraseña aqui", isSecure: true,
+        errorMessage: passwordError, text: $password)
+      FormTextField(
+        label: "Teléfono", placeholder: "10 dígitos", keyboard: .phonePad, errorMessage: phoneError,
+        text: $phone)
 
       FormActions(
-        isPrimaryDisabled: isSaveDisabled, onPrimary: onSave, onSecondary: onCancel
+        primaryTitle: saveTitle,
+        isPrimaryDisabled: isSaveDisabled,
+        onPrimary: onSave,
+        onSecondary: onCancel
       )
-      .padding()
+      .padding(.top, 8)
     }
     .padding(20)
     .background(
@@ -53,6 +70,8 @@ struct AddCollaboratiorForm: View {
     email: .constant(""),
     password: .constant(""),
     phone: .constant(""),
+    isSaveDisabled: true,
+    emailError: "Ingresa un email válido.",
     onSave: { print("Guardar") },
     onCancel: { print("Cancelar") }
   )
