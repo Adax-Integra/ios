@@ -59,6 +59,18 @@ struct RegistrationTemplate: View {
             countryCodes: phoneCountryCodes,
             action: registerAction
           )
+
+          HStack(spacing: 4) {
+            Text("¿Ya tienes una cuenta?")
+              .foregroundColor(Color("InsideTextAndIcons"))
+
+            Button("Inicia sesión") {
+              backAction()
+            }
+            .foregroundColor(Color("PrimaryAdax"))
+          }
+          .font(.system(size: 14))
+          .frame(maxWidth: .infinity)
         }
         .padding(.horizontal, 24)
         .padding(.vertical, 20)
