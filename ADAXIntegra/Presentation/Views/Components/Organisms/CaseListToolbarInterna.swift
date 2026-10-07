@@ -14,17 +14,13 @@ struct CaseListToolbar: View {
   let totalCases: Int
     let filterOptions: [String]
     
-    // show filterar when no filter is applied
-    private var filterTitle: String {
-        selectedFilter == "Todas" ? "Filtrar" : selectedFilter
-    }
-    
     
   var body: some View {
     VStack(alignment: .leading, spacing: 16) {
-      HStack(spacing: 12) {
         SearchBarInterna(placeholder: "Buscar caso...", text: $searchText)
-
+        
+      HStack(spacing: 12) {
+        
           Menu {
               Picker("Filtrar por urgencia", selection: $selectedFilter) {
                   ForEach(filterOptions, id: \.self) { option in
@@ -32,25 +28,12 @@ struct CaseListToolbar: View {
                   }
               }
           } label: {
-              HStack(spacing: 8) {
-                  Icon(color: Color("PrimaryAdax"), systemName: "line.horizontal.decrease")
-                  
-                  Text(filterTitle)
-                      .font(.headline)
-                      .foregroundColor(Color("PrimaryAdax"))
-                      .lineLimit(1)
-                      .minimumScaleFactor(0.7)
+              
+              FilterChip(title: "Urgencia", isActive: selectedFilter != "Todas")
               }
-          }
-          
-          // keeping our own atomic design insted of the menu default one
           .buttonStyle(.plain)
-          .frame(maxWidth: 80)
-              .padding()
-              .background(
-                RoundedRectangle(cornerRadius: 12, style: .continuous)
-                    .stroke(Color("PrimaryAdax"), lineWidth: 2)
-              )
+          
+          Spacer()
           
       }
 
