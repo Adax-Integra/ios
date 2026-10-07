@@ -11,6 +11,9 @@ import SwiftUI
 struct LoginPage: View {
   @StateObject var viewModel: LoginViewModel
 
+// Opens the password flow recovery
+  @State private var showForgotPassword = false
+
   var body: some View {
     // Permite hacer scroll si la pantalla es pequeña
     ScrollView {
@@ -81,14 +84,15 @@ struct LoginPage: View {
             // Nota: Falta agregar la pantalla de registro
           }
         }
-
-        Button {
-          // Boton para recuperar contraseña
-        } label: {
-          Text("¿Olvidaste tu contraseña?")
-            .font(.system(size: 16))
-            .foregroundColor(Color("SecondaryAdax"))
-        }
+          // Botton para recuperar contraseña
+          Button {
+            showForgotPassword = true
+          } label: {
+            Text("¿Olvidaste tu contraseña?")
+                .font(.system(size: 16))
+                .foregroundColor(Color("SecondaryAdax"))
+          }
+          
         .frame(maxWidth: .infinity)
         .padding(.top, 14)
       }
@@ -98,6 +102,12 @@ struct LoginPage: View {
     .scrollDismissesKeyboard(.interactively)
     // Color de fondo de la pantalla
     .background(Color("Background").ignoresSafeArea())
+    // The recovery flow opens over the login with its own navigation
+    .fullScreenCover(isPresented: $showForgotPassword) {
+        NavigationStack {
+            ForgotPasswordPage()
+        }
+    }
   }
 }
 // Permite visualizar la pantalla desde Xcode
