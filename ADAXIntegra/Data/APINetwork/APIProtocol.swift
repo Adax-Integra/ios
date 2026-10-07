@@ -152,4 +152,23 @@ struct APIProtocol {
       }
     }
   }
+    // Function delete that performs an asynchronous HTTP DELETE request implementes for us B-02 (deletes a comment)
+      static func delete(_ path: String) async throws {
+        return try await withCheckedThrowingContinuation { continuation in
+          AF.request(
+            APIConfig.baseURL + path,
+            method: .delete,
+            headers: authHeaders
+          )
+          .validate()
+          .response { response in
+            switch response.result {
+            case .success:
+              continuation.resume()
+            case .failure(let error):
+              continuation.resume(throwing: mapError(error, response: response.response, data: response.data))
+            }
+          }
+        }
+      }
 }
