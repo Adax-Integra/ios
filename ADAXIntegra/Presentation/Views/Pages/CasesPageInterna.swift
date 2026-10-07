@@ -8,12 +8,13 @@
 import SwiftUI
 
 struct CasesPageInterna: View {
+    @Environment(\.dismiss) private var dismiss
     @StateObject private var viewModel = CasesViewModelInterna()
     @State private var showUrgencyFilter = false
     
     var body: some View {
         ListPageTemplate {
-            PageHeader(title: "Casos", backAction: {})
+            PageHeader(title: "Casos", backAction: { dismiss() })
         } toolbar: {
             CaseListToolbar(searchText: $viewModel.searchText,
                             totalCases: viewModel.total,
@@ -43,6 +44,7 @@ struct CasesPageInterna: View {
                 }
             }
         }
+        .navigationBarBackButtonHidden(true)
         // vuelve a cargar la pestaña cuando se cambia la busqueda o el filtro
         .task(id: "\(viewModel.searchText)|\(viewModel.urgencyFilter)") {
             try? await Task.sleep(for: .milliseconds(300))
