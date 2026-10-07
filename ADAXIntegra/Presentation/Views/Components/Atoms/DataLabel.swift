@@ -8,11 +8,11 @@
 import SwiftUI
 
 struct DateLabel: View {
-    let prefix: String
-    let value: String
-    var body: some View {
-        Text("\(prefix): \(value)")
-            .font(.system(size: 13, weight: .medium))
-            .foregroundColor(Color("IconColor"))
-    }
+  let prefix: String
+  let value: String
+  var body: some View {
+    Text("\(prefix): \(value)")
+      .font(.system(size: 13, weight: .medium))
+      .foregroundColor(Color("IconColor"))
+  }
 }

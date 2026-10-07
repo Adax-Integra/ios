@@ -53,7 +53,7 @@ struct RecordsPageInterna: View {
                     Button("Con casos") { viewModel.hasOpenCasesFilter = true }
                     Button("Sin casos") { viewModel.hasOpenCasesFilter = false }
                 } label: {
-                    filterLabel(casesFilterText)
+                    FilterChip(title: casesFilterText)
                 }
                 
                 Menu {
@@ -63,7 +63,7 @@ struct RecordsPageInterna: View {
                     Button("En seguimiento") { viewModel.statusFilter = "EN_SEGUIMIENTO" }
                     Button("Completado") { viewModel.statusFilter = "COMPLETADO" }
                 } label: {
-                    filterLabel(statusFilterText)
+                    FilterChip(title: statusFilterText)
                 }
                 
                 Spacer()

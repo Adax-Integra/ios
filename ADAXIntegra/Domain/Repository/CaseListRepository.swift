@@ -8,8 +8,10 @@
 import Foundation
 
 protocol CaseListRepository {
-    func listCases(page: Int,
-                  limit: Int,
-                  search: String,
-                  urgency: String) async throws -> CaseListResult
+  func listCases(
+    page: Int,
+    limit: Int,
+    search: String,
+    urgency: String
+  ) async throws -> CaseListResult
 }

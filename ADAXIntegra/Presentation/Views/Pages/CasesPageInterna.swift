@@ -52,11 +52,9 @@ struct CasesPageInterna: View {
             guard !Task.isCancelled else { return }
             await viewModel.loadCases()
         }
-        
     }
-    
 }
 
 #Preview {
-    CasesPageInterna()
+  CasesPageInterna()
 }
