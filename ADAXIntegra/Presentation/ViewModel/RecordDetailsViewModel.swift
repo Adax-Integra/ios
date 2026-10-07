@@ -8,24 +8,22 @@
 import Combine
 import Foundation
 
-// We don't add @MainActor
 final class RecordDetailsViewModel: ObservableObject {
-  @Published var recordDetails: [RecordDetails] = []
+  // Initializes an empty array of recordDetails
+  @Published var recordDetails = [RecordDetails]()
   @Published var isLoading: Bool = false
   @Published var errorMessage: String?
 
   private let repository: RecordRepository
-  private let externalId: String
 
-  init(externalId: String, repository: RecordRepository = RemoteRecordRepository()) {
-    self.externalId = externalId
+  init(repository: RecordRepository = RemoteRecordRepository()) {
     self.repository = repository
   }
 
-  func loadRecordDetails() async {
+  @MainActor
+  func loadRecordDetails(for externalId: String) async {
     isLoading = true
     errorMessage = nil
-
     do {
       let result = try await repository.getRecordFromExternal(for: externalId)
       guard !Task.isCancelled else { return }
@@ -37,7 +35,6 @@ final class RecordDetailsViewModel: ObservableObject {
       guard !Task.isCancelled else { return }
       errorMessage = "Error al cargar los detalles del expediente."
     }
-
     isLoading = false
   }
 }
