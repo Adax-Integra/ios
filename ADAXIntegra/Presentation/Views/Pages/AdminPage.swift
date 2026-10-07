@@ -54,7 +54,6 @@ struct AdminPage: View {
         }
     }
   }
-}
 
 #Preview {
   AdminPage()
