@@ -29,28 +29,33 @@ struct ChangePasswordPage: View {
               .font(.subheadline)
               .foregroundColor(Color("OnBackground"))
 
-            FormTextField(
-              label: "Contraseña actual",
+            PasswordTextField(
+              title: "Contraseña actual",
               placeholder: "Escribe tu contraseña actual",
-              isSecure: true,
               text: $viewModel.currentPassword
             )
 
-            FormTextField(
-              label: "Nueva contraseña",
-              placeholder: "Entre 8 y 24 caracteres",
-              isSecure: true,
-              errorMessage: viewModel.newPasswordError,
-              text: $viewModel.newPassword
-            )
+            VStack(alignment: .leading, spacing: 6) {
+              PasswordTextField(
+                title: "Nueva contraseña",
+                placeholder: "Entre 8 y 24 caracteres",
+                text: $viewModel.newPassword
+              )
+              if let error = viewModel.newPasswordError {
+                FieldErrorLabel(error)
+              }
+            }
 
-            FormTextField(
-              label: "Confirmar nueva contraseña",
-              placeholder: "Escríbela de nuevo",
-              isSecure: true,
-              errorMessage: viewModel.confirmPasswordError,
-              text: $viewModel.confirmPassword
-            )
+            VStack(alignment: .leading, spacing: 6) {
+              PasswordTextField(
+                title: "Confirmar nueva contraseña",
+                placeholder: "Escríbela de nuevo",
+                text: $viewModel.confirmPassword
+              )
+              if let error = viewModel.confirmPasswordError {
+                FieldErrorLabel(error)
+              }
+            }
 
             VStack(alignment: .leading, spacing: 6) {
               Text("Tu nueva contraseña debe tener:")
