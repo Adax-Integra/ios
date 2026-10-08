@@ -1,5 +1,5 @@
 //
-//  AddCollaboratiorForm.swift
+//  AddCollaboratorForm.swift
 //  ADAXIntegra
 //
 //  Created by Nicolas Bravo Miguel on 01/10/26.
@@ -26,7 +26,7 @@ struct AddCollaboratorForm: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             LabeledTextField(
-                title: "Nombres(s)",
+                title: "Nombre(s)",
                 placeholder: "Escribe el nombre...",
                 maxLength: 50,
                 errorMessage: nameError,
@@ -42,7 +42,7 @@ struct AddCollaboratorForm: View {
             )
             
             LabeledTextField(
-                title: "Email",
+                title: "Correo electrónico",
                 placeholder: "correo@ejemplo.com",
                 keyboardType: .emailAddress,
                 errorMessage: emailError,
@@ -81,7 +81,7 @@ struct AddCollaboratorForm: View {
             password: .constant(""),
             countryCode: $countryCode,
             phone: .constant(""),
-            emailError: "Ingresa un email valido."
+            emailError: "Ingresa un correo válido."
         )
         .padding(20)
     }

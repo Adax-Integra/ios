@@ -35,12 +35,12 @@ struct AddCollaboratorPage: View {
           )
 
           PrimaryButton(
+            customHeight: 20,
             title: viewModel.isSaving ? "Guardando..." : "Guardar",
             isDisabled: viewModel.isSaveDisabled
           ) {
             Task { await viewModel.save() }
           }
-          .frame(maxWidth: .infinity, minHeight: 52, maxHeight: 52)
           .padding(.top, 8)
         }
         .padding(20)

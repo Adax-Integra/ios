@@ -40,7 +40,6 @@ final class AddCollaboratorViewModel: ObservableObject {
 
   private let repository: CollaboratorRepository
 
-    
   init(repository: CollaboratorRepository = RemoteCollaboratorRepository()) {
     self.repository = repository
   }
@@ -55,7 +54,6 @@ final class AddCollaboratorViewModel: ObservableObject {
           $0.trimmingCharacters(in: .whitespaces).isEmpty
         }
   }
-
 
   // Call when tap "Guardar"
   func save() async {
@@ -109,7 +107,7 @@ final class AddCollaboratorViewModel: ObservableObject {
     if mail.range(of: emailPattern, options: [.regularExpression, .caseInsensitive]) == nil {
       errors[.email] = "Ingresa un email válido."
     } else if mail.count > 128 {
-      errors[.email] = "El email debe tener máximo 128 caracteres."
+      errors[.email] = "El correo debe tener máximo 128 caracteres."
     }
 
     if password.count < 8 {
@@ -150,7 +148,7 @@ final class AddCollaboratorViewModel: ObservableObject {
     case 401:
       generalError = "Tu sesión expiró. Vuelve a iniciar sesión"
     case 403: generalError = "No tienes permiso de agregar colaboradoras."
-    case 409: fieldErrors[.email] = "Este email ya está registrado."
+    case 409: fieldErrors[.email] = "Este correo ya está registrado."
     default: generalError = "No se pudo crear a la colaboradora. Intenta de nuevo."
     }
   }
@@ -161,8 +159,8 @@ final class AddCollaboratorViewModel: ObservableObject {
     switch field {
     case .name: return "Revisa el nombre."
     case .lastName: return "Revisa los apellidos."
-    case .email: return "Revisa el email."
-    case .password: return "La contraseña debe tener entre8 y 128 caracteres."
+    case .email: return "Revisa el correo."
+    case .password: return "La contraseña debe tener entre 8 y 128 caracteres."
     case .phone: return "El teléfono debe de tener 10 dígitos."
     }
   }
