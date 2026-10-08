@@ -108,7 +108,7 @@ struct RegistrationForm: View {
         )
 
         Text(
-          "Debe tener entre 8 y 24 caracteres, una mayúscula, un número y un carácter especial. No puede incluir acentos ni letras especiales."
+          "Debe tener entre 8 y 24 caracteres, una mayúscula, una minúscula, un número y un carácter especial. No puede incluir acentos ni letras especiales."
         )
         .font(.caption)
         .foregroundStyle(.secondary)
