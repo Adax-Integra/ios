@@ -28,10 +28,10 @@ struct EditExternalProfilePage: View {
           ProfileSectionCard(title: "Datos de registro", isLocked: true) {
             InfoRow(label: "Nombre(s)", value: viewModel.display(viewModel.profile?.profile?.name))
             InfoRow(
-              label: "Apellido", value: viewModel.display(viewModel.profile?.profile?.lastName))
+              label: "Apellidos", value: viewModel.display(viewModel.profile?.profile?.lastName))
             InfoRow(
               label: "Fecha de nacimiento",
-              value: viewModel.display(viewModel.profile?.profile?.birthDate))
+              value: viewModel.display(viewModel.birthDateText))
           }
 
           contactSection
