@@ -10,6 +10,7 @@ import SwiftUI
 // ViewModel, guarda los datos y la lógica del login
 struct LoginPage: View {
   @StateObject var viewModel: LoginViewModel
+  @State private var showRegistration = false
 
   var body: some View {
     // Permite hacer scroll si la pantalla es pequeña
@@ -17,7 +18,7 @@ struct LoginPage: View {
       VStack(alignment: .leading, spacing: 0) {
 
         // Logo centrado
-        Image("adaxFairy")
+        Image("AdaxLogo")
           .resizable()
           .scaledToFit()
           .frame(height: 150)
@@ -78,7 +79,7 @@ struct LoginPage: View {
           }
 
           SecondaryButton(title: "Registrarse", isDisabled: false) {
-            // Nota: Falta agregar la pantalla de registro
+            showRegistration = true
           }
         }
 
@@ -98,6 +99,10 @@ struct LoginPage: View {
     .scrollDismissesKeyboard(.interactively)
     // Color de fondo de la pantalla
     .background(Color("Background").ignoresSafeArea())
+    // shows the registration screen
+    .fullScreenCover(isPresented: $showRegistration) {
+      RegistrationPage()
+    }
   }
 }
 // Permite visualizar la pantalla desde Xcode

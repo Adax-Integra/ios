@@ -28,21 +28,19 @@ struct CasesPage: View {
   var body: some View {
     CasesScreenTemplate {
       CasesListHeader(searchText: $viewModel.searchText, count: viewModel.filteredCases.count)
+
+      // R-02: entry point to register a new case.
+      // Disabled during the undo window so a second case cannot replace the pending one
+      IconTextPrimaryButton(
+        systemName: "plus",
+        title: "Nuevo caso",
+        isDisabled: newCaseViewModel.isShowingUndoToast
+      ) {
+        // R-01: the user reviews the preSubmission before creating a case
+        isShowingPreSubmission = true
+      }
     } content: {
       CasesList(cases: viewModel.filteredCases)
-      // Extra space so the last case can scroll above the floating button
-      Color.clear.frame(height: 126)
-    }
-    // R-02: stays fixed in the bottom-right corner while the list scrolls.
-    // Hidden during the undo window so a second case cannot replace the pending one
-    .overlay(alignment: .bottomTrailing) {
-      if !newCaseViewModel.isShowingUndoToast {
-        FloatingActionButton(systemName: "plus", accessibilityLabel: "Nuevo caso") {
-          isShowingPreSubmission = true
-        }
-        .padding(.trailing, 16)
-        .padding(.bottom, 70)
-      }
     }
     // R-02: undo window shown on the list after "Nuevo caso" closes
     .toast(

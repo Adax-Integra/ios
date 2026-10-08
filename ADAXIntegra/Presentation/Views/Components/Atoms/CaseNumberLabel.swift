@@ -8,11 +8,11 @@
 import SwiftUI
 
 struct CaseNumberLabel: View {
-    let number: String
-    var body: some View {
-        Text("ID: \(number)")
-            .font(.system(size: 16, weight: .semibold))
-            .foregroundColor(
-            Color("OnBackgroundColor"))
-    }
+  let number: String
+  var body: some View {
+    Text("ID: \(number)")
+      .font(.system(size: 16, weight: .semibold))
+      .foregroundColor(
+        Color("OnBackgroundColor"))
+  }
 }

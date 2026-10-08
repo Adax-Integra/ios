@@ -8,33 +8,53 @@
 import SwiftUI
 
 struct AdminPage: View {
-    @State private var showCollaboratorManagment = false
-    
     var body: some View {
         NavigationStack {
             ScrollView {
-                    VStack(alignment: .leading, spacing: 16) {
-                      Text("Administración").font(.system(size: 22, weight: .bold))
-                      Text("Administra la plataforma").font(.system(size: 13, weight: .medium))
+                VStack(alignment: .leading, spacing: 16) {
+                    Text("Administración")
+                        .font(.system(size: 22, weight: .bold))
+                    Text("Gestiona las acciones de administrador")
+                        .font(.system(size: 13, weight: .medium))
                         .foregroundStyle(Color("IconColor"))
-
-                      NavigationLink {
+                    
+                    NavigationLink {
                         CollaboratorManagementPage()
-                      } label: {
+                    } label: {
                         MenuRow(
-                          icon: "person.2",
-                          title: "Gestión de colaboradoras",
-                          subtitle: "Alta y control de cuentas"
+                            icon: "person.2",
+                            title: "Gestión de colaboradoras",
+                            subtitle: "Da de alta y administra colaboradoras"
                         )
-                      }
                     }
-                    .padding(16)
+                    
+                    NavigationLink {
+                        CuentasExternasPage()
+                    } label: {
+                        MenuRow(
+                            icon: "person",
+                            title: "Cuentas de externas",
+                            subtitle: "Administra las cuentas de externas"
+                        )
+                    }
+                    
+                    NavigationLink {
+                        ChangeLogPage()
+                    } label: {
+                        MenuRow(
+                            icon: "clock.arrow.circlepath",
+                            title: "Bitácora de cambios",
+                            subtitle: "Historial de movimientos de la app"
+                        )
+                    }
+                }
+                .padding(16)
             }
             .background(Color("BackgroundColor"))
         }
     }
-}
+  }
 
 #Preview {
-    AdminPage()
+  AdminPage()
 }
