@@ -24,14 +24,13 @@ struct CollaboratorManagementPage: View {
         )
 
         // Opens form isted of navegation
-        Button {
-          viewModel.openForm()
-        } label: {
-          MenuRow(
-            icon: "person.badge.plus",
+        IconTextPrimaryButton(
+            customHeight: 24,
+            systemName: "plus",
             title: "Agregar colaboradora",
-            subtitle: "Registra una nueva cuenta"
-          )
+            isDisabled: false
+        ) {
+            viewModel.openForm()
         }
         .buttonStyle(.plain)
 
