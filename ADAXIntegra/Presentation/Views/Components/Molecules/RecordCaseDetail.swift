@@ -40,7 +40,7 @@ struct RecordCaseDetail: View {
           rectangleColor: status.tagBackgroundColor,
           textColor: status.tagTextColor,
           textSize: 14,
-          text: status.rawValue
+          text: status.label
         )
         .padding(.bottom, 40)
 

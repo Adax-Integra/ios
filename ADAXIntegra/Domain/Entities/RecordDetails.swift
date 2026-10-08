@@ -26,6 +26,10 @@ struct RecordDetails: Identifiable, Codable {
     case updatedAt
   }
 
+  var status: CaseStatus? {
+    CaseStatus(rawValue: state)
+  }
+
   var updatedDateString: String {
     Date.extractDate(updatedAt)
   }
