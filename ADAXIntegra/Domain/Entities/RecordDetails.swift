@@ -14,8 +14,8 @@ struct RecordDetails: Identifiable, Codable {
   let writtenHelpsWanted: String?
   let hasLawyer: Bool
   let state: String?  // State as in status
-  let createdAt: Date
-  let updatedAt: Date
+  let createdAt: String
+  let updatedAt: String
   let helps: [String]
   let violenceTypes: [String]
 
@@ -32,19 +32,19 @@ struct RecordDetails: Identifiable, Codable {
   }
 
   var createdDateString: String {
-    createdAt.dateString
+    Date.extractDate(createdAt)
   }
 
   var createdTimeString: String {
-    createdAt.timeString
+    Date.extractTime(createdAt)
   }
 
   var updatedDateString: String {
-    updatedAt.dateString
+    Date.extractDate(updatedAt)
   }
 
   var updatedTimeString: String {
-    updatedAt.timeString
+    Date.extractTime(updatedAt)
   }
 
   // Backend sends each help with a "\n" at the end

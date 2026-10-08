@@ -9,10 +9,29 @@
 import SwiftUI
 
 struct RecordDetailPage: View {
-    let externalID: String
-    @StateObject var recordDetailsViewModel = RecordDetailsViewModel()
-    
-    var body: some View {
-        List(recordDetailsViewModel.recordDetails
+  let externalID: String
+  @StateObject var recordDetailsViewModel = RecordDetailsViewModel()
+
+  var body: some View {
+    List(recordDetailsViewModel.recordDetails) { recordDetail in
+      HStack {
+        RecordCaseDetail(
+          caseId: "Caso: \(recordDetail.id)",
+          externalName: "Adriana",
+          status: recordDetail.state == "Closed" ? .closed : .open,
+          violenceType: recordDetail.violenceTypes.joined(separator: ", "),
+          internalAssigned: "Veronica",
+          lastUpdated: "Última actualización: \(recordDetail.updatedDateString)"
+        )
+      }
+    }.onAppear {
+      Task {
+        await recordDetailsViewModel.loadRecordDetails(for: externalID)
+      }
     }
+  }
+}
+
+#Preview {
+  RecordDetailPage(externalID: "preview-external-id")
 }

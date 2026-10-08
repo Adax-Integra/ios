@@ -30,29 +30,24 @@ struct CaseTag: View {
 }
 
 enum CaseStatus: String {
-  case active = "Activo"
-  case attended = "Atentido"
+  case open = "Abierto"
   case closed = "Cerrado"
 
   var tagBackgroundColor: Color {
     switch self {
-    case .active:
+    case .open:
       return Color(UIColor.systemGreen.withAlphaComponent(0.4))
-    case .attended:
-      return Color(UIColor.systemPurple.withAlphaComponent(0.3))
     case .closed:
-      return Color(UIColor.systemGray.withAlphaComponent(0.3))
+      return Color(UIColor.systemOrange.withAlphaComponent(0.2))
     }
   }
 
   var tagTextColor: Color {
     switch self {
-    case .active:
+    case .open:
       return Color("DarkGreen")
-    case .attended:
-      return Color("PrimaryAdax")
     case .closed:
-      return Color("DarkGray")
+      return Color("Error")
     }
   }
 }
@@ -64,6 +59,6 @@ enum CaseStatus: String {
     rectangleColor: Color(UIColor.systemGreen.withAlphaComponent(0.4)),
     textColor: Color("DarkGreen"),
     textSize: 17,
-    text: "Activo"
+    text: "Abierto"
   )
 }

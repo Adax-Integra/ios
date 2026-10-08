@@ -8,52 +8,78 @@
 import SwiftUI
 
 struct RecordCaseDetail: View {
-  var recordId: String
+  var caseId: String
+  var externalName: String
   var status: CaseStatus
   var violenceType: String
-  var location: String
+  var internalAssigned: String
   var lastUpdated: String
 
   var body: some View {
-    VStack(spacing: 12) {
+    VStack(alignment: .leading, spacing: 8) {
 
       HStack {
-        Text(recordId)
-          .bold()
+        VStack(alignment: .leading, spacing: 4) {
+          Text("N°. DE CASO")
+            .font(.system(size: 13))
+            .fontWeight(.heavy)
+            .foregroundStyle(.gray)
 
-        Spacer()
+          HStack {
+            Text(caseId)
+              .fontWeight(.heavy)
+
+            Spacer()
+          }
+
+          Text(externalName)
+        }
 
         CaseTag(
-          width: 75, height: 32,
+          width: 75, height: 27,
           rectangleColor: status.tagBackgroundColor,
           textColor: status.tagTextColor,
           textSize: 14,
-          text: status.rawValue)
+          text: status.rawValue
+        )
+        .padding(.bottom, 40)
+
       }
 
       Divider()
 
-      VStack(spacing: 8) {
-        DetailRow(
-          iconName: "tag",
-          text: violenceType)
+      VStack(alignment: .leading, spacing: 7) {
+        HStack(spacing: 2) {
+          Text("Violencia: ")
+            .fontWeight(.bold)
+          Text(violenceType)
+        }
 
-        DetailRow(
-          iconName: "mappin.and.ellipse",
-          iconColor: .orange,
-          text: location)
+        HStack(spacing: 2) {
+          Text("Asignada al caso: ")
+            .fontWeight(.bold)
+          Text(internalAssigned)
+        }
 
-        DetailRow(
-          iconName: "clock",
-          iconColor: Color(.systemGray),
-          text: lastUpdated)
+        HStack(spacing: 2) {
+          Text("Última actualización: ")
+          Text(lastUpdated)
+        }
+        .frame(maxWidth: .infinity, alignment: .trailing)
+        .font(.system(size: 12))
+        .padding(.top, 6)
       }
+      .font(.system(size: 14))
     }
-    .padding(16)
-    .background(
-      RoundedRectangle(cornerRadius: 16)
-        .fill(.white)
-    )
+    .padding(20)
+    .padding(.leading, 3)
+    .background(.white)
+    .overlay(alignment: .leading) {
+      Rectangle()
+        .fill(status.tagTextColor)
+        .frame(width: 7)
+    }
+    .clipShape(RoundedRectangle(cornerRadius: 10))
     .padding(16)
   }
 }
@@ -63,11 +89,12 @@ struct RecordCaseDetail: View {
     Color("Background").ignoresSafeArea()
 
     RecordCaseDetail(
-      recordId: "Caso: 2026-0847-C1",
-      status: .active,
-      violenceType: "Violencia Familiar",
-      location: "Querétaro",
-      lastUpdated: "Ultima actualización: 12 Jul 2026"
+      caseId: "C-26-9999",
+      externalName: "Adriana Velásquez",
+      status: .open,
+      violenceType: "Familiar",
+      internalAssigned: "Alejandra Benítez",
+      lastUpdated: "12 Jul 2026"
     )
   }
 }
