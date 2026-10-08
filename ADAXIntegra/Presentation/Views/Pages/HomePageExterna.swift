@@ -11,6 +11,8 @@ import SwiftUI
 
 struct HomePageExterna: View {
   @Environment(\.openURL) private var openURL
+  @EnvironmentObject private var session: AuthSession
+  @StateObject private var profileViewModel = ProfileViewModel()
 
   private let podcastURL = URL(
     string:
@@ -24,9 +26,12 @@ struct HomePageExterna: View {
       })
     } welcome: {
       VStack(alignment: .leading, spacing: 8) {
-        Text("¡Hola!")
-          .font(.largeTitle.bold())
-          .foregroundColor(Color("OnBackground"))
+        Text(
+          profileViewModel.profile.map { "¡Hola, \($0.name)!" }
+            ?? "¡Hola!"
+        )
+        .font(.largeTitle.bold())
+        .foregroundColor(Color("OnBackground"))
 
         Text("No estás sola, estamos aquí para acompañarte")
           .font(.subheadline)
@@ -63,10 +68,14 @@ struct HomePageExterna: View {
           openURL(podcastURL)
         })
       }
+    }  // loads the account name using the existing profile service
+    .task(id: session.userId) {
+      await profileViewModel.loadProfile(for: session.userId)
     }
   }
 }
 
 #Preview {
   HomePageExterna()
+    .environmentObject(AuthSession())
 }
