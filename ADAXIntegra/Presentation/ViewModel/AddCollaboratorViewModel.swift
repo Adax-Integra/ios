@@ -1,5 +1,5 @@
 //
-//  CollaboratorManagementViewModel.swift
+//  AddCollaboratorViewModel.swift
 //  ADAXIntegra
 //
 //  Created by Nicolas Bravo Miguel on 02/10/26.
@@ -20,7 +20,7 @@ enum CollaboratorField: String {
 }
 
 @MainActor
-final class CollaboratorManagementViewModel: ObservableObject {
+final class AddCollaboratorViewModel: ObservableObject {
 
   //Form Data
 
@@ -28,20 +28,19 @@ final class CollaboratorManagementViewModel: ObservableObject {
   @Published var lastName = ""
   @Published var email = ""
   @Published var password = ""
+  @Published var countryCode: String? = "+52"
   @Published var phone = ""
 
   // Screen state
 
-  @Published var isFormVisible = false
   @Published private(set) var isSaving = false
   @Published private(set) var fieldErrors: [CollaboratorField: String] = [:]
   @Published var generalError: String?
   @Published var successMessage: String?
 
   private let repository: CollaboratorRepository
-  // Note: backend expect country code (+52) and then the phone numbre
-  private let countryCode = "+52"
 
+    
   init(repository: CollaboratorRepository = RemoteCollaboratorRepository()) {
     self.repository = repository
   }
@@ -50,31 +49,19 @@ final class CollaboratorManagementViewModel: ObservableObject {
 
   var isSaveDisabled: Bool {
     isSaving
+      || countryCode == nil
       || [firstName, lastName, email, password, phone]
         .contains {
           $0.trimmingCharacters(in: .whitespaces).isEmpty
         }
   }
 
-  // Call to tap "Agregar colaboradora" opens the form
-
-  func openForm() {
-    resetForm()
-    successMessage = nil
-    isFormVisible = true
-  }
-
-  // Call when they tap "Cancelar" clears form and it
-  func cancelForm() {
-    resetForm()
-    isFormVisible = false
-  }
 
   // Call when tap "Guardar"
   func save() async {
     generalError = nil
     fieldErrors = validate()
-    guard fieldErrors.isEmpty else { return }
+    guard fieldErrors.isEmpty, let countryCode else { return }
 
     isSaving = true
     defer { isSaving = false }
@@ -92,7 +79,6 @@ final class CollaboratorManagementViewModel: ObservableObject {
       successMessage =
         "Se agregó a \(newCollaborador.name) \(newCollaborador.lastName) como colaboradora."
       resetForm()
-      isFormVisible = false
     } catch {
       print("Error al crear colaboradora: ", error)
       handle(error)
@@ -194,6 +180,7 @@ final class CollaboratorManagementViewModel: ObservableObject {
     lastName = ""
     email = ""
     password = ""
+    countryCode = "+52"
     phone = ""
     fieldErrors = [:]
     generalError = nil
