@@ -1,5 +1,5 @@
 //
-//  MainTabView.swift
+//  MainTabExterna.swift
 //  ADAXIntegra
 //
 //  Created by armando fuentes on 22/09/26.
@@ -7,20 +7,19 @@
 
 import SwiftUI
 
-struct MainTabPage: View {
-  @State private var selectedTab: AppTab = .cases
+struct MainTabPageExterna: View {
+  @State private var selectedTab: AppTab = .home
   let userId: String
 
   var body: some View {
     VStack(spacing: 0) {
       Group {
         switch selectedTab {
-        case .home: HomePage()
-        case .cases:
-          CasesPage(
+        case .home: HomePageExterna()
+        case .cases: CasesPage(
             viewModel: CasesViewModel(
-              repository: RemoteCaseRepository(),
-              userId: userId
+                repository: RemoteCaseRepository(),
+                userId: userId
             ),
             // R-02: lets CasesPage open "Nuevo caso" for this user
             userId: userId
