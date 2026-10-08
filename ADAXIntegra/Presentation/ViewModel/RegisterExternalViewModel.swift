@@ -31,6 +31,8 @@ final class RegisterExternalViewModel: ObservableObject {
     
     @Published var result: RegisterExternalResult?
     
+    @Published var showErrors = false
+    
     private let repository: ExternalUserRepository
     private let countryRepository: CountryRepository
     
@@ -100,7 +102,27 @@ final class RegisterExternalViewModel: ObservableObject {
         return v.contains("@") && v.contains(".") && !v.hasSuffix(".")
     }
     
+    private func requiredError(_ value: String) -> String? {
+        guard showErrors else { return nil }
+        return value.trimmed.isEmpty ? "Este campo es obligatorio" : nil
+    }
+    
+    var nameError: String? { requiredError(name) }
+    var lastNameError: String? { requiredError(lastName) }
+    var emailError: String? {
+        guard showErrors else { return nil }
+        if email.trimmed.isEmpty { return "Este campo es obligatorio" }
+        return isValidEmail(email) ? nil : "Correo no válido (usa nombre@dominio.com)"
+    }
+    var addressLine1Error: String? { requiredError(addressLine1) }
+    var neighborhoodError: String? { requiredError(neighborhood) }
+    var zipCodeError: String? { requiredError(zipCode) }
+    var cityError: String? { requiredError(city) }
+    var countryError: String? {showErrors && country == nil ? "Selecciona un país" : nil }
+    var stateError: String? {showErrors && state == nil ? "Selecciona un estado" : nil }
+    
     func submit() async {
+        showErrors = true
         guard isValid, !isSubmitting else { return }
         isSubmitting = true
         errorMessage = nil
