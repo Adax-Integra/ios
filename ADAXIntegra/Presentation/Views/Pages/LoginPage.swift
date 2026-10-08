@@ -18,7 +18,7 @@ struct LoginPage: View {
       VStack(alignment: .leading, spacing: 0) {
 
         // Logo centrado
-        Image("adaxFairy")
+        Image("AdaxLogo")
           .resizable()
           .scaledToFit()
           .frame(height: 150)
