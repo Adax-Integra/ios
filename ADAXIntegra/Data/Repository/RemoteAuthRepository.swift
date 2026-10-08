@@ -23,4 +23,17 @@ class RemoteAuthRepository: AuthRepository {
       return nil
     }
   }
+  func changePassword(currentPassword: String, newPassword: String, confirmPassword: String)
+    async throws -> ChangePasswordResult
+  {
+    let response = try await APIProtocol.post(
+      "/auth/change-password",
+      body: ChangePasswordRequestBody(
+        currentPassword: currentPassword,
+        newPassword: newPassword,
+        confirmPassword: confirmPassword),
+      as: APIResponse<ChangePasswordResult>.self
+    )
+    return response.data
+  }
 }
