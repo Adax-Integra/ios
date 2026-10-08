@@ -1,5 +1,5 @@
 //
-//  CollaboratorManagementViewModel.swift
+//  AddCollaboratorViewModel.swift
 //  ADAXIntegra
 //
 //  Created by Nicolas Bravo Miguel on 02/10/26.
@@ -20,7 +20,7 @@ enum CollaboratorField: String {
 }
 
 @MainActor
-final class CollaboratorManagementViewModel: ObservableObject {
+final class AddCollaboratorViewModel: ObservableObject {
 
   //Form Data
 
@@ -28,19 +28,17 @@ final class CollaboratorManagementViewModel: ObservableObject {
   @Published var lastName = ""
   @Published var email = ""
   @Published var password = ""
+  @Published var countryCode: String? = "+52"
   @Published var phone = ""
 
   // Screen state
 
-  @Published var isFormVisible = false
   @Published private(set) var isSaving = false
   @Published private(set) var fieldErrors: [CollaboratorField: String] = [:]
   @Published var generalError: String?
   @Published var successMessage: String?
 
   private let repository: CollaboratorRepository
-  // Note: backend expect country code (+52) and then the phone numbre
-  private let countryCode = "+52"
 
   init(repository: CollaboratorRepository = RemoteCollaboratorRepository()) {
     self.repository = repository
@@ -50,31 +48,18 @@ final class CollaboratorManagementViewModel: ObservableObject {
 
   var isSaveDisabled: Bool {
     isSaving
+      || countryCode == nil
       || [firstName, lastName, email, password, phone]
         .contains {
           $0.trimmingCharacters(in: .whitespaces).isEmpty
         }
   }
 
-  // Call to tap "Agregar colaboradora" opens the form
-
-  func openForm() {
-    resetForm()
-    successMessage = nil
-    isFormVisible = true
-  }
-
-  // Call when they tap "Cancelar" clears form and it
-  func cancelForm() {
-    resetForm()
-    isFormVisible = false
-  }
-
   // Call when tap "Guardar"
   func save() async {
     generalError = nil
     fieldErrors = validate()
-    guard fieldErrors.isEmpty else { return }
+    guard fieldErrors.isEmpty, let countryCode else { return }
 
     isSaving = true
     defer { isSaving = false }
@@ -92,7 +77,6 @@ final class CollaboratorManagementViewModel: ObservableObject {
       successMessage =
         "Se agregó a \(newCollaborador.name) \(newCollaborador.lastName) como colaboradora."
       resetForm()
-      isFormVisible = false
     } catch {
       print("Error al crear colaboradora: ", error)
       handle(error)
@@ -123,7 +107,7 @@ final class CollaboratorManagementViewModel: ObservableObject {
     if mail.range(of: emailPattern, options: [.regularExpression, .caseInsensitive]) == nil {
       errors[.email] = "Ingresa un email válido."
     } else if mail.count > 128 {
-      errors[.email] = "El email debe tener máximo 128 caracteres."
+      errors[.email] = "El correo debe tener máximo 128 caracteres."
     }
 
     if password.count < 8 {
@@ -164,7 +148,7 @@ final class CollaboratorManagementViewModel: ObservableObject {
     case 401:
       generalError = "Tu sesión expiró. Vuelve a iniciar sesión"
     case 403: generalError = "No tienes permiso de agregar colaboradoras."
-    case 409: fieldErrors[.email] = "Este email ya está registrado."
+    case 409: fieldErrors[.email] = "Este correo ya está registrado."
     default: generalError = "No se pudo crear a la colaboradora. Intenta de nuevo."
     }
   }
@@ -175,8 +159,8 @@ final class CollaboratorManagementViewModel: ObservableObject {
     switch field {
     case .name: return "Revisa el nombre."
     case .lastName: return "Revisa los apellidos."
-    case .email: return "Revisa el email."
-    case .password: return "La contraseña debe tener entre8 y 128 caracteres."
+    case .email: return "Revisa el correo."
+    case .password: return "La contraseña debe tener entre 8 y 128 caracteres."
     case .phone: return "El teléfono debe de tener 10 dígitos."
     }
   }
@@ -194,6 +178,7 @@ final class CollaboratorManagementViewModel: ObservableObject {
     lastName = ""
     email = ""
     password = ""
+    countryCode = "+52"
     phone = ""
     fieldErrors = [:]
     generalError = nil
