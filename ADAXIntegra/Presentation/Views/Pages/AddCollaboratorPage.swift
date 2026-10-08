@@ -25,12 +25,14 @@ struct AddCollaboratorPage: View {
             lastName: $viewModel.lastName,
             email: $viewModel.email,
             password: $viewModel.password,
+            confirmPassword: $viewModel.confirmPassword,
             countryCode: $viewModel.countryCode,
             phone: $viewModel.phone,
             nameError: viewModel.fieldErrors[.name],
             lastNameError: viewModel.fieldErrors[.lastName],
             emailError: viewModel.fieldErrors[.email],
             passwordError: viewModel.fieldErrors[.password],
+            confirmPasswordError: viewModel.fieldErrors[.confirmPassword],
             phoneError: viewModel.fieldErrors[.phone]
           )
 
@@ -47,6 +49,9 @@ struct AddCollaboratorPage: View {
       }
       // hides the keyboard when the user scrolls
       .scrollDismissesKeyboard(.interactively)
+      .onTapGesture {
+        hideKeyboard()
+      }
     }
     .navigationBarBackButtonHidden(true)
     // Error that does not belong to a single field (no connection, expired session...)
@@ -76,6 +81,12 @@ struct AddCollaboratorPage: View {
     Binding(
       get: { viewModel.successMessage != nil },
       set: { if !$0 { viewModel.successMessage = nil } }
+    )
+  }
+
+  private func hideKeyboard() {
+    UIApplication.shared.sendAction(
+      #selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil
     )
   }
 }
