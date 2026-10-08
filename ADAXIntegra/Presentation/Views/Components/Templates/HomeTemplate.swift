@@ -28,7 +28,7 @@ struct HomeTemplate<Header: View, Welcome: View, CaseProgress: View, Events: Vie
       Color("Background").ignoresSafeArea()
 
       ScrollView(showsIndicators: false) {
-        VStack(alignment: .leading, spacing: sectionSpacing) {
+        VStack(alignment: .leading, spacing: 8) {
           header()
           welcome()
 

@@ -13,25 +13,21 @@ struct HomeHeader: View {
   let onNotificationsTap: () -> Void
 
   var body: some View {
-    HStack(spacing: 16) {
-      // app name until logo is added
-      Text("ADAX INTEGRA")
-        .font(.title2)
-        .bold()
-        .foregroundColor(Color("PrimaryAdax"))
-
-      Spacer()
-
-      // notification action provided by the page
-      Button(action: onNotificationsTap) {
-        Image(systemName: "bell")
-          .font(.title2)
-          .foregroundColor(Color("InsideTextAndIcons"))
-          .frame(width: 44, height: 44)
+    Image("AdaxLogo")
+      .resizable()
+      .scaledToFit()
+      .frame(width: 240, height: 100)
+      .frame(maxWidth: .infinity)
+      .overlay(alignment: .topTrailing) {
+        Button(action: onNotificationsTap) {
+          Image(systemName: "bell")
+            .font(.title2)
+            .foregroundColor(Color("InsideTextAndIcons"))
+            .frame(width: 44, height: 44)
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel("Notificaciones")
       }
-      .buttonStyle(.plain)
-      .accessibilityLabel("Notificaciones")
-    }
   }
 }
 
