@@ -41,11 +41,31 @@ final class AddCollaboratorViewModel: ObservableObject {
   @Published private var serverErrors: [CollaboratorField: String] = [:]
   @Published var generalError: String?
   @Published var successMessage: String?
+  @Published private(set) var countryCodes: [String] = ["+52"]
 
   private let repository: CollaboratorRepository
+  private let countryRepository: CountryRepository
 
-  init(repository: CollaboratorRepository = RemoteCollaboratorRepository()) {
+  init(
+    repository: CollaboratorRepository = RemoteCollaboratorRepository(),
+    countryRepository: CountryRepository = RemoteCountryRepository()
+  ) {
     self.repository = repository
+    self.countryRepository = countryRepository
+  }
+  // Loads the countries catalog and keeps only the phone codes
+
+  func loadCountryCodes() async {
+    do {
+      let countries = try await countryRepository.getCountries()
+      let codes = Country.dialCodes(in: countries)
+      if !codes.isEmpty {
+        countryCodes = codes
+      }
+    } catch {
+      // If catalgo fail, default = +52
+      print("Error al cargar las ladas: ", error)
+    }
   }
 
   // Errors only show after tapping "Guardar", then they update while typing

@@ -16,6 +16,7 @@ struct AddCollaboratorForm: View {
   @Binding var countryCode: String?
   @Binding var phone: String
 
+  var countryCodes: [String] = ["+52"]
   var nameError: String? = nil
   var lastNameError: String? = nil
   var emailError: String? = nil
@@ -50,6 +51,7 @@ struct AddCollaboratorForm: View {
       )
 
       PhoneField(
+        countryCodes: countryCodes,
         errorMessage: phoneError,
         countryCode: $countryCode,
         phone: $phone
