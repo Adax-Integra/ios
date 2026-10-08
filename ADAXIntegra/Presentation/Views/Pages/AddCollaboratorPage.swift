@@ -28,6 +28,7 @@ struct AddCollaboratorPage: View {
             confirmPassword: $viewModel.confirmPassword,
             countryCode: $viewModel.countryCode,
             phone: $viewModel.phone,
+            countryCodes: viewModel.countryCodes,
             nameError: viewModel.fieldErrors[.name],
             lastNameError: viewModel.fieldErrors[.lastName],
             emailError: viewModel.fieldErrors[.email],
@@ -65,6 +66,10 @@ struct AddCollaboratorPage: View {
       Button("Aceptar", role: .cancel) { dismiss() }
     } message: {
       Text(viewModel.successMessage ?? "")
+    }
+    // loads the phone codes when the page opens
+    .task {
+      await viewModel.loadCountryCodes()
     }
   }
 
