@@ -14,20 +14,17 @@ struct RecordDetailPage: View {
 
   var body: some View {
     List(recordDetailsViewModel.recordDetails) { recordDetail in
-      HStack {
-        RecordCaseDetail(
-          caseId: "Caso: \(recordDetail.id)",
-          externalName: "Adriana",
-          status: recordDetail.state == "Closed" ? .closed : .open,
-          violenceType: recordDetail.violenceTypes.joined(separator: ", "),
-          internalAssigned: "Veronica",
-          lastUpdated: "Última actualización: \(recordDetail.updatedDateString)"
-        )
-      }
-    }.onAppear {
-      Task {
-        await recordDetailsViewModel.loadRecordDetails(for: externalID)
-      }
+      RecordCaseDetail(
+        caseId: recordDetail.caseNumber ?? recordDetail.id,
+        externalName: recordDetail.userName,
+        status: recordDetail.status ?? .open,
+        violenceType: recordDetail.violenceTypes.joined(separator: ", "),
+        internalAssigned: recordDetail.assignedUsers.joined(separator: ", "),
+        lastUpdated: recordDetail.updatedDateString
+      )
+    }
+    .task {
+      await recordDetailsViewModel.loadRecordDetails(for: externalID)
     }
   }
 }
