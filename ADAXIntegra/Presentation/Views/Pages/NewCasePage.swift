@@ -93,31 +93,6 @@ struct NewCasePage: View {
   }
 }
 
-#if DEBUG
-  // Preview-only repository: returns fake data without calling the backend
-  private struct PreviewCaseRepository: CaseRepository {
-    func getCases(for userId: String) async throws -> [Case] {
-      []
-    }
-
-    func createCase(_ newCase: NewCase, userId: String) async -> String? {
-      UUID().uuidString
-    }
-
-    func getCaseDetail(caseId: String) async throws -> CaseDetail {
-      fatalError("not used in this preview")
-    }
-
-    func closeCase(caseId: String) async throws -> Bool {
-      true
-    }
-  }
-  #Preview {
-    NewCasePage(
-      viewModel: NewCaseViewModel(
-        userId: "preview-user",
-        createCaseUseCase: CreateCaseUseCase(dataRepository: PreviewCaseRepository())
-      )
-    )
-  }
-#endif
+#Preview {
+  NewCasePage(viewModel: NewCaseViewModel(userId: "preview-user"))
+}

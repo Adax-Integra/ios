@@ -13,19 +13,12 @@ struct RecordsPageInterna: View {
     @Environment(\.dismiss) private var dismiss
     
     var body: some View {
-        ZStack(alignment: .bottomTrailing) {
-            ListPageTemplate {
-                PageHeader(title: "Expedientes",  backAction: { dismiss() })
-            } toolbar: {
-                toolbar
-            } content: {
-                content
-            }
-            
-            FloatingActionButton(systemName: "plus", accessibilityLabel: "Registrar externa") {
-                showRegister = true
-            }
-            .padding(20)
+        ListPageTemplate {
+            PageHeader(title: "Expedientes", backAction: { dismiss() })
+        } toolbar : {
+            toolbar
+        } content: {
+            content
         }
         .task(id: filterKey) {
             try? await Task.sleep(for: .milliseconds(300))
@@ -67,6 +60,14 @@ struct RecordsPageInterna: View {
                 }
                 
                 Spacer()
+            }
+            
+            IconTextPrimaryButton(
+                systemName: "plus",
+                title: "Registrar expediente",
+                isDisabled: false
+            ) {
+                showRegister = true
             }
         }
     }
