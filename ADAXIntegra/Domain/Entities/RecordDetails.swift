@@ -13,7 +13,7 @@ struct RecordDetails: Identifiable, Codable {
   let state: String
   let userName: String
   let violenceTypes: [String]
-  let assignedUsers: [String]
+  let assignedUsers: [AssignedUser]
   let updatedAt: String
 
   enum CodingKeys: String, CodingKey {
@@ -33,4 +33,10 @@ struct RecordDetails: Identifiable, Codable {
   var updatedDateString: String {
     Date.extractDate(updatedAt)
   }
+}
+
+// Internal user assigned to a case
+struct AssignedUser: Codable {
+  let userId: String
+  let name: String
 }

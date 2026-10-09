@@ -71,16 +71,17 @@ struct RecordCaseDetail: View {
       }
       .font(.system(size: 14))
     }
-    .padding(20)
-    .padding(.leading, 3)
-    .background(.white)
+    .frame(maxWidth: .infinity, alignment: .leading)
+    .padding()
+    .padding(.leading, 4)
+    .background(Color(.systemBackground))
     .overlay(alignment: .leading) {
       Rectangle()
         .fill(status.tagTextColor)
-        .frame(width: 7)
+        .frame(width: 6)
     }
-    .clipShape(RoundedRectangle(cornerRadius: 10))
-    .padding(16)
+    .clipShape(RoundedRectangle(cornerRadius: 16))
+    .shadow(color: .black.opacity(0.1), radius: 6, x: 0, y: 2)
   }
 }
 
@@ -96,5 +97,6 @@ struct RecordCaseDetail: View {
       internalAssigned: "Alejandra Benítez",
       lastUpdated: "12 Jul 2026"
     )
+    .padding()
   }
 }

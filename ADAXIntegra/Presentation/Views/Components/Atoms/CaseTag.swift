@@ -30,8 +30,8 @@ struct CaseTag: View {
 }
 
 enum CaseStatus: String {
-  case open = "Open"
-  case closed = "Closed"
+  case open = "Abierto"
+  case closed = "Cerrado"
 
   var label: String {
     switch self {
