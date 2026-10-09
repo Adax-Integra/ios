@@ -52,9 +52,9 @@ struct PrivacyNoticePage: View {
           }
 
           FormActions(
-            primaryTitle: "Continuar",
+            primaryTitle: viewModel.isSaving ? "Guardando..." : "Continuar",
             secondaryTitle: "No continuar",
-            isPrimaryDisabled: !viewModel.canContinue,
+            isPrimaryDisabled: !viewModel.canContinue || viewModel.isSaving,
             onPrimary: {
               Task {
                 if await viewModel.registerConsent() {
