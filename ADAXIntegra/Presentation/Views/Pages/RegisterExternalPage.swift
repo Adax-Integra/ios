@@ -30,7 +30,7 @@ struct RegisterExternalPage: View {
             Color("Background").ignoresSafeArea()
             ScrollView(showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 20) {
-                    PageHeader(title: "Registrar externa", backAction: onBack)
+                    PageHeader(title: "Registrar expediente", backAction: onBack)
                     profileSection
                     addressSection
                     
@@ -41,12 +41,6 @@ struct RegisterExternalPage: View {
                     )
                     .frame(maxWidth: .infinity, minHeight: 52, maxHeight: 52)
                     .padding(.top, 8)
-                    
-                    if let errorMessage = viewModel.errorMessage {
-                        Text(errorMessage)
-                            .font(.system(size: 14))
-                            .foregroundStyle(Color("Error"))
-                    }
                 }
                 .padding(20)
             }
@@ -54,6 +48,10 @@ struct RegisterExternalPage: View {
         .task {
             await viewModel.loadCountries()
         }
+        .toast(
+            isPresented: $viewModel.showErrorToast,
+            message: viewModel.errorMessage ?? ""
+        )
     }
     
     private var profileSection: some View {
@@ -84,7 +82,10 @@ struct RegisterExternalPage: View {
             .textInputAutocapitalization(.never)
             .autocorrectionDisabled()
             
-            PhoneField(countryCode: $viewModel.countryCode, phone: $viewModel.phone)
+            PhoneField(
+                countryCodes: Country.dialCodes(in: viewModel.countries),
+                countryCode: $viewModel.countryCode,
+                phone: $viewModel.phone)
             birthDateField
         }
     }
@@ -140,7 +141,7 @@ struct RegisterExternalPage: View {
     private var dateSheet: some View {
         NavigationStack {
             VStack {
-                DatePicker("", selection: $sheetDate, displayedComponents: .date)
+                DatePicker("", selection: $sheetDate, in: ...Date(), displayedComponents: .date)
                     .datePickerStyle(.graphical)
                     .labelsHidden()
                     .tint(Color("PrimaryAdax"))

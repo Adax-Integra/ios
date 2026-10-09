@@ -28,6 +28,7 @@ final class RegisterExternalViewModel: ObservableObject {
     @Published var result: RegisterExternalResult?
     
     @Published var showErrors = false
+    @Published var showErrorToast = false
     
     private let repository: ExternalUserRepository
     private let countryRepository: CountryRepository
@@ -58,7 +59,13 @@ final class RegisterExternalViewModel: ObservableObject {
     
     var birthDateError: String? {
         if birthDateInput.isEmpty { return nil }
-        return birthDate == nil ? "Fecha inválida (usa dd/mm/aaaa)" : nil
+        guard let date = birthDate else {
+            return "Fecha inválida (usa dd/mm/aaaa)"
+        }
+        if date > Date() {
+            return "La fecha no puede ser futura"
+        }
+        return nil
     }
     
     func setBirthDate(_ date: Date) {
@@ -121,7 +128,8 @@ final class RegisterExternalViewModel: ObservableObject {
             result = try await repository.register(makeRequest())
             didSucceed = true
         } catch {
-            errorMessage = "No se pudo registrar. Verifica tu conexión e inténtalo de nuevo."
+            errorMessage = Self.registerErrorMessage(from: error)
+            showErrorToast = true
         }
         
         isSubmitting = false
@@ -142,6 +150,21 @@ final class RegisterExternalViewModel: ObservableObject {
                 municipality: municipality.trimmed
             )
         )
+    }
+    
+    private static func registerErrorMessage(from error: Error) -> String {
+        guard case let APIError.server(_, data) = error,
+              let data,
+              let body = try? JSONDecoder().decode(APIErrorResponse.self, from: data),
+              let message = body.error
+        else {
+            return "No se pudo registrar. Verifica tu conexión e inténtalo de nuevo."
+        }
+        
+        if message.lowercased().contains("exists") {
+            return "Ya existe una externa registrada con este correo."
+        }
+        return "No se pudo registrar. Revisa los datos e inténtalo de nuevo."
     }
 }
 
