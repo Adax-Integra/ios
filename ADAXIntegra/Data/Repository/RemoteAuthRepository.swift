@@ -7,12 +7,7 @@
 
 import Foundation
 
-private struct LoginRequestBody: Encodable {
-  let email: String
-  let password: String
-}
-
-class RemoteAuthRepository: AuthRepositoryP {
+class RemoteAuthRepository: AuthRepository {
   func login(email: String, password: String) async -> LoginResult? {
     do {
       let response = try await APIProtocol.post(
@@ -27,5 +22,18 @@ class RemoteAuthRepository: AuthRepositoryP {
       print(error)
       return nil
     }
+  }
+  func changePassword(currentPassword: String, newPassword: String, confirmPassword: String)
+    async throws -> ChangePasswordResult
+  {
+    let response = try await APIProtocol.post(
+      "/auth/change-password",
+      body: ChangePasswordRequestBody(
+        currentPassword: currentPassword,
+        newPassword: newPassword,
+        confirmPassword: confirmPassword),
+      as: APIResponse<ChangePasswordResult>.self
+    )
+    return response.data
   }
 }

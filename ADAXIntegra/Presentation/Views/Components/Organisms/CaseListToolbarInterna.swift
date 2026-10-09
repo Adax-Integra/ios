@@ -9,22 +9,54 @@ import SwiftUI
 
 struct CaseListToolbar: View {
   @Binding var searchText: String
+  @Binding var selectedFilter: String
 
   let totalCases: Int
-  let onFilterTapped: () -> Void
+  let filterOptions: [String]
+
+  // filter selected shows the urgency or "Urgencia" when there is no filtered aplied
+  private var filterTitle: String {
+    selectedFilter == "Todas" ? "Urgencia" : selectedFilter
+  }
+
+  // the clear button apears when there is a filter to clear
+  private var hasActiveFilters: Bool {
+    selectedFilter != "Todas" || !searchText.isEmpty
+  }
 
   var body: some View {
     VStack(alignment: .leading, spacing: 16) {
-      HStack(spacing: 12) {
-        SearchBarInterna(placeholder: "Buscar caso...", text: $searchText)
+      SearchBarInterna(placeholder: "Buscar caso...", text: $searchText)
 
-        IconTextSecondaryButton(
-          customWidth: 80,
-          systemName: "line.3.horizontal.decrease",
-          title: "Filtrar",
-          isDisabled: false,
-          action: onFilterTapped
-        )
+      HStack(spacing: 12) {
+
+        Menu {
+          Picker("Filtrar por urgencia", selection: $selectedFilter) {
+            ForEach(filterOptions, id: \.self) { option in
+              Text(option).tag(option)
+            }
+          }
+        } label: {
+
+          FilterChip(title: filterTitle)
+        }
+
+        .buttonStyle(.plain)
+
+        Spacer()
+
+        // resets the search and urgency filter
+        if hasActiveFilters {
+          Button {
+            searchText = ""
+            selectedFilter = "Todas"
+          } label: {
+            Text("Limpiar filtros")
+              .font(.system(size: 13, weight: .semibold))
+              .foregroundColor(Color("PrimaryAdax"))
+          }
+          .buttonStyle(.plain)
+        }
       }
 
       HStack {
@@ -43,12 +75,13 @@ struct CaseListToolbar: View {
 }
 
 #Preview {
+  @Previewable @State var filter = "Todas"
+
   CaseListToolbar(
     searchText: .constant(""),
+    selectedFilter: $filter,
     totalCases: 12,
-    onFilterTapped: {
-      print("filtrar tapped")  // Just to comfirm the button is being clicked
-    }
+    filterOptions: ["Todas", "Alta", "Media", "Baja", "Sin evaluar"]
   )
   .padding()
 }

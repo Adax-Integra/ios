@@ -1,0 +1,80 @@
+//
+//  RegistrationTemplate.swift
+//  ADAXIntegra
+//
+//  Created by Lakshmi Jara on 22/09/26.
+//
+// G-01
+
+import SwiftUI
+
+// template that defines the layout of the registration screen
+struct RegistrationTemplate: View {
+
+  // connects the form fields to the values saved in RegistrationPage
+  @Binding var name: String
+  @Binding var lastName: String
+  @Binding var email: String
+  @Binding var countryCode: String?
+  @Binding var phoneNumber: String
+  @Binding var password: String
+  @Binding var confirmPassword: String
+
+  var countries: [Country]
+
+  // phone codes from teh country catalog
+  private var phoneCountryCodes: [String] {
+    Country.dialCodes(in: countries)
+  }
+
+  let backAction: () -> Void
+  let registerAction: () -> Void
+
+  var body: some View {
+    ZStack {
+      Color("Background")
+        .ignoresSafeArea()
+
+      ScrollView {
+        VStack(alignment: .leading, spacing: 24) {
+          BackButton(action: backAction)
+
+          Text("Crear cuenta")
+            .font(.system(size: 28, weight: .bold))
+            .foregroundColor(Color("OnBackground"))
+
+          Text("Ingresa tus datos para registrarte")
+            .font(.system(size: 16, weight: .regular))
+            .foregroundColor(Color("InsideTextAndIcons"))
+
+          // shows the form with  the connected values and register action
+          RegistrationForm(
+            name: $name,
+            lastName: $lastName,
+            email: $email,
+            countryCode: $countryCode,
+            phoneNumber: $phoneNumber,
+            password: $password,
+            confirmPassword: $confirmPassword,
+            countryCodes: phoneCountryCodes,
+            action: registerAction
+          )
+
+          HStack(spacing: 4) {
+            Text("¿Ya tienes una cuenta?")
+              .foregroundColor(Color("InsideTextAndIcons"))
+
+            Button("Inicia sesión") {
+              backAction()
+            }
+            .foregroundColor(Color("PrimaryAdax"))
+          }
+          .font(.system(size: 14))
+          .frame(maxWidth: .infinity)
+        }
+        .padding(.horizontal, 24)
+        .padding(.vertical, 20)
+      }
+    }
+  }
+}

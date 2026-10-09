@@ -27,7 +27,7 @@ struct ListPageTemplate<Header: View, Toolbar: View, Content: View>: View {
           .padding(.top, 24)
 
         ScrollView {
-          VStack(spacing: 16) {
+          LazyVStack(spacing: 16) {
             content()
           }
           .padding()
@@ -54,4 +54,3 @@ struct ListPageTemplate<Header: View, Toolbar: View, Content: View>: View {
     }
   }
 }
-
