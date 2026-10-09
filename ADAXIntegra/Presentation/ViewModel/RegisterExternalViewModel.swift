@@ -65,6 +65,10 @@ final class RegisterExternalViewModel: ObservableObject {
         if date > Date() {
             return "La fecha no puede ser futura"
         }
+        if let minAdultDate = Calendar.current.date(byAdding: .year, value: -18, to: Date()),
+           date > minAdultDate {
+            return "La externa debe ser mayor de edad (18+)"
+        }
         return nil
     }
     

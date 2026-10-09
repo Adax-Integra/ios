@@ -141,7 +141,7 @@ struct RegisterExternalPage: View {
     private var dateSheet: some View {
         NavigationStack {
             VStack {
-                DatePicker("", selection: $sheetDate, in: ...Date(), displayedComponents: .date)
+                DatePicker("", selection: $sheetDate, in: ...maxBirthDate, displayedComponents: .date)
                     .datePickerStyle(.graphical)
                     .labelsHidden()
                     .tint(Color("PrimaryAdax"))
@@ -167,6 +167,9 @@ struct RegisterExternalPage: View {
         .presentationDetents([.medium])
     }
     
+    private var maxBirthDate: Date {
+        Calendar.current.date(byAdding: .year, value: -18, to: Date()) ?? Date()
+    }
     
     private var addressSection: some View {
         VStack(alignment: .leading, spacing: 16) {
