@@ -20,10 +20,16 @@ struct RecordsPageInterna: View {
     } content: {
       content
     }
-    .task(id: filterKey) {
+    .task(id: viewModel.searchText) {
       try? await Task.sleep(for: .milliseconds(300))
       guard !Task.isCancelled else { return }
       await viewModel.refresh()
+    }
+    .onChange(of: viewModel.hasOpenCasesFilter) { _, _ in
+      Task { await viewModel.refresh() }
+    }
+    .onChange(of: viewModel.statusFilter) { _, _ in
+      Task { await viewModel.refresh() }
     }
     .refreshable {
       await viewModel.refresh()
@@ -34,10 +40,6 @@ struct RecordsPageInterna: View {
         Task { await viewModel.refresh() }
       })
     }
-  }
-
-  private var filterKey: String {
-    "\(viewModel.searchText)|\(viewModel.hasOpenCasesFilter?.description ?? "nil")|\(viewModel.statusFilter ?? "nil")"
   }
 
   private var toolbar: some View {
