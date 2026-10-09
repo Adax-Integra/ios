@@ -14,6 +14,11 @@ final class RecordDetailsViewModel: ObservableObject {
   @Published var isLoading: Bool = false
   @Published var errorMessage: String?
 
+  // We need the first name only for showing it on the record detail page.
+  var userFirstName: String {
+    recordDetails.first?.userName.firstName ?? ""
+  }
+
   private let repository: RecordRepository
 
   init(repository: RecordRepository = RemoteRecordRepository()) {

@@ -16,23 +16,44 @@ struct RecordDetailPage: View {
     ZStack {
       Color("Background").ignoresSafeArea()
 
-      ScrollView {
-        LazyVStack(spacing: 16) {
-          ForEach(recordDetailsViewModel.recordDetails) { recordDetail in
-            RecordCaseDetail(
-              caseId: recordDetail.caseNumber ?? recordDetail.id,
-              externalName: recordDetail.userName,
-              status: recordDetail.status ?? .open,
-              violenceType: recordDetail.violenceTypes.joined(separator: ", "),
-              internalAssigned: recordDetail.assignedUsers.map(\.name).joined(separator: ", "),
-              lastUpdated: recordDetail.updatedDateString
-            )
+      VStack(alignment: .leading, spacing: 0) {
+
+        VStack(alignment: .leading, spacing: 2) {
+          HStack(spacing: 0) {
+            Text("Casos de ")
+              .font(.system(size: 28, weight: .bold))
+              .foregroundColor(Color("OnBackground"))
+              .lineLimit(1)
+              .minimumScaleFactor(0.7)
+
+            Text(recordDetailsViewModel.userFirstName)
+              .font(.system(size: 28, weight: .bold))
+              .foregroundColor(Color("OnBackground"))
+              .lineLimit(1)
+              .minimumScaleFactor(0.7)
           }
         }
-        .padding()
-      }
-      .refreshable {
-        await recordDetailsViewModel.loadRecordDetails(for: externalID)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding([.horizontal, .top])
+
+        ScrollView {
+          LazyVStack(spacing: 16) {
+            ForEach(recordDetailsViewModel.recordDetails) { recordDetail in
+              RecordCaseDetail(
+                caseId: recordDetail.caseNumber ?? recordDetail.id,
+                externalName: recordDetail.userName,
+                status: recordDetail.status ?? .open,
+                violenceType: recordDetail.violenceTypes.joined(separator: ", "),
+                internalAssigned: recordDetail.assignedUsers.map(\.name).joined(separator: ", "),
+                lastUpdated: recordDetail.updatedDateString
+              )
+            }
+          }
+          .padding()
+        }
+        .refreshable {
+          await recordDetailsViewModel.loadRecordDetails(for: externalID)
+        }
       }
     }
     .overlay {
