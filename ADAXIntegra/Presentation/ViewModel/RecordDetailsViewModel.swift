@@ -24,6 +24,8 @@ final class RecordDetailsViewModel: ObservableObject {
   func loadRecordDetails(for externalId: String) async {
     isLoading = true
     errorMessage = nil
+    // defer: When the this function ends, set isLoading back to false
+    defer { isLoading = false }
     do {
       let result = try await repository.getRecordFromExternal(for: externalId)
       guard !Task.isCancelled else { return }
@@ -35,6 +37,5 @@ final class RecordDetailsViewModel: ObservableObject {
       guard !Task.isCancelled else { return }
       errorMessage = "Error al cargar los detalles del expediente."
     }
-    isLoading = false
   }
 }
