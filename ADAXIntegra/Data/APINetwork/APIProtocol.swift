@@ -123,6 +123,33 @@ struct APIProtocol {
     }
   }
 
+  // G-07: PATCH with JSON body. Errors go through mapError so the
+  // ViewModel can tell a duplicated email (409) from other errors
+  static func patch<Body: Encodable, T: Decodable>(
+    _ path: String,
+    body: Body,
+    as type: T.Type
+  ) async throws -> T {
+    return try await withCheckedThrowingContinuation { continuation in
+      AF.request(
+        APIConfig.baseURL + path,
+        method: .patch,
+        parameters: body,
+        encoder: JSONParameterEncoder.default,
+        headers: authHeaders
+      )
+      .validate()
+      .responseDecodable(of: T.self) { response in
+        switch response.result {
+        case .success(let value): continuation.resume(returning: value)
+        case .failure(let error):
+          continuation.resume(
+            throwing: mapError(error, response: response.response, data: response.data))
+        }
+      }
+    }
+  }
+
   // PUT that sends text fields and files in one multipart request.
   static func putMultipart<T: Decodable>(
     _ path: String,
