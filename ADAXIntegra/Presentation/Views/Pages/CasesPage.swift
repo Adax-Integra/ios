@@ -33,6 +33,9 @@ struct CasesPage: View {
       // Extra space so the last case can scroll above the floating button
       Color.clear.frame(height: 126)
     }
+    .refreshable {
+      await viewModel.loadCases()
+    }
     // R-02: stays fixed in the bottom-right corner while the list scrolls.
     // Hidden during the undo window so a second case cannot replace the pending one
     .overlay(alignment: .bottomTrailing) {
