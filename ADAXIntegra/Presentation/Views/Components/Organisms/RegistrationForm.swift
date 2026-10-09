@@ -107,10 +107,12 @@ struct RegistrationForm: View {
           text: $password
         )
 
-        Text("Debe tener entre 8 y 24 caracteres, una mayúscula, un número y un carácter especial.")
-          .font(.caption)
-          .foregroundStyle(.secondary)
-          .fixedSize(horizontal: false, vertical: true)
+        Text(
+          "Debe tener entre 8 y 24 caracteres, una mayúscula, una minúscula, un número y un carácter especial. No puede incluir acentos ni letras especiales."
+        )
+        .font(.caption)
+        .foregroundStyle(.secondary)
+        .fixedSize(horizontal: false, vertical: true)
       }
 
       VStack(alignment: .leading, spacing: 6) {
