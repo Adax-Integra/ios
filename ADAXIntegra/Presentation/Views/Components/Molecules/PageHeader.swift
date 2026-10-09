@@ -17,16 +17,26 @@ struct PageHeader: View {
   var backButtonSize: CGFloat = 25
   // Horizontal margin between the "BackButton" and the title
   var titleSpacing: CGFloat = 4
+  //Optional text shown below title
+  var subtitle: String? = nil
 
   var body: some View {
     HStack(spacing: titleSpacing) {
       BackButton(size: backButtonSize, action: backAction)
+      VStack(alignment: .leading, spacing: 2) {
 
-      Text(title)
-        .font(.system(size: titleSize, weight: .bold))
-        .foregroundColor(Color("OnBackground"))
-        .lineLimit(1)
-        .minimumScaleFactor(0.7)
+        Text(title)
+          .font(.system(size: titleSize, weight: .bold))
+          .foregroundColor(Color("OnBackground"))
+          .lineLimit(1)
+          .minimumScaleFactor(0.7)
+
+        if let subtitle {
+          Text(subtitle)
+            .font(.subheadline)
+            .foregroundColor(Color("OnBackground").opacity(0.7))
+        }
+      }
 
       Spacer(minLength: 0)
     }
@@ -53,6 +63,11 @@ struct PageHeader: View {
         title: "Título con margen amplio",
         backAction: { print("Back tapped") },
         titleSpacing: 16
+      )
+
+      PageHeader(
+        title: "Gestion de Colaboradoras", backAction: { print("Back tapped") },
+        subtitle: "Administrar las cuentas de las colaboradoras"
       )
     }
     .padding()

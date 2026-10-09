@@ -7,6 +7,6 @@
 
 // backend response is: { success: true, data: [...] }
 struct APIResponse<T: Decodable>: Decodable {
-    let success: Bool
-    let data: T
+  let success: Bool
+  let data: T
 }

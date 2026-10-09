@@ -26,11 +26,19 @@ struct Dropdown: View {
   // option without scrolling
   var maxVisibleOptions: Int? = 6
 
+  // Blocks the dropdown and dims it, used while another field must be filled first.
+  var isDisabled: Bool = false
+
   @State private var isExpanded = false
   @Binding var selection: String?
 
-  // Max height for the expanded options container. Returns "nil"
-  // when no cap is desired
+  // An empty string counts as nothing selected, so the prompt is shown
+  private var selectedText: String? {
+    guard let selection, !selection.isEmpty else { return nil }
+    return selection
+  }
+
+  // Max height for the expanded options container.
   private var expandedMaxHeight: CGFloat? {
     guard let maxVisibleOptions, options.count > maxVisibleOptions else { return nil }
     return CGFloat(maxVisibleOptions) * optionHeight
@@ -45,7 +53,10 @@ struct Dropdown: View {
       SurfaceCard {
         VStack {
           HStack {
-            Text(selection ?? prompt)
+            Text(selectedText ?? prompt)
+              .foregroundColor(
+                selectedText == nil ? Color("InsideTextAndIcons").opacity(0.6) : nil
+              )
 
             Spacer()
 
@@ -60,6 +71,7 @@ struct Dropdown: View {
           .contentShape(Rectangle())  // Makes the whole rectangle area tappable
           .padding(.horizontal)
           .onTapGesture {
+            guard !isDisabled else { return }
             withAnimation(.snappy) { isExpanded.toggle() }
           }
 
@@ -71,6 +83,7 @@ struct Dropdown: View {
         }
         .frame(maxWidth: customWidth)
       }
+      .opacity(isDisabled ? 0.5 : 1)
     }
     .frame(maxWidth: .infinity)
   }
