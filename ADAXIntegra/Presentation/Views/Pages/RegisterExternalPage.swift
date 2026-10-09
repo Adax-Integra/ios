@@ -30,23 +30,17 @@ struct RegisterExternalPage: View {
             Color("Background").ignoresSafeArea()
             ScrollView(showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 20) {
-                    PageHeader(title: "Registrar externa", backAction: onBack)
+                    PageHeader(title: "Registrar expediente", backAction: onBack)
                     profileSection
                     addressSection
                     
                     PrimaryButton(
-                        title: "Guardar",
+                        title: "Guardar expediente",
                         isDisabled: viewModel.isSubmitting,
                         action: { Task { await viewModel.submit() } }
                     )
                     .frame(maxWidth: .infinity, minHeight: 52, maxHeight: 52)
                     .padding(.top, 8)
-                    
-                    if let errorMessage = viewModel.errorMessage {
-                        Text(errorMessage)
-                            .font(.system(size: 14))
-                            .foregroundStyle(Color("Error"))
-                    }
                 }
                 .padding(20)
             }
@@ -54,6 +48,10 @@ struct RegisterExternalPage: View {
         .task {
             await viewModel.loadCountries()
         }
+        .toast(
+            isPresented: $viewModel.showErrorToast,
+            message: viewModel.errorMessage ?? ""
+        )
     }
     
     private var profileSection: some View {
@@ -75,7 +73,7 @@ struct RegisterExternalPage: View {
             )
             
             LabeledTextField(
-                title: "Email",
+                title: "Correo electrónico",
                 placeholder: "correo@ejemplo.com",
                 keyboardType: .emailAddress,
                 errorMessage: viewModel.emailError,
@@ -84,7 +82,10 @@ struct RegisterExternalPage: View {
             .textInputAutocapitalization(.never)
             .autocorrectionDisabled()
             
-            PhoneField(countryCode: $viewModel.countryCode, phone: $viewModel.phone)
+            PhoneField(
+                countryCodes: Country.dialCodes(in: viewModel.countries),
+                countryCode: $viewModel.countryCode,
+                phone: $viewModel.phone)
             birthDateField
         }
     }
@@ -140,7 +141,7 @@ struct RegisterExternalPage: View {
     private var dateSheet: some View {
         NavigationStack {
             VStack {
-                DatePicker("", selection: $sheetDate, displayedComponents: .date)
+                DatePicker("", selection: $sheetDate, in: ...maxBirthDate, displayedComponents: .date)
                     .datePickerStyle(.graphical)
                     .labelsHidden()
                     .tint(Color("PrimaryAdax"))
@@ -166,41 +167,15 @@ struct RegisterExternalPage: View {
         .presentationDetents([.medium])
     }
     
+    private var maxBirthDate: Date {
+        Calendar.current.date(byAdding: .year, value: -18, to: Date()) ?? Date()
+    }
     
     private var addressSection: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text("Dirección")
                 .font(.system(size: 20, weight: .bold))
                 .foregroundStyle(Color("OnBackground"))
-            
-            LabeledTextField(
-                title: "Calle y número",
-                placeholder: "Av. Insurgentes Sur 1234",
-                errorMessage: viewModel.addressLine1Error,
-                text: $viewModel.addressLine1
-            )
-            
-            LabeledTextField(
-                title: "Interior / depto (opcional)",
-                placeholder: "Interior 203N",
-                text: $viewModel.addressLine2
-            )
-            
-            LabeledTextField(
-                title: "Colonia",
-                placeholder: "Colonia...",
-                errorMessage: viewModel.neighborhoodError,
-                text: $viewModel.neighborhood
-            )
-            
-            LabeledTextField(
-                title: "Código postal",
-                placeholder: "00000",
-                keyboardType: .numberPad,
-                maxLength: 5,
-                errorMessage: viewModel.zipCodeError,
-                text: $viewModel.zipCode
-            )
             
             VStack(alignment: .leading, spacing: 6) {
                 SearchableDropdown(
@@ -231,10 +206,10 @@ struct RegisterExternalPage: View {
             }
             
             LabeledTextField(
-                title: "Ciudad / Municipio",
-                placeholder: "Ciudad o municipio...",
-                errorMessage: viewModel.cityError,
-                text: $viewModel.city
+                title: "Municipio/Localidad",
+                placeholder: "Municipio o localidad...",
+                errorMessage: viewModel.municipalityError,
+                text: $viewModel.municipality
             )
         }
     }

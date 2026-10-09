@@ -17,13 +17,9 @@ final class RegisterExternalViewModel: ObservableObject {
     @Published var countryCode: String? = "+52"
     @Published var phone = ""
     
-    @Published var addressLine1 = ""
-    @Published var addressLine2 = ""
-    @Published var neighborhood = ""
-    @Published var zipCode = ""
     @Published var country: String? = nil
     @Published var state: String? = nil
-    @Published var city = ""
+    @Published var municipality = ""
     
     @Published var isSubmitting = false
     @Published var errorMessage: String?
@@ -32,6 +28,7 @@ final class RegisterExternalViewModel: ObservableObject {
     @Published var result: RegisterExternalResult?
     
     @Published var showErrors = false
+    @Published var showErrorToast = false
     
     private let repository: ExternalUserRepository
     private let countryRepository: CountryRepository
@@ -62,7 +59,17 @@ final class RegisterExternalViewModel: ObservableObject {
     
     var birthDateError: String? {
         if birthDateInput.isEmpty { return nil }
-        return birthDate == nil ? "Fecha inválida (usa dd/mm/aaaa)" : nil
+        guard let date = birthDate else {
+            return "Fecha inválida (usa dd/mm/aaaa)"
+        }
+        if date > Date() {
+            return "La fecha no puede ser futura"
+        }
+        if let minAdultDate = Calendar.current.date(byAdding: .year, value: -18, to: Date()),
+           date > minAdultDate {
+            return "La externa debe ser mayor de edad (18+)"
+        }
+        return nil
     }
     
     func setBirthDate(_ date: Date) {
@@ -88,12 +95,9 @@ final class RegisterExternalViewModel: ObservableObject {
         !name.trimmed.isEmpty
             && !lastName.trimmed.isEmpty
             && isValidEmail(email)
-            && !addressLine1.trimmed.isEmpty
-            && !neighborhood.trimmed.isEmpty
-            && !zipCode.trimmed.isEmpty
             && country != nil
             && state != nil
-            && !city.trimmed.isEmpty
+            && !municipality.trimmed.isEmpty
             && birthDateError == nil
     }
     
@@ -114,10 +118,7 @@ final class RegisterExternalViewModel: ObservableObject {
         if email.trimmed.isEmpty { return "Este campo es obligatorio" }
         return isValidEmail(email) ? nil : "Correo no válido (usa nombre@dominio.com)"
     }
-    var addressLine1Error: String? { requiredError(addressLine1) }
-    var neighborhoodError: String? { requiredError(neighborhood) }
-    var zipCodeError: String? { requiredError(zipCode) }
-    var cityError: String? { requiredError(city) }
+    var municipalityError: String? { requiredError(municipality) }
     var countryError: String? {showErrors && country == nil ? "Selecciona un país" : nil }
     var stateError: String? {showErrors && state == nil ? "Selecciona un estado" : nil }
     
@@ -131,7 +132,8 @@ final class RegisterExternalViewModel: ObservableObject {
             result = try await repository.register(makeRequest())
             didSucceed = true
         } catch {
-            errorMessage = "No se pudo registrar. Verifica tu conexión e inténtalo de nuevo."
+            errorMessage = Self.registerErrorMessage(from: error)
+            showErrorToast = true
         }
         
         isSubmitting = false
@@ -147,15 +149,26 @@ final class RegisterExternalViewModel: ObservableObject {
                 phone: phone.isEmpty ? nil : "\(countryCode ?? "")\(phone)"
             ),
             address: .init(
-                addressLine1: addressLine1.trimmed,
-                addressLine2: addressLine2.trimmed.isEmpty ? nil : addressLine2.trimmed,
-                neighborhood: neighborhood.trimmed,
-                zipCode: zipCode.trimmed,
                 country: country ?? "",
                 state: state ?? "",
-                city: city.trimmed
+                municipality: municipality.trimmed
             )
         )
+    }
+    
+    private static func registerErrorMessage(from error: Error) -> String {
+        guard case let APIError.server(_, data) = error,
+              let data,
+              let body = try? JSONDecoder().decode(APIErrorResponse.self, from: data),
+              let message = body.error
+        else {
+            return "No se pudo registrar. Verifica tu conexión e inténtalo de nuevo."
+        }
+        
+        if message.lowercased().contains("exists") {
+            return "Ya existe una externa registrada con este correo."
+        }
+        return "No se pudo registrar. Revisa los datos e inténtalo de nuevo."
     }
 }
 
