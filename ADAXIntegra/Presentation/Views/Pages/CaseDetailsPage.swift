@@ -49,7 +49,9 @@ struct CaseDetailsPage: View {
         content: {
           RecordCaseSummary(
             userName: userFullName,
-            recordId: viewModel.caseDetail?.recordId ?? "—",
+            recordId: viewModel.caseDetail?.record.recordNumber
+                ?? viewModel.caseDetail?.recordId
+                ?? "—",
             lastModified: viewModel.caseDetail?.updatedAt ?? "—",
             createdAt: viewModel.caseDetail?.createdAt ?? "—",
             onEditTapped: { print("Edit tapped") }

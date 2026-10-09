@@ -20,12 +20,15 @@ struct CaseDetail: Decodable {
   let recordId: String?
   let createdAt: String?
   let updatedAt: String?
+    
 
   // Raw nested shapes as they arrive in the JSON
   let record: CaseDetailRecord
   let caseSteps: [CaseDetailStep]
   let caseViolence: [CaseDetailViolenceWrapper]
   let caseHelp: [CaseDetailHelpWrapper]
+  let isRiskSituation: Bool?
+  let regionId: String?
 
   enum CodingKeys: String, CodingKey {
     case caseId = "case_id"
@@ -41,6 +44,8 @@ struct CaseDetail: Decodable {
     case caseSteps = "case_steps"
     case caseViolence = "case_violence"
     case caseHelp = "case_help"
+    case isRiskSituation = "is_risk_situation"
+    case regionId = "region_id"
   }
 
   // we unwrap supabase join structure so  we "help" the View and ViewModel by not letting them deal with raw JSON structure
@@ -52,7 +57,16 @@ struct CaseDetail: Decodable {
 
 // Intermediate container as the backend nests the external user info
 struct CaseDetailRecord: Decodable {
-  let user: CaseDetailUser
+    let recordId: String?
+    let recordNumber: String?
+    let user: CaseDetailUser
+    
+
+    enum CodingKeys: String, CodingKey {
+        case recordId = "record_id"
+        case recordNumber = "record_number"
+        case user
+    }
 }
 
 // Basic info about the external who the case belongs to
