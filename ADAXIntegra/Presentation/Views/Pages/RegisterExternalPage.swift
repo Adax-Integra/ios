@@ -36,7 +36,7 @@ struct RegisterExternalPage: View {
                     
                     PrimaryButton(
                         title: "Guardar",
-                        isDisabled: viewModel.isSubmitting,
+                        isDisabled: !viewModel.isValid || viewModel.isSubmitting,
                         action: { Task { await viewModel.submit() } }
                     )
                     .frame(maxWidth: .infinity, minHeight: 52, maxHeight: 52)
@@ -62,7 +62,6 @@ struct RegisterExternalPage: View {
                 title: "Nombre(s)",
                 placeholder: "Escribe el nombre...",
                 maxLength: 30,
-                errorMessage: viewModel.nameError,
                 text: $viewModel.name
             )
             
@@ -70,7 +69,6 @@ struct RegisterExternalPage: View {
                 title: "Apellido(s)",
                 placeholder: "Escribe el/los apellido(s)...",
                 maxLength: 30,
-                errorMessage: viewModel.lastNameError,
                 text: $viewModel.lastName
             )
             
@@ -78,7 +76,6 @@ struct RegisterExternalPage: View {
                 title: "Email",
                 placeholder: "correo@ejemplo.com",
                 keyboardType: .emailAddress,
-                errorMessage: viewModel.emailError,
                 text: $viewModel.email
             )
             .textInputAutocapitalization(.never)
@@ -176,7 +173,6 @@ struct RegisterExternalPage: View {
             LabeledTextField(
                 title: "Calle y número",
                 placeholder: "Av. Insurgentes Sur 1234",
-                errorMessage: viewModel.addressLine1Error,
                 text: $viewModel.addressLine1
             )
             
@@ -189,7 +185,6 @@ struct RegisterExternalPage: View {
             LabeledTextField(
                 title: "Colonia",
                 placeholder: "Colonia...",
-                errorMessage: viewModel.neighborhoodError,
                 text: $viewModel.neighborhood
             )
             
@@ -198,42 +193,30 @@ struct RegisterExternalPage: View {
                 placeholder: "00000",
                 keyboardType: .numberPad,
                 maxLength: 5,
-                errorMessage: viewModel.zipCodeError,
                 text: $viewModel.zipCode
             )
             
-            VStack(alignment: .leading, spacing: 6) {
-                SearchableDropdown(
-                    title: "País",
-                    prompt: "Selecciona un país",
-                    options: viewModel.countries.map(\.nameEs),
-                    selection: $viewModel.country
-                )
-                if let error = viewModel.countryError {
-                    FieldErrorLabel(error)
-                }
-            }
+            SearchableDropdown(
+                title: "País",
+                prompt: "Selecciona un país",
+                options: viewModel.countries.map(\.nameEs),
+                selection: $viewModel.country
+            )
             
-            VStack(alignment: .leading, spacing: 6) {
-                SearchableDropdown(
-                    title: "Estado",
-                    prompt: viewModel.country == nil ? "Primero elige un país" : "Selecciona un estado",
-                    options: viewModel.stateOptions,
-                    selection: $viewModel.state
-                )
-                .disabled(viewModel.country == nil)
-                .onChange(of: viewModel.country) { _, _ in
-                    viewModel.state = nil
-                }
-                if let error = viewModel.stateError {
-                    FieldErrorLabel(error)
-                }
+            SearchableDropdown(
+                title: "Estado",
+                prompt: viewModel.country == nil ? "Primero elige un país" : "Selecciona un estado",
+                options: viewModel.stateOptions,
+                selection: $viewModel.state
+            )
+            .disabled(viewModel.country == nil)
+            .onChange(of: viewModel.country) { _, _ in
+                viewModel.state = nil
             }
             
             LabeledTextField(
                 title: "Ciudad / Municipio",
                 placeholder: "Ciudad o municipio...",
-                errorMessage: viewModel.cityError,
                 text: $viewModel.city
             )
         }
