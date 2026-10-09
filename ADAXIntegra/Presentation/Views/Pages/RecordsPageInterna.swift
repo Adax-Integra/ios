@@ -64,6 +64,8 @@ struct RecordsPageInterna: View {
         } label: {
           FilterChip(title: statusFilterText)
         }
+        
+        Spacer()
 
         if hasActiveFilters {
           Button {
@@ -71,17 +73,12 @@ struct RecordsPageInterna: View {
             viewModel.hasOpenCasesFilter = nil
             viewModel.statusFilter = nil
           } label: {
-            HStack(spacing: 4) {
-              Image(systemName: "xmark.circle.fill")
-              Text("Limpiar")
-            }
-            .font(.system(size: 13, weight: .semibold))
-            .foregroundStyle(Color("PrimaryAdax"))
+              Text("Limpiar filtros")
+                .font(.system(size: 13, weight: .semibold))
+                .foregroundColor(Color("PrimaryAdax"))
           }
           .buttonStyle(.plain)
         }
-
-        Spacer()
       }
 
       IconTextPrimaryButton(
