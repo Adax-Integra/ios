@@ -52,13 +52,19 @@ struct RecordCaseDetail: View {
         HStack(spacing: 2) {
           Text("Violencia: ")
             .fontWeight(.bold)
+            .fixedSize()
           Text(violenceType)
+            .lineLimit(1)
+            .truncationMode(.tail)
         }
 
         HStack(spacing: 2) {
           Text("Asignada al caso: ")
             .fontWeight(.bold)
+            .fixedSize()
           Text(internalAssigned)
+            .lineLimit(1)
+            .truncationMode(.tail)
         }
 
         HStack(spacing: 2) {
@@ -94,7 +100,7 @@ struct RecordCaseDetail: View {
       externalName: "Adriana Velásquez",
       status: .open,
       violenceType: "Familiar",
-      internalAssigned: "Alejandra Benítez",
+      internalAssigned: "Alejandra Benítez ",
       lastUpdated: "12 Jul 2026"
     )
     .padding()
