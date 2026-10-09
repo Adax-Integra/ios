@@ -35,7 +35,7 @@ struct RegisterExternalPage: View {
                     addressSection
                     
                     PrimaryButton(
-                        title: "Guardar",
+                        title: "Guardar expediente",
                         isDisabled: viewModel.isSubmitting,
                         action: { Task { await viewModel.submit() } }
                     )
@@ -75,7 +75,7 @@ struct RegisterExternalPage: View {
             )
             
             LabeledTextField(
-                title: "Email",
+                title: "Correo electrónico",
                 placeholder: "correo@ejemplo.com",
                 keyboardType: .emailAddress,
                 errorMessage: viewModel.emailError,
@@ -173,35 +173,6 @@ struct RegisterExternalPage: View {
                 .font(.system(size: 20, weight: .bold))
                 .foregroundStyle(Color("OnBackground"))
             
-            LabeledTextField(
-                title: "Calle y número",
-                placeholder: "Av. Insurgentes Sur 1234",
-                errorMessage: viewModel.addressLine1Error,
-                text: $viewModel.addressLine1
-            )
-            
-            LabeledTextField(
-                title: "Interior / depto (opcional)",
-                placeholder: "Interior 203N",
-                text: $viewModel.addressLine2
-            )
-            
-            LabeledTextField(
-                title: "Colonia",
-                placeholder: "Colonia...",
-                errorMessage: viewModel.neighborhoodError,
-                text: $viewModel.neighborhood
-            )
-            
-            LabeledTextField(
-                title: "Código postal",
-                placeholder: "00000",
-                keyboardType: .numberPad,
-                maxLength: 5,
-                errorMessage: viewModel.zipCodeError,
-                text: $viewModel.zipCode
-            )
-            
             VStack(alignment: .leading, spacing: 6) {
                 SearchableDropdown(
                     title: "País",
@@ -231,10 +202,10 @@ struct RegisterExternalPage: View {
             }
             
             LabeledTextField(
-                title: "Ciudad / Municipio",
-                placeholder: "Ciudad o municipio...",
-                errorMessage: viewModel.cityError,
-                text: $viewModel.city
+                title: "Municipio/Localidad",
+                placeholder: "Municipio o localidad...",
+                errorMessage: viewModel.municipalityError,
+                text: $viewModel.municipality
             )
         }
     }

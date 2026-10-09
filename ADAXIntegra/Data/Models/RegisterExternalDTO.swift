@@ -28,23 +28,9 @@ struct RegisterExternalRequest: Encodable {
     }
     
     struct Address: Encodable {
-        let addressLine1: String
-        let addressLine2: String?
-        let neighborhood: String
-        let zipCode: String
         let country: String
         let state: String
-        let city: String
-        
-        enum CodingKeys: String, CodingKey {
-            case addressLine1 = "address_line_1"
-            case addressLine2 = "address_line_2"
-            case neighborhood
-            case zipCode = "zip_code"
-            case country
-            case state
-            case city
-        }
+        let municipality: String
     }
 }
 

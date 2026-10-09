@@ -17,13 +17,9 @@ final class RegisterExternalViewModel: ObservableObject {
     @Published var countryCode: String? = "+52"
     @Published var phone = ""
     
-    @Published var addressLine1 = ""
-    @Published var addressLine2 = ""
-    @Published var neighborhood = ""
-    @Published var zipCode = ""
     @Published var country: String? = nil
     @Published var state: String? = nil
-    @Published var city = ""
+    @Published var municipality = ""
     
     @Published var isSubmitting = false
     @Published var errorMessage: String?
@@ -88,12 +84,9 @@ final class RegisterExternalViewModel: ObservableObject {
         !name.trimmed.isEmpty
             && !lastName.trimmed.isEmpty
             && isValidEmail(email)
-            && !addressLine1.trimmed.isEmpty
-            && !neighborhood.trimmed.isEmpty
-            && !zipCode.trimmed.isEmpty
             && country != nil
             && state != nil
-            && !city.trimmed.isEmpty
+            && !municipality.trimmed.isEmpty
             && birthDateError == nil
     }
     
@@ -114,10 +107,7 @@ final class RegisterExternalViewModel: ObservableObject {
         if email.trimmed.isEmpty { return "Este campo es obligatorio" }
         return isValidEmail(email) ? nil : "Correo no válido (usa nombre@dominio.com)"
     }
-    var addressLine1Error: String? { requiredError(addressLine1) }
-    var neighborhoodError: String? { requiredError(neighborhood) }
-    var zipCodeError: String? { requiredError(zipCode) }
-    var cityError: String? { requiredError(city) }
+    var municipalityError: String? { requiredError(municipality) }
     var countryError: String? {showErrors && country == nil ? "Selecciona un país" : nil }
     var stateError: String? {showErrors && state == nil ? "Selecciona un estado" : nil }
     
@@ -147,13 +137,9 @@ final class RegisterExternalViewModel: ObservableObject {
                 phone: phone.isEmpty ? nil : "\(countryCode ?? "")\(phone)"
             ),
             address: .init(
-                addressLine1: addressLine1.trimmed,
-                addressLine2: addressLine2.trimmed.isEmpty ? nil : addressLine2.trimmed,
-                neighborhood: neighborhood.trimmed,
-                zipCode: zipCode.trimmed,
                 country: country ?? "",
                 state: state ?? "",
-                city: city.trimmed
+                municipality: municipality.trimmed
             )
         )
     }
