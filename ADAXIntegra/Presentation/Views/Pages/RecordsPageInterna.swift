@@ -20,9 +20,18 @@ struct RecordsPageInterna: View {
         } content: {
             content
         }
-        .task(id: filterKey) {
+        .task(id: viewModel.searchText) {
             try? await Task.sleep(for: .milliseconds(300))
             guard !Task.isCancelled else { return }
+            await viewModel.refresh()
+        }
+        .onChange(of: viewModel.hasOpenCasesFilter) { _, _ in
+            Task { await viewModel.refresh() }
+        }
+        .onChange(of: viewModel.statusFilter) { _, _ in
+            Task { await viewModel.refresh() }
+        }
+        .refreshable {
             await viewModel.refresh()
         }
         .fullScreenCover(isPresented: $showRegister) {
@@ -32,10 +41,7 @@ struct RecordsPageInterna: View {
             })
         }
     }
-
-    private var filterKey: String {
-        "\(viewModel.searchText)|\(viewModel.hasOpenCasesFilter?.description ?? "nil")|\(viewModel.statusFilter ?? "nil")"
-    }
+    
     private var toolbar: some View {
         VStack(spacing: 12) {
             SearchBarInterna(placeholder: "Buscar expediente...", text: $viewModel.searchText)
@@ -57,6 +63,22 @@ struct RecordsPageInterna: View {
                     Button("Completado") { viewModel.statusFilter = "COMPLETADO" }
                 } label: {
                     FilterChip(title: statusFilterText)
+                }
+                
+                if hasActiveFilters {
+                    Button {
+                        viewModel.searchText = ""
+                        viewModel.hasOpenCasesFilter = nil
+                        viewModel.statusFilter = nil
+                    } label: {
+                        HStack(spacing: 4) {
+                            Image(systemName: "xmark.circle.fill")
+                            Text("Limpiar")
+                        }
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundStyle(Color("PrimaryAdax"))
+                    }
+                    .buttonStyle(.plain)
                 }
                 
                 Spacer()
@@ -101,18 +123,6 @@ struct RecordsPageInterna: View {
         }
     }
     
-    private func filterLabel(_ text: String) -> some View {
-        HStack(spacing: 6) {
-            Image(systemName: "line.3.horizontal.decrease")
-            Text(text)
-        }
-        .font(.system(size: 13, weight: .semibold))
-        .foregroundStyle(Color("OnBackground"))
-        .padding(.horizontal, 14)
-        .padding(.vertical, 8)
-        .background(Capsule().fill(Color.gray.opacity(0.2)))
-    }
-    
     private var casesFilterText: String {
         switch viewModel.hasOpenCasesFilter {
         case .some(true): return "Con casos"
@@ -126,6 +136,12 @@ struct RecordsPageInterna: View {
             return "Estatus"
         }
         return status.label
+    }
+    
+    private var hasActiveFilters: Bool {
+        !viewModel.searchText.isEmpty
+        || viewModel.hasOpenCasesFilter != nil
+        || viewModel.statusFilter != nil
     }
 }
 
