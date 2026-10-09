@@ -33,6 +33,14 @@ struct Profile: Codable {
     case birthDate = "birth_date"
     case phone
   }
+
+  var birthDateValue: Date? {
+    /*
+     flatMap runs a function on an optional value,
+     if the value isn't there, skip the function.
+    */
+    birthDate.flatMap(Date.parseBirthDate)
+  }
 }
 
 struct Address: Codable {
