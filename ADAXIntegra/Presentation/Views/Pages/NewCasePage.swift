@@ -27,12 +27,14 @@ struct NewCasePage: View {
             caseDescription: $viewModel.caseDescription,
             helpDetails: $viewModel.helpDetails,
             hasExternalSupport: $viewModel.hasExternalSupport,
+            caseDescriptionError: viewModel.caseDescriptionError,
+            helpDetailsError: viewModel.helpDetailsError,
             onExternalSupportInfoTapped: { viewModel.isShowingExternalSupportInfo = true }
           )
           .padding(4)
         }
         .scrollDismissesKeyboard(.interactively)
-        PrimaryButton(title: "Crear caso", isDisabled: !viewModel.isFormValid) {
+        PrimaryButton(title: "Crear caso", isDisabled: false) {
           dismissKeyboard()
           viewModel.onCreateTapped()
         }
@@ -93,31 +95,6 @@ struct NewCasePage: View {
   }
 }
 
-#if DEBUG
-  // Preview-only repository: returns fake data without calling the backend
-private struct PreviewCaseRepository: CaseRepository {
-  func getCases(for userId: String) async throws -> [Case] {
-    []
-  }
-
-  func createCase(_ newCase: NewCase, userId: String) async -> String? {
-    UUID().uuidString
-  }
-
-  func getCaseDetail(caseId: String) async throws -> CaseDetail {
-    fatalError("not used in this preview")
-  }
-
-  func closeCase(caseId: String) async throws -> Bool {
-    true
-  }
+#Preview {
+  NewCasePage(viewModel: NewCaseViewModel(userId: "preview-user"))
 }
-  #Preview {
-    NewCasePage(
-      viewModel: NewCaseViewModel(
-        userId: "preview-user",
-        createCaseUseCase: CreateCaseUseCase(dataRepository: PreviewCaseRepository())
-      )
-    )
-  }
-#endif

@@ -17,7 +17,7 @@ struct RootPage: View {
       } else if session.roles.contains("external") {
         // V-02: external users reach the app only after accepting the privacy notice
         ConsentGatePage(onLogout: { session.logout() }) {
-          MainTabPage(userId: userId)
+          MainTabPageExterna(userId: userId)
         }
       } else {
         MainTabPageAdmin(userId: userId)

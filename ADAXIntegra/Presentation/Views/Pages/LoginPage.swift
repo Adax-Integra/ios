@@ -10,8 +10,9 @@ import SwiftUI
 // ViewModel, guarda los datos y la lógica del login
 struct LoginPage: View {
   @StateObject var viewModel: LoginViewModel
+  @State private var showRegistration = false
 
-// Opens the password flow recovery
+  // Abre el flujo de recuperación de contraseña
   @State private var showForgotPassword = false
 
   var body: some View {
@@ -20,7 +21,7 @@ struct LoginPage: View {
       VStack(alignment: .leading, spacing: 0) {
 
         // Logo centrado
-        Image("adaxFairy")
+        Image("AdaxLogo")
           .resizable()
           .scaledToFit()
           .frame(height: 150)
@@ -81,18 +82,18 @@ struct LoginPage: View {
           }
 
           SecondaryButton(title: "Registrarse", isDisabled: false) {
-            // Nota: Falta agregar la pantalla de registro
+            showRegistration = true
           }
         }
-          // Botton para recuperar contraseña
-          Button {
-            showForgotPassword = true
-          } label: {
-            Text("¿Olvidaste tu contraseña?")
-                .font(.system(size: 16))
-                .foregroundColor(Color("SecondaryAdax"))
-          }
-          
+
+        // Botón para recuperar contraseña
+        Button {
+          showForgotPassword = true
+        } label: {
+          Text("¿Olvidaste tu contraseña?")
+            .font(.system(size: 16))
+            .foregroundColor(Color("SecondaryAdax"))
+        }
         .frame(maxWidth: .infinity)
         .padding(.top, 14)
       }
@@ -102,11 +103,15 @@ struct LoginPage: View {
     .scrollDismissesKeyboard(.interactively)
     // Color de fondo de la pantalla
     .background(Color("Background").ignoresSafeArea())
-    // The recovery flow opens over the login with its own navigation
+    // Muestra la pantalla de registro
+    .fullScreenCover(isPresented: $showRegistration) {
+      RegistrationPage()
+    }
+    // El flujo de recuperación se abre encima del login con su propia navegación
     .fullScreenCover(isPresented: $showForgotPassword) {
-        NavigationStack {
-            ForgotPasswordPage()
-        }
+      NavigationStack {
+        ForgotPasswordPage()
+      }
     }
   }
 }

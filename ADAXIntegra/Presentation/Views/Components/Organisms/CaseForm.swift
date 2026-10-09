@@ -14,6 +14,10 @@ struct CaseForm: View {
   @Binding var helpDetails: String
   @Binding var hasExternalSupport: Bool
 
+  // When non-nil, the field gets "Error" outline and the message below it
+  var caseDescriptionError: String? = nil
+  var helpDetailsError: String? = nil
+
   let onExternalSupportInfoTapped: () -> Void
 
   var body: some View {
@@ -23,6 +27,7 @@ struct CaseForm: View {
         placeholder: "Escribe la descripción de tu caso aquí...",
         customHeight: 150,
         maxLength: CaseFieldLimits.maxCharacters,
+        errorMessage: caseDescriptionError,
         text: $caseDescription
       )
 
@@ -31,6 +36,7 @@ struct CaseForm: View {
         placeholder: "Cuéntanos qué tipo de ayuda esperas recibir...",
         customHeight: 120,
         maxLength: CaseFieldLimits.maxHelpDetailsCharacters,
+        errorMessage: helpDetailsError,
         text: $helpDetails
       )
 
@@ -54,6 +60,8 @@ struct CaseForm: View {
       caseDescription: .constant(""),
       helpDetails: .constant(""),
       hasExternalSupport: .constant(false),
+      caseDescriptionError: "Este campo es obligatorio",
+      helpDetailsError: "Este campo es obligatorio",
       onExternalSupportInfoTapped: {}
     )
     .padding()
