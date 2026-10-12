@@ -26,7 +26,7 @@ struct CaseCard: View {
         )
         StatusRow(
           state: caseItem.state,
-          updatedAt: caseItem.updatedAt)  // hardcoded due to lack of status on table
+          updatedAt: caseItem.updatedAt)
       }
       .padding(16)
     }

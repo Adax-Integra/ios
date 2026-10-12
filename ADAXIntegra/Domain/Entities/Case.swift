@@ -9,9 +9,9 @@ import Foundation
 import SwiftUI
 
 enum CaseState: String, Codable {
-  case inProgress = "in_progress"
-  case closed = "closed"
-  case pending = "pending"
+  case inProgress = "Open"
+  case closed = "Closed"
+  case pending = "Pending"
 
   var displayText: String {
     switch self {
