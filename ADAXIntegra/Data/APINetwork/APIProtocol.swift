@@ -8,10 +8,10 @@ import Alamofire
 import Foundation
 
 enum APIError: Error {
-    // The backend answered with an error status (no connection, timeout, decoding issue)
+  // The backend answered with an error status (no connection, timeout, decoding issue)
   case requestFailed(String)
-    // The backend answered with an error status (400, 401, 409...) and its body
-    case server(statusCode: Int, data: Data?)
+  // The backend answered with an error status (400, 401, 409...) and its body
+  case server(statusCode: Int, data: Data?)
 }
 
 struct APIProtocol {
@@ -33,7 +33,8 @@ struct APIProtocol {
           case .success(let value):
             continuation.resume(returning: value)
           case .failure(let error):
-            continuation.resume(throwing: mapError(error, response: response.response, data: response.data))
+            continuation.resume(
+              throwing: mapError(error, response: response.response, data: response.data))
           }
         }
     }
@@ -58,18 +59,21 @@ struct APIProtocol {
         case .success(let value):
           continuation.resume(returning: value)
         case .failure(let error):
-            continuation.resume(throwing: mapError(error, response: response.response, data: response.data))
+          continuation.resume(
+            throwing: mapError(error, response: response.response, data: response.data))
         }
       }
     }
   }
-    // Keeps the backend status code and body when the server answers with an error,so screens can show messages like: This email has already been registered
-    private static func mapError(_ error: AFError, response: HTTPURLResponse?, data: Data?) -> APIError {
-        if let statusCode = response?.statusCode, !(200..<300).contains(statusCode) {
-            return .server(statusCode: statusCode, data: data)
-        }
-        return .requestFailed(error.localizedDescription)
+  // Keeps the backend status code and body when the server answers with an error,so screens can show messages like: This email has already been registered
+  private static func mapError(_ error: AFError, response: HTTPURLResponse?, data: Data?)
+    -> APIError
+  {
+    if let statusCode = response?.statusCode, !(200..<300).contains(statusCode) {
+      return .server(statusCode: statusCode, data: data)
     }
+    return .requestFailed(error.localizedDescription)
+  }
 
   // Function patch that performs an asynchronous HTTP PATCH request without a body, we recieve the path, the decodable response type and we return the decoded model instance of type
   static func patch<T: Decodable>(

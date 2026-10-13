@@ -31,25 +31,25 @@ struct RemoteCaseRepository: CaseRepository {
       return nil
     }
   }
-    
-    // V11 implementation, function that fetches full details for a single case by its ID
-    // we recieve the case ID and return an object with the details of said case ID
-    // it throws an error if the request or decoding fails
-    
-    func getCaseDetail(caseId: String) async throws -> CaseDetail {
-      let response = try await APIProtocol.get(
-        "/cases/\(caseId)", as: APIResponse<CaseDetail>.self
-      )
-      return response.data
-    }
-    // V11 implementation, function that sends a request to close an open case
-    // we recieve the case ID and return a boolean that tells if the closing of a case was succesfull or not
-    // it throws an error if the request fails
 
-    func closeCase(caseId: String) async throws -> Bool {
-      let response = try await APIProtocol.patch(
-        "/cases/\(caseId)/close", as: APIResponse<CloseCaseResult>.self
-      )
-      return response.success
-    }
+  // V11 implementation, function that fetches full details for a single case by its ID
+  // we recieve the case ID and return an object with the details of said case ID
+  // it throws an error if the request or decoding fails
+
+  func getCaseDetail(caseId: String) async throws -> CaseDetail {
+    let response = try await APIProtocol.get(
+      "/cases/\(caseId)", as: APIResponse<CaseDetail>.self
+    )
+    return response.data
+  }
+  // V11 implementation, function that sends a request to close an open case
+  // we recieve the case ID and return a boolean that tells if the closing of a case was succesfull or not
+  // it throws an error if the request fails
+
+  func closeCase(caseId: String) async throws -> Bool {
+    let response = try await APIProtocol.patch(
+      "/cases/\(caseId)/close", as: APIResponse<CloseCaseResult>.self
+    )
+    return response.success
+  }
 }

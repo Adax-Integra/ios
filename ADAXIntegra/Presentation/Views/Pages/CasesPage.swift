@@ -28,6 +28,17 @@ struct CasesPage: View {
   var body: some View {
     CasesScreenTemplate {
       CasesListHeader(searchText: $viewModel.searchText, count: viewModel.filteredCases.count)
+
+      // R-02: entry point to register a new case.
+      // Disabled during the undo window so a second case cannot replace the pending one
+      IconTextPrimaryButton(
+        systemName: "plus",
+        title: "Nuevo caso",
+        isDisabled: newCaseViewModel.isShowingUndoToast
+      ) {
+        // R-01: the user reviews the preSubmission before creating a case
+        isShowingPreSubmission = true
+      }
     } content: {
       CasesList(cases: viewModel.filteredCases)
       // Extra space so the last case can scroll above the floating button

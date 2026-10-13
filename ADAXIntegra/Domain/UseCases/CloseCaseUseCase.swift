@@ -9,8 +9,9 @@
 //
 
 import Foundation
+
 // Executes the action to close a specific case, we use the caseId because we need the UUID of the case and in return we give a boolean that tells wether the was succesfully closed
-  
+
 protocol CloseCaseUseCaseProtocol {
   func execute(caseId: String) async throws -> Bool
 }
@@ -21,7 +22,7 @@ class CloseCaseUseCase: CloseCaseUseCaseProtocol {
   init(repository: CaseRepository) {
     self.repository = repository
   }
-    //Returns true if the backend successfully closes the case, or throws an error if it fails
+  //Returns true if the backend successfully closes the case, or throws an error if it fails
   func execute(caseId: String) async throws -> Bool {
     try await repository.closeCase(caseId: caseId)
   }

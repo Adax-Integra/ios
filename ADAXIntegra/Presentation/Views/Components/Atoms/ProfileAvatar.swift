@@ -9,24 +9,24 @@
 import SwiftUI
 
 struct ProfileAvatar: View {
-    var size: CGFloat = 48
-    
-    var body: some View {
-        ZStack {
-            // clear background
-            Circle ()
-                .fill (Color("PrimaryAdax").opacity(0.1))
-                .frame (width: size, height: size)
-            
-            //avatar icon
-            Image(systemName: "person")
-                .font( .system(size: size * 0.45, weight: .semibold))
-                .foregroundColor(Color("PrimaryAdax"))
-        }
-        
+  var size: CGFloat = 48
+
+  var body: some View {
+    ZStack {
+      // clear background
+      Circle()
+        .fill(Color("PrimaryAdax").opacity(0.1))
+        .frame(width: size, height: size)
+
+      //avatar icon
+      Image(systemName: "person")
+        .font(.system(size: size * 0.45, weight: .semibold))
+        .foregroundColor(Color("PrimaryAdax"))
     }
+
+  }
 }
 
 #Preview {
-    ProfileAvatar()
+  ProfileAvatar()
 }

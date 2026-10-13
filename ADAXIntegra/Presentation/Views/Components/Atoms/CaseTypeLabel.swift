@@ -8,10 +8,10 @@
 import SwiftUI
 
 struct CaseTypeLabel: View {
-    let text: String
-    var body: some View {
-        Text(text)
-            .font(.system(size: 15, weight: .regular))
-            .foregroundColor(Color("OnBackgroundColor"))
-    }
+  let text: String
+  var body: some View {
+    Text(text)
+      .font(.system(size: 15, weight: .regular))
+      .foregroundColor(Color("OnBackgroundColor"))
+  }
 }

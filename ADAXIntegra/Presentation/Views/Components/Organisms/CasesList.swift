@@ -8,10 +8,10 @@
 import SwiftUI
 
 struct CasesList: View {
-    let cases: [Case]
-    var body: some View {
-        LazyVStack(spacing: 12) {
-            ForEach(cases) { CaseCard(caseItem: $0) }
-        }
+  let cases: [Case]
+  var body: some View {
+    LazyVStack(spacing: 12) {
+      ForEach(cases) { CaseCard(caseItem: $0) }
     }
+  }
 }

@@ -9,81 +9,81 @@
 import SwiftUI
 
 struct RecordCaseSummary: View {
-    var userName: String
-    var recordId: String
-    var lastModified: String
-    var createdAt: String
-    var onEditTapped: () -> Void
+  var userName: String
+  var recordId: String
+  var lastModified: String
+  var createdAt: String
+  var onEditTapped: () -> Void
 
-    var body: some View {
-        VStack(spacing: 16) {
-            // we call the atoms that we have made that are relevant for this card
-            HStack(alignment: .top, spacing: 12) {
-                ProfileAvatar(size: 48)
-                
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(userName)
-                        .font(.system(size: 16, weight: .bold))
-                        .foregroundColor(.primary)
-                    
-                    Text("Expediente: \(recordId)")
-                        .font(.system(size: 12))
-                        .foregroundColor(.gray)
-                }
-                .padding(.top, 4)
-                
-                Spacer()
-                CircularEditButton(action: onEditTapped)
-                    .offset(x: 8, y: -8)
-            }
-            
-            Divider()
-            
-            // Details about last update and type of help
-            HStack(alignment: .top, spacing: 16) {
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("Última Modificación")
-                        .font(.system(size: 12))
-                        .foregroundColor(.gray)
-                    Text("Fecha de Creación")
-                        .font(.system(size: 12))
-                        .foregroundColor(.gray)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-                
-                VStack(alignment: .leading, spacing: 8) {
-                    Text(lastModified)
-                        .font(.system(size: 12, weight: .regular))
-                        .foregroundColor(.primary)
-                    Text(createdAt)
-                        .font(.system(size: 12, weight: .regular))
-                        .foregroundColor(.primary)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-                
-                Spacer()
-            }
+  var body: some View {
+    VStack(spacing: 16) {
+      // we call the atoms that we have made that are relevant for this card
+      HStack(alignment: .top, spacing: 12) {
+        ProfileAvatar(size: 48)
+
+        VStack(alignment: .leading, spacing: 4) {
+          Text(userName)
+            .font(.system(size: 16, weight: .bold))
+            .foregroundColor(.primary)
+
+          Text("Expediente: \(recordId)")
+            .font(.system(size: 12))
+            .foregroundColor(.gray)
         }
-        .padding(16)
-        .background(Color.white)
-        .cornerRadius(16)
-        .shadow(color: .black.opacity(0.05), radius: 5, x: 0, y: 2)
+        .padding(.top, 4)
+
+        Spacer()
+        CircularEditButton(action: onEditTapped)
+          .offset(x: 8, y: -8)
+      }
+
+      Divider()
+
+      // Details about last update and type of help
+      HStack(alignment: .top, spacing: 16) {
+        VStack(alignment: .leading, spacing: 8) {
+          Text("Última Modificación")
+            .font(.system(size: 12))
+            .foregroundColor(.gray)
+          Text("Fecha de Creación")
+            .font(.system(size: 12))
+            .foregroundColor(.gray)
+            .fixedSize(horizontal: false, vertical: true)
+        }
+
+        VStack(alignment: .leading, spacing: 8) {
+          Text(lastModified)
+            .font(.system(size: 12, weight: .regular))
+            .foregroundColor(.primary)
+          Text(createdAt)
+            .font(.system(size: 12, weight: .regular))
+            .foregroundColor(.primary)
+            .fixedSize(horizontal: false, vertical: true)
+        }
+
+        Spacer()
+      }
     }
+    .padding(16)
+    .background(Color.white)
+    .cornerRadius(16)
+    .shadow(color: .black.opacity(0.05), radius: 5, x: 0, y: 2)
+  }
 }
 
 #Preview {
-    ZStack {
-        Color(UIColor.systemGray6).ignoresSafeArea()
-        
-        RecordCaseSummary(
-            userName: " ",
-            recordId: " ",
-            lastModified: " ",
-            createdAt: " ",
-            onEditTapped: {
-                print("Edit tapped")
-            }
-        )
-        .padding()
-    }
+  ZStack {
+    Color(UIColor.systemGray6).ignoresSafeArea()
+
+    RecordCaseSummary(
+      userName: " ",
+      recordId: " ",
+      lastModified: " ",
+      createdAt: " ",
+      onEditTapped: {
+        print("Edit tapped")
+      }
+    )
+    .padding()
+  }
 }

@@ -13,27 +13,30 @@ struct ProfilePage: View {
   @State private var showLogoutConfirmation = false
 
   var body: some View {
-    ZStack {
-      Color("Background").ignoresSafeArea()
+    NavigationStack {
+      ZStack {
+        Color("Background").ignoresSafeArea()
 
-      if viewModel.isLoading {
-        ProgressView()
-      } else if let errorMessage = viewModel.errorMessage {
-        Text(errorMessage)
-          .font(.system(size: 15))
-          .foregroundColor(Color("InsideTextAndIcons"))
-          .multilineTextAlignment(.center)
-          .padding(20)
-      } else if viewModel.profile != nil {
-        content
+        if viewModel.isLoading {
+          ProgressView()
+        } else if let errorMessage = viewModel.errorMessage {
+          Text(errorMessage)
+            .font(.system(size: 15))
+            .foregroundColor(Color("InsideTextAndIcons"))
+            .multilineTextAlignment(.center)
+            .padding(20)
+        } else if viewModel.profile != nil {
+          content
+        }
       }
-    }
-    .task { await viewModel.loadProfile(for: session.userId) }
-    .alert("Cerrar sesión", isPresented: $showLogoutConfirmation) {
-      Button("Cerrar sesión") { session.logout() }
-      Button("Cancelar", role: .cancel) {}
-    } message: {
-      Text("¿Quieres cerrar tu sesión?")
+      .toolbar(.hidden, for: .navigationBar)
+      .task { await viewModel.loadProfile(for: session.userId) }
+      .alert("Cerrar sesión", isPresented: $showLogoutConfirmation) {
+        Button("Cerrar sesión") { session.logout() }
+        Button("Cancelar", role: .cancel) {}
+      } message: {
+        Text("¿Quieres cerrar tu sesión?")
+      }
     }
   }
 
@@ -55,11 +58,16 @@ struct ProfilePage: View {
         title: "Datos Personales",
         subtitle: "Nombre, teléfono, correo"
       )
-      MenuRow(
-        icon: "lock",
-        title: "Seguridad",
-        subtitle: "Cambio de contraseña"
-      )
+
+      NavigationLink {
+        ChangePasswordPage()
+      } label: {
+        MenuRow(
+          icon: "lock",
+          title: "Seguridad",
+          subtitle: "Cambio de contraseña"
+        )
+      }
 
       Spacer()
 
