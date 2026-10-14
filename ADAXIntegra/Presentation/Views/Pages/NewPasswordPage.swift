@@ -8,56 +8,74 @@
 import SwiftUI
 
 struct NewPasswordPage: View {
-    @State private var password = ""
-    @State private var confirmPassword = ""
-    
-    // Show error after she types the confirmation password
-    
-    private var passwordMismatch: Bool {
-        !confirmPassword.isEmpty && password != confirmPassword
-    }
-    
-    // temporary validation  the real one will go in the view model
-    
-    private var isContinueDisabled: Bool {
-        password.count < 8 || password != confirmPassword
-    }
-    
-    var body: some View {
-        AuthFormTemplate(title: "Ingresa nueva contraseña") {
-            VStack(alignment: .leading, spacing: 16) {
-                IconTextField(
-                    title: "Nueva contraseña",
-                    placeholder: "*************",
-                    systemIcon: "lock",
-                    isSecure: true,
-                    text: $password
-                )
-                HelperText(text: "La contraseña debe ser de 8 caracteres como mínimo")
-            }
-            
-            VStack(alignment: .leading, spacing: 6) {
-                IconTextField(
-                    title: "Confirmar contraseña",
-                    placeholder: "*************",
-                    systemIcon: "lock",
-                    isSecure: true,
-                    text: $confirmPassword
-                )
-                
-                if passwordMismatch {
-                    HelperText(text: "Las contraseñas no coinciden", isError: true)
-                }
-            }
-            
-            PrimaryButton(title: "Continuar", isDisabled: isContinueDisabled) {
-                // Temporary call the backed will go in the ViewModel
-                print("Continuar")
-            }
+  @Environment(\.dismiss) private var dismiss
+  @ObservedObject var viewModel: PasswordRecoveryViewModel
+
+  var body: some View {
+    AuthFormTemplate(title: "Ingresa nueva contraseña") {
+      VStack(alignment: .leading, spacing: 6) {
+        IconTextField(
+          title: "Nueva contraseña",
+          placeholder: "*************",
+          systemIcon: "lock",
+          isSecure: true,
+          text: $viewModel.newPassword
+        )
+        Text(
+          "Debe tener entre 8 y 24 caracteres, una mayúscula, una minúscula, un número y un carácter especial. No puede incluir acentos ni letras especiales."
+        )
+        .font(.caption)
+        .foregroundStyle(.secondary)
+        .fixedSize(horizontal: false, vertical: true)
+
+        if let error = viewModel.passwordError {
+          FieldErrorLabel(error)
         }
+      }
+
+      VStack(alignment: .leading, spacing: 6) {
+        IconTextField(
+          title: "Confirmar contraseña",
+          placeholder: "*************",
+          systemIcon: "lock",
+          isSecure: true,
+          text: $viewModel.confirmPassword
+        )
+
+        if let error = viewModel.confirmPasswordError {
+          FieldErrorLabel(error)
+        }
+      }
+
+      PrimaryButton(
+        title: viewModel.isLoading ? "Guardando..." : "Continuar",
+        isDisabled: viewModel.isLoading
+      ) {
+        Task { await viewModel.resetPassword() }
+      }
     }
+
+    .overlay(alignment: .topLeading) {
+      BackButton { dismiss() }
+        .padding(16)
+    }
+    .navigationBarBackButtonHidden(true)
+    // Hides the keyboard when tapping outside the box
+    .onTapGesture {
+      hideKeyboard()
+    }
+  }
+
+  // Closes the keyboard when something is selected
+  private func hideKeyboard() {
+    UIApplication.shared.sendAction(
+      #selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil
+    )
+  }
 }
 
 #Preview {
-    NewPasswordPage()
+  NavigationStack {
+    NewPasswordPage(viewModel: PasswordRecoveryViewModel())
+  }
 }

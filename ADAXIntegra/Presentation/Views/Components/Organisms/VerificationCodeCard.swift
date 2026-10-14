@@ -13,8 +13,9 @@ struct VerificationCodeCard: View {
   var errorMessage: String? = nil
   let secondsUntilResend: Int
   let attempt: Int
-  var maxAttempts: Int = 3
-  let onResend: () -> Void
+  var maxAttempts: Int = 5
+  var canResend: Bool = true
+  var onResend: (() -> Void)? = nil
 
   var body: some View {
     VStack(alignment: .leading, spacing: 16) {
@@ -26,15 +27,21 @@ struct VerificationCodeCard: View {
 
       HStack {
         // when the count down becomes 0 the resend time becomes a clickable botton
-          
+
         if secondsUntilResend > 0 {
           Text("Reenviar código en \(formattedTime)")
             .foregroundColor(Color("IconColor"))
-        } else {
+        } else if !canResend {
+          Text("Límite de renvíos alcanzado")
+            .foregroundColor(Color("IconColor"))
+        } else if let onResend {
           Button("Reenviar código", action: onResend)
             .fontWeight(.semibold)
             .foregroundColor(Color("PrimaryAdax"))
             .buttonStyle(.plain)
+        } else {
+          Text("Ya puedes solicitar otro código")
+            .foregroundColor(Color("IconColor"))
         }
 
         Spacer()
@@ -64,7 +71,7 @@ struct VerificationCodeCard: View {
       code: $code,
       secondsUntilResend: 39,
       attempt: 1,
-      onResend: { print("Reenviar") }
+      maxAttempts: 5
     )
 
     VerificationCodeCard(
@@ -72,7 +79,16 @@ struct VerificationCodeCard: View {
       errorMessage: "El código es incorrecto",
       secondsUntilResend: 0,
       attempt: 2,
+      maxAttempts: 5,
       onResend: { print("Reenviar") }
+    )
+
+    VerificationCodeCard(
+      code: .constant(""),
+      secondsUntilResend: 0,
+      attempt: 1,
+      maxAttempts: 5,
+      canResend: false
     )
   }
   .padding()

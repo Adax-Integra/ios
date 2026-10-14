@@ -7,76 +7,86 @@
 import SwiftUI
 
 struct VerifyCodePage: View {
-    @Environment(\.dismiss) private var dismiss
-    
-    let email: String
-    
-    // Temoporary data the state will go with in the viewmodel
-    
-    @State private var code = ""
-    @State private var secondsUntilResend = 60
-    @State private var attempt = 1
-    @State private var goToNewPassword = false
-    
-    var body: some View {
-        ZStack {
-            Color("Background").ignoresSafeArea()
-            
-            VStack(alignment: .leading, spacing: 20) {
-                PageHeader(title: "Verifica tu cuenta", backAction: { dismiss() })
-                
-                Text("Enviamos un código de 6 dígitos a tu correo. Ingrésalo para recuperar tu contraseña. Si no lo ves, revisa tu carpeta de spam.")
-                    .font(.system(size: 15))
-                    .foregroundColor(Color("IconColor"))
-                
-                CodeSentCard(email: email)
-                
-                VerificationCodeCard(
-                    code: $code,
-                    secondsUntilResend: secondsUntilResend,
-                    attempt: attempt,
-                    onResend: { secondsUntilResend = 60 }
-                )
-                
-                Button {
-                    secondsUntilResend = 60
-                } label: {
-                    Text("¿No recibiste el código?")
-                        .font(.system(size: 16, weight: .semibold))
-                        .foregroundColor(secondsUntilResend > 0 ? Color("IconColor") : Color("PrimaryAdax"))
-                        .underline(secondsUntilResend == 0)
-                }
-                .buttonStyle(.plain)
-                .disabled(secondsUntilResend > 0)
-                .frame(maxWidth: .infinity)
-                
-                Spacer()
-                
-                PrimaryButton(title: "Verificar", isDisabled: code.count < 6) {
-                    goToNewPassword = true
-                }
-            }
-            
-            .padding()
+  @Environment(\.dismiss) private var dismiss
+  @ObservedObject var viewModel: PasswordRecoveryViewModel
+
+  var body: some View {
+    ZStack {
+      Color("Background").ignoresSafeArea()
+
+      VStack(alignment: .leading, spacing: 20) {
+        PageHeader(title: "Verifica tu cuenta", backAction: { dismiss() })
+
+        VStack(alignment: .leading, spacing: 6) {
+          Text(
+            "Enviamos un código de 6 dígitos a tu correo. Ingrésalo para recuperar tu contraseña. Si no lo ves, revisa tu carpeta de spam."
+          )
+          .font(.system(size: 15))
+          .foregroundColor(Color("OnBackground"))
+          .lineSpacing(3)
+
+          Text("Si no lo ves, revisa tu carpeta de spam.")
+            .font(.system(size: 13))
+            .foregroundColor(Color("IconColor"))
         }
-        .navigationBarBackButtonHidden(true)
-        .navigationDestination(isPresented: $goToNewPassword) {
-            NewPasswordPage()
+        .fixedSize(horizontal: false, vertical: true)
+
+        CodeSentCard(email: viewModel.maskedEmail)
+
+        VerificationCodeCard(
+          code: $viewModel.code,
+          errorMessage: viewModel.codeError,
+          secondsUntilResend: viewModel.secondsUntilResend,
+          attempt: viewModel.currentAttempt,
+          maxAttempts: viewModel.maxAttempts,
+          canResend: viewModel.canResend
+        )
+
+        // Resend the code becomes able when the coutdown becomes 0 and is not blocked by the limit of attemps
+
+        Button {
+          Task { await viewModel.resendCode() }
+        } label: {
+          Text("¿No recibiste el código?")
+            .font(.system(size: 15, weight: .semibold))
+            .foregroundColor(viewModel.canResend ? Color("PrimaryAdax") : Color("IconColor"))
+            .underline(viewModel.canResend)
         }
-        
-        // Temporary countdown that subtracts one second until it reaches 0
-        .task(id: secondsUntilResend) {
-            guard secondsUntilResend > 0 else { return }
-            try? await Task.sleep(for: .seconds(1))
-            guard !Task.isCancelled else { return }
-            secondsUntilResend -= 1
+        .buttonStyle(.plain)
+        .disabled(!viewModel.canResend)
+        .frame(maxWidth: .infinity)
+
+        Spacer()
+
+        // The button is disabled after 5 wrong attempts
+
+        PrimaryButton(title: "Verificar", isDisabled: viewModel.isCodeLocked) {
+          viewModel.verifyCode()
         }
+      }
+
+      .padding()
     }
+    .navigationBarBackButtonHidden(true)
+    .onTapGesture {
+      hideKeyboard()
+    }
+    .navigationDestination(isPresented: $viewModel.showNewPassword) {
+      NewPasswordPage(viewModel: viewModel)
+    }
+  }
+
+  // closes the keyboard when typing outside the fields
+
+  private func hideKeyboard() {
+    UIApplication.shared.sendAction(
+      #selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil
+    )
+  }
 }
 
 #Preview {
   NavigationStack {
-    VerifyCodePage(email: "nico•••••@gmail.com")
+    VerifyCodePage(viewModel: PasswordRecoveryViewModel())
   }
 }
-
