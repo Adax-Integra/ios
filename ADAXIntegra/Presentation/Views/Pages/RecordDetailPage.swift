@@ -42,7 +42,7 @@ struct RecordDetailPage: View {
               RecordCaseDetail(
                 caseId: recordDetail.caseNumber ?? recordDetail.id,
                 externalName: recordDetail.userName,
-                status: recordDetail.status ?? .open,
+                urgencyType: recordDetail.urgencyType ?? .sinEvaluar,
                 violenceType: recordDetail.violenceTypes.joined(separator: ", "),
                 internalAssigned: recordDetail.assignedUsers.map(\.name).joined(separator: ", "),
                 lastUpdated: recordDetail.updatedDateString
