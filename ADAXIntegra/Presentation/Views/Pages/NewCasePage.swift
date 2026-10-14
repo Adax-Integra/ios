@@ -27,12 +27,14 @@ struct NewCasePage: View {
             caseDescription: $viewModel.caseDescription,
             helpDetails: $viewModel.helpDetails,
             hasExternalSupport: $viewModel.hasExternalSupport,
+            caseDescriptionError: viewModel.caseDescriptionError,
+            helpDetailsError: viewModel.helpDetailsError,
             onExternalSupportInfoTapped: { viewModel.isShowingExternalSupportInfo = true }
           )
           .padding(4)
         }
         .scrollDismissesKeyboard(.interactively)
-        PrimaryButton(title: "Crear caso", isDisabled: !viewModel.isFormValid) {
+        PrimaryButton(title: "Crear caso", isDisabled: false) {
           dismissKeyboard()
           viewModel.onCreateTapped()
         }

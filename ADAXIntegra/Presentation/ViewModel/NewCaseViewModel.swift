@@ -23,6 +23,9 @@ final class NewCaseViewModel: ObservableObject {
   @Published var isShowingExternalSupportInfo = false
   @Published var messageAlert = ""
   @Published var showAlert = false
+  // Turned on by the "Crear caso" tap, so empty fields
+  // are not marked as errors before the user tries to create a case
+  @Published var showErrors = false
 
   var createCaseUseCase: CreateCaseUseCaseProtocol
   private let userId: String
@@ -41,13 +44,26 @@ final class NewCaseViewModel: ObservableObject {
       createCaseUseCase ?? CreateCaseUseCase(dataRepository: RemoteCaseRepository())
   }
 
-  // Enable "Crear caso" only when both text fields have content besides spaces
+  // Both text fields need content besides spaces before the confirmation opens
   var isFormValid: Bool {
     !caseDescription.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
       && !helpDetails.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
   }
 
+  // Error messages for each field. They are computed,
+  // so they disappear as soon as the user writes in the field
+  var caseDescriptionError: String? { requiredError(caseDescription) }
+  var helpDetailsError: String? { requiredError(helpDetails) }
+
+  private func requiredError(_ value: String) -> String? {
+    guard showErrors else { return nil }
+    return value.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+      ? "Este campo es obligatorio" : nil
+  }
+
   func onCreateTapped() {
+    // The button is always enabled, so the first tap reveals the invalid fields
+    showErrors = true
     guard isFormValid else { return }
     isShowingConfirmation = true
   }
@@ -86,5 +102,6 @@ final class NewCaseViewModel: ObservableObject {
     caseDescription = ""
     helpDetails = ""
     hasExternalSupport = false
+    showErrors = false
   }
 }

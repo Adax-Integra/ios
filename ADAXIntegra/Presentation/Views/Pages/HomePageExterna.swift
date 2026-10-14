@@ -8,16 +8,10 @@
 import SwiftUI
 
 // NV-01: home screen for external users
-
 struct HomePageExterna: View {
   @Environment(\.openURL) private var openURL
   @EnvironmentObject private var session: AuthSession
   @StateObject private var profileViewModel = ProfileViewModel()
-
-  private let podcastURL = URL(
-    string:
-      "https://open.spotify.com/show/5yaZdYjbR36lrDmaJ0WhVk"
-  )
 
   var body: some View {
     HomeTemplate {
@@ -44,11 +38,11 @@ struct HomePageExterna: View {
           .font(.headline)
           .foregroundColor(Color("OnBackground"))
           .frame(maxWidth: .infinity, alignment: .topLeading)
-          .frame(minWidth: 120, alignment: .topLeading)
+          .frame(minHeight: 120, alignment: .topLeading)
           .padding(20)
       }
     } events: {
-      // space reserved for the events carrousel
+      // space reserved for the events carousel
       VStack(alignment: .leading, spacing: 12) {
         Text("Eventos")
           .font(.title2.bold())
@@ -57,21 +51,61 @@ struct HomePageExterna: View {
         Color.clear
           .frame(height: 200)
       }
+    } socialMedia: {
+      VStack(alignment: .leading, spacing: 12) {
+        Text("Redes sociales")
+          .font(.title2.bold())
+          .foregroundColor(Color("OnBackground"))
+
+        SocialMediaCard(
+          onFacebookTap: {
+            openExternalLink(
+              "https://www.facebook.com/ADAxDigitales/"
+            )
+          },
+          onInstagramTap: {
+            openExternalLink(
+              "https://www.instagram.com/adax_digitales_a.c._/"
+            )
+          },
+          onXTap: {
+            openExternalLink("https://x.com/ADAxDigitalesAC")
+          },
+          onTikTokTap: {
+            openExternalLink(
+              "https://www.tiktok.com/@adax_digitales"
+            )
+          }
+        )
+      }
     } podcast: {
       VStack(alignment: .leading, spacing: 12) {
         Text("Podcast")
           .font(.title2.bold())
           .foregroundColor(Color("OnBackground"))
 
-        PodcastCard(onTap: {
-          guard let podcastURL else { return }
-          openURL(podcastURL)
-        })
+        PodcastCard(
+          onSpotifyTap: {
+            openExternalLink(
+              "https://open.spotify.com/show/5yaZdYjbR36lrDmaJ0WhVk"
+            )
+          },
+          onYouTubeTap: {
+            openExternalLink("https://www.youtube.com/@AdaxDigitales")
+          }
+        )
       }
-    }  // loads the account name using the existing profile service
+    }
+    // loads the account name using the existing profile service
     .task(id: session.userId) {
       await profileViewModel.loadProfile(for: session.userId)
     }
+  }
+
+  // opens an external address using the system URL action
+  private func openExternalLink(_ address: String) {
+    guard let url = URL(string: address) else { return }
+    openURL(url)
   }
 }
 

@@ -47,6 +47,17 @@ struct CasesPageInterna: View {
       }
     }
     .navigationBarBackButtonHidden(true)
+    // pull down the list to reload
+    .refreshable {
+      await viewModel.loadCases()
+    }
+
+    // hides keyboard for the search bar
+    .onTapGesture {
+      UIApplication.shared.sendAction(
+        #selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil
+      )
+    }
     // vuelve a cargar la pestaña cuando se cambia la busqueda o el filtro
     .task(id: "\(viewModel.searchText)|\(viewModel.urgencyFilter)") {
       try? await Task.sleep(for: .milliseconds(300))

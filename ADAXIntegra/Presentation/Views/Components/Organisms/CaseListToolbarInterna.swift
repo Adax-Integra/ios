@@ -14,6 +14,16 @@ struct CaseListToolbar: View {
   let totalCases: Int
   let filterOptions: [String]
 
+  // filter selected shows the urgency or "Urgencia" when there is no filtered aplied
+  private var filterTitle: String {
+    selectedFilter == "Todas" ? "Urgencia" : selectedFilter
+  }
+
+  // the clear button apears when there is a filter to clear
+  private var hasActiveFilters: Bool {
+    selectedFilter != "Todas" || !searchText.isEmpty
+  }
+
   var body: some View {
     VStack(alignment: .leading, spacing: 16) {
       SearchBarInterna(placeholder: "Buscar caso...", text: $searchText)
@@ -28,12 +38,25 @@ struct CaseListToolbar: View {
           }
         } label: {
 
-          FilterChip(title: "Urgencia", isActive: selectedFilter != "Todas")
+          FilterChip(title: filterTitle)
         }
+
         .buttonStyle(.plain)
 
         Spacer()
 
+        // resets the search and urgency filter
+        if hasActiveFilters {
+          Button {
+            searchText = ""
+            selectedFilter = "Todas"
+          } label: {
+            Text("Limpiar filtros")
+              .font(.system(size: 13, weight: .semibold))
+              .foregroundColor(Color("PrimaryAdax"))
+          }
+          .buttonStyle(.plain)
+        }
       }
 
       HStack {

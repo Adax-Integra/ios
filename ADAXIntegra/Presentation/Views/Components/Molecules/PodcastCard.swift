@@ -7,35 +7,55 @@
 
 import SwiftUI
 
-// shows the podcast card on the external home screen
+// shows the podcast and its available platforms
 struct PodcastCard: View {
-  let onTap: () -> Void
+  let onSpotifyTap: () -> Void
+  let onYouTubeTap: () -> Void
 
   var body: some View {
-    Button(action: onTap) {
-      SurfaceCard(cornerRadius: 28) {
-        HStack(spacing: 16) {
-          Image("SpotifyLogo")
-            .resizable()
-            .scaledToFit()
-            .frame(width: 80, height: 80)
+    SurfaceCard(cornerRadius: 28) {
+      VStack(alignment: .leading, spacing: 16) {
+        Text("Las hadas sí existen")
+          .font(.title3.bold())
+          .foregroundColor(Color("PrimaryAdax"))
 
-          VStack(alignment: .leading, spacing: 8) {
-            Text("Las hadas sí existen")
-              .font(.title3)
-              .bold()
-              .foregroundColor(Color("PrimaryAdax"))
+        Text("Escucha o ve nuestro podcast.")
+          .font(.subheadline)
+          .foregroundColor(Color("SecondaryAdax"))
 
-            Text("Escucha nuestro podcast en Spotify.")
-              .font(.subheadline)
-              .foregroundColor(Color("SecondaryAdax"))
+        Button(action: onSpotifyTap) {
+          HStack(spacing: 12) {
+            Image("SpotifyLogo")
+              .resizable()
+              .scaledToFit()
+              .frame(width: 28, height: 28)
+              .accessibilityHidden(true)
+
+            Text("Escuchar en Spotify")
           }
           .frame(maxWidth: .infinity, alignment: .leading)
+          .padding(.vertical, 8)
         }
-        .padding(20)
+
+        Button(action: onYouTubeTap) {
+          HStack(spacing: 12) {
+            Image("YouTubeLogo")
+              .resizable()
+              .scaledToFit()
+              .frame(width: 28, height: 28)
+              .accessibilityHidden(true)
+
+            Text("Ver en YouTube")
+          }
+          .frame(maxWidth: .infinity, alignment: .leading)
+          .padding(.vertical, 8)
+        }
       }
+      .font(.subheadline.bold())
+      .foregroundColor(Color("PrimaryAdax"))
+      .buttonStyle(.plain)
+      .padding(20)
     }
-    .buttonStyle(.plain)
   }
 }
 
@@ -43,7 +63,10 @@ struct PodcastCard: View {
   ZStack {
     Color("Background").ignoresSafeArea()
 
-    PodcastCard(onTap: {})
-      .padding()
+    PodcastCard(
+      onSpotifyTap: {},
+      onYouTubeTap: {}
+    )
+    .padding()
   }
 }

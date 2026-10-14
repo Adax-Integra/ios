@@ -12,13 +12,17 @@ struct AddCollaboratorForm: View {
   @Binding var lastName: String
   @Binding var email: String
   @Binding var password: String
+
+  @Binding var confirmPassword: String
   @Binding var countryCode: String?
   @Binding var phone: String
 
+  var countryCodes: [String] = ["+52"]
   var nameError: String? = nil
   var lastNameError: String? = nil
   var emailError: String? = nil
   var passwordError: String? = nil
+  var confirmPasswordError: String? = nil
   var phoneError: String? = nil
 
   var body: some View {
@@ -47,23 +51,47 @@ struct AddCollaboratorForm: View {
         text: $email
       )
 
-      // It has no error parameter, so the error goes below it
+      PhoneField(
+        countryCodes: countryCodes,
+        errorMessage: phoneError,
+        countryCode: $countryCode,
+        phone: $phone
+      )
+
+      // Same password requierments text
       VStack(alignment: .leading, spacing: 6) {
         PasswordTextField(
           title: "Contraseña",
-          placeholder: "Mínimo 8 caracteres",
+          placeholder: "Ingresa la contraseña",
           text: $password
         )
+
+        Text(
+          "Debe tener entre 8 y 24 caracteres, una mayúscula, una minúscula, un número y un carácter especial. No puede incluir acentos ni letras especiales."
+        )
+
+        .font(.caption)
+        .foregroundStyle(.secondary)
+        .fixedSize(horizontal: false, vertical: true)
+
         if let passwordError {
           FieldErrorLabel(passwordError)
         }
       }
 
-      PhoneField(
-        errorMessage: phoneError,
-        countryCode: $countryCode,
-        phone: $phone
-      )
+      // Confirmation of the password
+
+      VStack(alignment: .leading, spacing: 6) {
+        PasswordTextField(
+          title: "Confirmar contraseña",
+          placeholder: "Confirma la contraseña",
+          text: $confirmPassword
+        )
+
+        if let confirmPasswordError {
+          FieldErrorLabel(confirmPasswordError)
+        }
+      }
     }
   }
 }
@@ -76,10 +104,13 @@ struct AddCollaboratorForm: View {
       firstName: .constant(""),
       lastName: .constant(""),
       email: .constant("correo-invalido"),
-      password: .constant(""),
+      password: .constant("abc"),
+      confirmPassword: .constant("abcd"),
       countryCode: $countryCode,
       phone: .constant(""),
-      emailError: "Ingresa un correo válido."
+      emailError: "Ingresa un correo válido.",
+      passwordError: "La contraseña no cumple con los requisitos.",
+      confirmPasswordError: "Las contraseñas no coinciden."
     )
     .padding(20)
   }
