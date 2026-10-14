@@ -33,6 +33,14 @@ struct RecordDetails: Identifiable, Codable {
     UrgencyType(rawValue: urgency.lowercased())
   }
 
+  // Falls back to a shortened caseId when the backend doesn't send a caseNumber
+  var displayCaseNumber: String {
+    if let caseNumber, !caseNumber.isEmpty {
+      return caseNumber
+    }
+    return String(id.prefix(8))
+  }
+
   var updatedDateString: String {
     Date.extractDate(updatedAt)
   }

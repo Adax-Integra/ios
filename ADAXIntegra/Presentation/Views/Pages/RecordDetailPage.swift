@@ -40,7 +40,7 @@ struct RecordDetailPage: View {
           LazyVStack(spacing: 16) {
             ForEach(recordDetailsViewModel.recordDetails) { recordDetail in
               RecordCaseDetail(
-                caseId: recordDetail.caseNumber ?? recordDetail.id,
+                caseId: recordDetail.displayCaseNumber,
                 externalName: recordDetail.userName,
                 urgencyType: recordDetail.urgencyType ?? .sinEvaluar,
                 violenceType: recordDetail.violenceTypes.joined(separator: ", "),
