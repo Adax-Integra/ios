@@ -60,6 +60,24 @@ struct NewPasswordPage: View {
         .padding(16)
     }
     .navigationBarBackButtonHidden(true)
+
+    // Error when changing the password
+    .alert("Algo salió mal", isPresented: showGeneralError) {
+      Button("Aceptar", role: .cancel) {}
+    } message: {
+      Text(viewModel.generalError ?? "")
+    }
+
+    // After changing the password, "Aceptar" closes the flow and goes back to the login
+
+    .alert("Contraseña actualizada", isPresented: showSuccess) {
+      Button("Aceptar", role: .cancel) {
+        viewModel.finish()
+      }
+    } message: {
+      Text(viewModel.successMessage ?? "")
+    }
+
     // Hides the keyboard when tapping outside the box
     .onTapGesture {
       hideKeyboard()
@@ -72,6 +90,25 @@ struct NewPasswordPage: View {
       #selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil
     )
   }
+
+  // Shows the general error whenever there is one
+
+  private var showGeneralError: Binding<Bool> {
+    Binding(
+      get: { viewModel.generalError != nil },
+      set: { if !$0 { viewModel.generalError = nil } }
+    )
+  }
+
+  // Shows the alert while there is a success message
+
+  private var showSuccess: Binding<Bool> {
+    Binding(
+      get: { viewModel.successMessage != nil },
+      set: { if !$0 { viewModel.successMessage = nil } }
+    )
+  }
+
 }
 
 #Preview {

@@ -68,6 +68,14 @@ struct VerifyCodePage: View {
       .padding()
     }
     .navigationBarBackButtonHidden(true)
+
+    // Error  when resending the code
+    .alert("Algo salió mal", isPresented: showGeneralError) {
+      Button("Aceptar", role: .cancel) {}
+    } message: {
+      Text(viewModel.generalError ?? "")
+    }
+
     .onTapGesture {
       hideKeyboard()
     }
@@ -81,6 +89,13 @@ struct VerifyCodePage: View {
   private func hideKeyboard() {
     UIApplication.shared.sendAction(
       #selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil
+    )
+  }
+
+  private var showGeneralError: Binding<Bool> {
+    Binding(
+      get: { viewModel.generalError != nil && !viewModel.showNewPassword },
+      set: { if !$0 { viewModel.generalError = nil } }
     )
   }
 }

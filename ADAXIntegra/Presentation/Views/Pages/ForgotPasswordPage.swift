@@ -41,24 +41,25 @@ struct ForgotPasswordPage: View {
     }
     .navigationBarBackButtonHidden(true)
 
+    // Error when resending the code
+
+    .alert("Algo salió mal", isPresented: showGeneralError) {
+      Button("Aceptar", role: .cancel) {}
+    } message: {
+      Text(viewModel.generalError ?? "")
+    }
+
     .onTapGesture {
       hideKeyboard()
     }
     .navigationDestination(isPresented: $viewModel.showVerifyCode) {
       VerifyCodePage(viewModel: viewModel)
     }
-    .alert("Contraseña actualizada", isPresented: showSuccess) {
-      Button("Aceptar", role: .cancel) {
-        viewModel.finish()
-      }
-    } message: {
-      Text(viewModel.successMessage ?? "")
-    }
 
     // first page of the full cover coling it will close the complete flow
     .onChange(of: viewModel.didFinish) { _, didFinish in
       if didFinish {
-        dismiss
+        dismiss()
       }
     }
   }
@@ -66,17 +67,8 @@ struct ForgotPasswordPage: View {
 
   private var showGeneralError: Binding<Bool> {
     Binding(
-      get: { viewModel.generalError != nil },
+      get: { viewModel.generalError != nil && !viewModel.showVerifyCode },
       set: { if !$0 { viewModel.generalError = nil } }
-    )
-  }
-
-  // shows the alert when there is a success mesage
-
-  private var showSuccess: Binding<Bool> {
-    Binding(
-      get: { viewModel.successMessage != nil },
-      set: { if !$0 { viewModel.successMessage = nil } }
     )
   }
 
