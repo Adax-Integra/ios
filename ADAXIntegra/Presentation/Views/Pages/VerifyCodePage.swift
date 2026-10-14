@@ -19,7 +19,7 @@ struct VerifyCodePage: View {
 
         VStack(alignment: .leading, spacing: 6) {
           Text(
-            "Enviamos un código de 6 dígitos a tu correo. Ingrésalo para recuperar tu contraseña. Si no lo ves, revisa tu carpeta de spam."
+            "Enviamos un código de 6 dígitos a tu correo. Ingrésalo para recuperar tu contraseña."
           )
           .font(.system(size: 15))
           .foregroundColor(Color("OnBackground"))
