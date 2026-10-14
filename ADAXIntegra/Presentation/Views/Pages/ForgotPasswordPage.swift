@@ -28,7 +28,7 @@ struct ForgotPasswordPage: View {
       }
 
       PrimaryButton(
-        title: viewModel.isLoading ? "Enviando..." : "Siguiente...",
+        title: viewModel.isLoading ? "Enviando..." : "Siguiente",
         isDisabled: viewModel.isLoading
       ) {
         Task { await viewModel.requestCode() }
