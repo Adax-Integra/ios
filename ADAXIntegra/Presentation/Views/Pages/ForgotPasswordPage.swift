@@ -31,7 +31,7 @@ struct ForgotPasswordPage: View {
         title: viewModel.isLoading ? "Enviando..." : "Siguiente...",
         isDisabled: viewModel.isLoading
       ) {
-        Task { await viewModel.resendCode() }
+        Task { await viewModel.requestCode() }
       }
     }
     // Out to return to the login if needed
