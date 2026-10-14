@@ -34,16 +34,6 @@ struct RecordCaseDetail: View {
 
           Text(externalName)
         }
-
-        CaseTag(
-          width: 75, height: 27,
-          rectangleColor: status.tagBackgroundColor,
-          textColor: status.tagTextColor,
-          textSize: 14,
-          text: status.label
-        )
-        .padding(.bottom, 40)
-
       }
 
       Divider()
@@ -66,14 +56,6 @@ struct RecordCaseDetail: View {
             .lineLimit(1)
             .truncationMode(.tail)
         }
-
-        HStack(spacing: 2) {
-          Text("Última actualización: ")
-          Text(lastUpdated)
-        }
-        .frame(maxWidth: .infinity, alignment: .trailing)
-        .font(.system(size: 12))
-        .padding(.top, 6)
       }
       .font(.system(size: 14))
     }
@@ -87,7 +69,7 @@ struct RecordCaseDetail: View {
         .frame(width: 6)
     }
     .clipShape(RoundedRectangle(cornerRadius: 16))
-    .shadow(color: .black.opacity(0.1), radius: 6, x: 0, y: 2)
+    .shadow(color: .black.opacity(0.2), radius: 1, x: 1, y: 1)
   }
 }
 
