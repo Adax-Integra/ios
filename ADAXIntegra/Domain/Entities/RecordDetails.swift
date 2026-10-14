@@ -14,6 +14,7 @@ struct RecordDetails: Identifiable, Codable {
   let userName: String
   let violenceTypes: [String]
   let assignedUsers: [AssignedUser]
+  let urgency: String
   let updatedAt: String
 
   enum CodingKeys: String, CodingKey {
@@ -23,11 +24,13 @@ struct RecordDetails: Identifiable, Codable {
     case userName
     case violenceTypes
     case assignedUsers
+    case urgency
     case updatedAt
   }
 
-  var status: CaseStatus? {
-    CaseStatus(rawValue: state)
+  var urgencyType: UrgencyType? {
+    // Backend sends "Alta" / "Media" / "Baja" / "Sin evaluar"
+    UrgencyType(rawValue: urgency.lowercased())
   }
 
   var updatedDateString: String {
