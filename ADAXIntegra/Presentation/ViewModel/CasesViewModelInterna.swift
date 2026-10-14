@@ -20,25 +20,36 @@ final class CasesViewModelInterna: ObservableObject {
   let urgencyOptions = ["Todas", "Alta", "Media", "Baja", "Sin evaluar"]
 
   private let repository: CaseListRepository
+  private var latestRequestID = 0
 
   init(repository: CaseListRepository = RemoteCaseListRepository()) {
     self.repository = repository
   }
 
   func loadCases() async {
+    latestRequestID += 1
+    let requestID = latestRequestID
+
     isLoading = true
     errorMessage = nil
+
+    defer {
+      if requestID == latestRequestID {
+        isLoading = false
+      }
+    }
 
     do {
       let result = try await repository.listCases(
         page: 1, limit: 20, search: searchText.trimmingCharacters(in: .whitespaces),
         urgency: urgencyFilter
       )
-      guard !Task.isCancelled else { return }
+
+      guard requestID == latestRequestID else { return }
       cases = result.cases
       total = result.total
     } catch {
-      guard !Task.isCancelled else { return }
+      guard requestID == latestRequestID else { return }
       errorMessage = "No se pudieron cargar los expedientes."
       print("Error al cargar los expedientes", error)
     }

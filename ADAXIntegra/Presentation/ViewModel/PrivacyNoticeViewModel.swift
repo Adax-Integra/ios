@@ -13,6 +13,8 @@ final class PrivacyNoticeViewModel: ObservableObject {
   @Published var hasAccepted = false
   @Published var policy: PrivacyPolicy?
   @Published var isLoading = false
+  // Separate from isLoading: saving the consent only changes the button, it does not dim the screen
+  @Published var isSaving = false
   @Published var showAlert = false
   @Published var messageAlert = ""
 
@@ -54,17 +56,17 @@ final class PrivacyNoticeViewModel: ObservableObject {
   // only after it is actually registered
   func registerConsent() async -> Bool {
     guard let policy, hasAccepted else { return false }
-    isLoading = true
+    isSaving = true
 
     do {
       _ = try await registerConsentUseCase.registerConsent(policyId: policy.policyId)
-      isLoading = false
+      isSaving = false
       return true
     } catch {
       messageAlert =
         "No pudimos registrar tu consentimiento. Revisa tu conexión e intenta de nuevo."
       showAlert = true
-      isLoading = false
+      isSaving = false
       return false
     }
   }

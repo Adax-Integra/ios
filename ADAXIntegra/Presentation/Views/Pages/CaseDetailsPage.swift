@@ -49,7 +49,9 @@ struct CaseDetailsPage: View {
         content: {
           RecordCaseSummary(
             userName: userFullName,
-            recordId: viewModel.caseDetail?.recordId ?? "—",
+            recordId: viewModel.caseDetail?.record.recordNumber
+                ?? viewModel.caseDetail?.recordId
+                ?? "—",
             lastModified: viewModel.caseDetail?.updatedAt ?? "—",
             createdAt: viewModel.caseDetail?.createdAt ?? "—",
             onEditTapped: { print("Edit tapped") }
@@ -109,5 +111,5 @@ struct CaseDetailsPage: View {
 }
 // we use a real case ID to see in the preview
 #Preview {
-  CaseDetailsPage(caseId: "2b8882aa-1247-4cc7-abaa-f52488131726")
+  CaseDetailsPage(caseId: "8c097b2f-5418-45ba-ab5f-9fc866fbe778")
 }

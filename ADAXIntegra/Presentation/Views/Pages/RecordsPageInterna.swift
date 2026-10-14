@@ -20,9 +20,18 @@ struct RecordsPageInterna: View {
     } content: {
       content
     }
-    .task(id: filterKey) {
+    .task(id: viewModel.searchText) {
       try? await Task.sleep(for: .milliseconds(300))
       guard !Task.isCancelled else { return }
+      await viewModel.refresh()
+    }
+    .onChange(of: viewModel.hasOpenCasesFilter) { _, _ in
+      Task { await viewModel.refresh() }
+    }
+    .onChange(of: viewModel.statusFilter) { _, _ in
+      Task { await viewModel.refresh() }
+    }
+    .refreshable {
       await viewModel.refresh()
     }
     .fullScreenCover(isPresented: $showRegister) {
@@ -33,9 +42,6 @@ struct RecordsPageInterna: View {
     }
   }
 
-  private var filterKey: String {
-    "\(viewModel.searchText)|\(viewModel.hasOpenCasesFilter?.description ?? "nil")|\(viewModel.statusFilter ?? "nil")"
-  }
   private var toolbar: some View {
     VStack(spacing: 12) {
       SearchBarInterna(placeholder: "Buscar expediente...", text: $viewModel.searchText)
@@ -58,8 +64,21 @@ struct RecordsPageInterna: View {
         } label: {
           FilterChip(title: statusFilterText)
         }
-
+        
         Spacer()
+
+        if hasActiveFilters {
+          Button {
+            viewModel.searchText = ""
+            viewModel.hasOpenCasesFilter = nil
+            viewModel.statusFilter = nil
+          } label: {
+              Text("Limpiar filtros")
+                .font(.system(size: 13, weight: .semibold))
+                .foregroundColor(Color("PrimaryAdax"))
+          }
+          .buttonStyle(.plain)
+        }
       }
 
       IconTextPrimaryButton(
@@ -88,10 +107,15 @@ struct RecordsPageInterna: View {
         .padding()
     } else {
       ForEach(viewModel.records) { item in
-        RecordCardInterna(item: item)
-          .task {
-            await viewModel.loadMoreIfNeeded(currentItem: item)
-          }
+        NavigationLink {
+          RecordDetailPage(externalID: item.userId)
+        } label: {
+          RecordCardInterna(item: item)
+        }
+        .buttonStyle(.plain)
+        .task {
+          await viewModel.loadMoreIfNeeded(currentItem: item)
+        }
       }
 
       if viewModel.isLoading {
@@ -100,18 +124,6 @@ struct RecordsPageInterna: View {
           .padding(.vertical, 8)
       }
     }
-  }
-
-  private func filterLabel(_ text: String) -> some View {
-    HStack(spacing: 6) {
-      Image(systemName: "line.3.horizontal.decrease")
-      Text(text)
-    }
-    .font(.system(size: 13, weight: .semibold))
-    .foregroundStyle(Color("OnBackground"))
-    .padding(.horizontal, 14)
-    .padding(.vertical, 8)
-    .background(Capsule().fill(Color.gray.opacity(0.2)))
   }
 
   private var casesFilterText: String {
@@ -127,6 +139,12 @@ struct RecordsPageInterna: View {
       return "Estatus"
     }
     return status.label
+  }
+
+  private var hasActiveFilters: Bool {
+    !viewModel.searchText.isEmpty
+      || viewModel.hasOpenCasesFilter != nil
+      || viewModel.statusFilter != nil
   }
 }
 
