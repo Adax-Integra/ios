@@ -46,12 +46,6 @@ final class EventsViewModel: ObservableObject {
       guard !Task.isCancelled else { return }
       errorMessage = "No se pudieron cargar los eventos."
 
-      // Shows the real error in Xcode console
-      //if case APIError.server(let statusCode, let data) = error {
-      //  print("Eventos HTTP \(statusCode):", String(data: data ?? Data(), encoding: .utf8) ?? "")
-    //  } else {
-    //    print("Error al cargar los eventos:", error)
-     // }
     }
   }
 }
