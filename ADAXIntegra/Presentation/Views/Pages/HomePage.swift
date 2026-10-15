@@ -13,6 +13,7 @@ struct HomePage: View {
   @EnvironmentObject private var session: AuthSession
   @StateObject private var profileViewModel = ProfileViewModel()
   @StateObject private var viewModel = HomeViewModel()
+  @StateObject private var eventsViewModel = EventsViewModel(scope: .month)
 
   var body: some View {
     InternalHomeTemplate {
@@ -36,8 +37,17 @@ struct HomePage: View {
       await viewModel.loadRecords()
       await profileViewModel.loadProfile(for: session.userId)
     }
+    .task(id: session.userId) {
+      await viewModel.loadRecords()
+      await profileViewModel.loadProfile(for: session.userId)
+    }
+    .task {
+      await eventsViewModel.loadEvents()
+    }
     .refreshable {
       await viewModel.loadRecords()
+      await eventsViewModel.loadEvents()
+
     }
   }
 
@@ -92,18 +102,10 @@ struct HomePage: View {
       }
     }
   }
-
-  private var eventsSection: some View {
-    VStack(alignment: .leading, spacing: 12) {
-      Text("Eventos")
-        .font(.title2.bold())
-        .foregroundColor(Color("OnBackground"))
-
-      // space reserved for the events carousel
-      Color.clear
-        .frame(height: 200)
-    }
-  }
+// E-01 Carousel of the events of the month
+    private var eventsSection: some View {
+       EventsCarousel(viewModel: eventsViewModel)
+     }
 
   private var podcastSection: some View {
     VStack(alignment: .leading, spacing: 12) {
