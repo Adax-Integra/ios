@@ -16,6 +16,9 @@ struct CasesPage: View {
   @State private var isShowingPreSubmission = false
   // Set when the review finishes, so "Nuevo caso" opens once the review has closed
   @State private var shouldOpenNewCase = false
+  // V-07: opens the progress screen for the selected case
+  @State private var selectedCase: Case?
+
   private let userId: String
   private let countryRepository = CachedCountryRepository(remote: RemoteCountryRepository())
 
@@ -26,21 +29,32 @@ struct CasesPage: View {
   }
 
   var body: some View {
-    CasesScreenTemplate {
-      CasesListHeader(searchText: $viewModel.searchText, count: viewModel.filteredCases.count)
+    Group {
+      if let caseItem = selectedCase {
+        CaseProgressPage(caseId: caseItem.id) {
+          selectedCase = nil
+        }
+        .id(caseItem.id)
+      } else {
+        CasesScreenTemplate {
+          CasesListHeader(searchText: $viewModel.searchText, count: viewModel.filteredCases.count)
 
-      // R-02: entry point to register a new case.
-      // Disabled during the undo window so a second case cannot replace the pending one
-      IconTextPrimaryButton(
-        systemName: "plus",
-        title: "Nuevo caso",
-        isDisabled: newCaseViewModel.isShowingUndoToast
-      ) {
-        // R-01: the user reviews the preSubmission before creating a case
-        isShowingPreSubmission = true
+          // R-02: entry point to register a new case.
+          // Disabled during the undo window so a second case cannot replace the pending one
+          IconTextPrimaryButton(
+            systemName: "plus",
+            title: "Nuevo caso",
+            isDisabled: newCaseViewModel.isShowingUndoToast
+          ) {
+            // R-01: the user reviews the preSubmission before creating a case
+            isShowingPreSubmission = true
+          }
+        } content: {
+          CasesList(cases: viewModel.filteredCases) { caseItem in
+            selectedCase = caseItem
+          }
+        }
       }
-    } content: {
-      CasesList(cases: viewModel.filteredCases)
     }
     // R-02: undo window shown on the list after "Nuevo caso" closes
     .toast(
