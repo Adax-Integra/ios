@@ -9,8 +9,7 @@ import Foundation
 
 protocol ViewAndEditProfileRepository {
   func getStaffProfile(for userId: String) async throws -> ProfileStaff
-  func editStaffProfile(_ profile: ProfileStaff) async throws -> ProfileStaff
-
   func getExternalProfile(for userId: String) async throws -> ProfileExternal
-  func editExternalProfile(_ profile: ProfileExternal) async throws -> ProfileExternal
+
+  func editProfile(for userId: String, with request: UpdateProfileRequest) async throws
 }
