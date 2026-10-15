@@ -95,9 +95,21 @@ struct HomePage: View {
 
   private var eventsSection: some View {
     VStack(alignment: .leading, spacing: 12) {
-      Text("Eventos")
-        .font(.title2.bold())
-        .foregroundColor(Color("OnBackground"))
+      HStack {
+        Text("Eventos")
+          .font(.title2.bold())
+          .foregroundColor(Color("OnBackground"))
+
+        Spacer()
+
+        NavigationLink {
+          CreateEventPage()
+        } label: {
+          Text("Agregar evento")
+            .font(.subheadline)
+            .foregroundColor(Color("PrimaryAdax"))
+        }
+      }
 
       // space reserved for the events carousel
       Color.clear
