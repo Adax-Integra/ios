@@ -201,8 +201,7 @@ struct APIProtocol {
         case .success(let data):
           continuation.resume(returning: data)
         case .failure(let error):
-          continuation.resume(
-            throwing: mapError(error, response: response.response, data: response.data))
+          continuation.resume(throwing: error)
         }
       }
     }
