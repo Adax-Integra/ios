@@ -37,6 +37,29 @@ struct ProfileExternal: Identifiable, Codable {
   }
 }
 
+struct UpdateProfileRequest: Encodable {
+  var name: String?
+  var lastName: String?
+  var phone: String?
+  var country: String?
+  var state: String?
+  var municipality: String?
+
+  enum CodingKeys: String, CodingKey {
+    case name
+    case lastName = "last_name"
+    case phone
+    case country
+    case state
+    case municipality
+  }
+
+  // Skip the request if there are no fields
+  var isEmpty: Bool {
+    [name, lastName, phone, country, state, municipality].allSatisfy { $0 == nil }
+  }
+}
+
 struct AddressProfile: Codable {
   let country: String?
   let state: String?
