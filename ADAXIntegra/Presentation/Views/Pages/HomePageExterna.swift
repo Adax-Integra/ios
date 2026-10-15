@@ -15,9 +15,7 @@ struct HomePageExterna: View {
 
   var body: some View {
     HomeTemplate {
-      HomeHeader(onNotificationsTap: {
-        // to do: connect the notification screen
-      })
+      HomeHeader()
     } welcome: {
       VStack(alignment: .leading, spacing: 8) {
         Text(
