@@ -113,8 +113,27 @@ struct LoginPage: View {
         ForgotPasswordPage()
       }
     }
+    // G-09: an account that is not verified yet goes to "Verifica tu cuenta"
+
+    .fullScreenCover(isPresented: showVerification) {
+      NavigationStack {
+        EmailVerificationPage(
+          email: viewModel.pendingVerificationEmail ?? "",
+          codeAlreadySent: false,
+          onBack: { viewModel.pendingVerificationEmail = nil }
+        )
+      }
+    }
+  }
+  // G-09: shows "Verifica tu cuenta" while there is an account pending to verify
+  private var showVerification: Binding<Bool> {
+    Binding(
+      get: { viewModel.pendingVerificationEmail != nil },
+      set: { if !$0 { viewModel.pendingVerificationEmail = nil } }
+    )
   }
 }
+
 // Permite visualizar la pantalla desde Xcode
 #Preview {
   LoginPage(viewModel: LoginViewModel(repository: RemoteAuthRepository()))
