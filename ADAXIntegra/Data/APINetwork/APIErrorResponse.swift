@@ -15,4 +15,5 @@ struct APIErrorResponse: Decodable {
   let success: Bool
   let error: String?
   let errors: [String: String]?
+  let code: String?
 }

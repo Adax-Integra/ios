@@ -12,6 +12,9 @@ struct LoginPage: View {
   @StateObject var viewModel: LoginViewModel
   @State private var showRegistration = false
 
+  // Abre el flujo de recuperación de contraseña
+  @State private var showForgotPassword = false
+
   var body: some View {
     // Permite hacer scroll si la pantalla es pequeña
     ScrollView {
@@ -83,8 +86,9 @@ struct LoginPage: View {
           }
         }
 
+        // Botón para recuperar contraseña
         Button {
-          // Boton para recuperar contraseña
+          showForgotPassword = true
         } label: {
           Text("¿Olvidaste tu contraseña?")
             .font(.system(size: 16))
@@ -99,9 +103,15 @@ struct LoginPage: View {
     .scrollDismissesKeyboard(.interactively)
     // Color de fondo de la pantalla
     .background(Color("Background").ignoresSafeArea())
-    // shows the registration screen
+    // Muestra la pantalla de registro
     .fullScreenCover(isPresented: $showRegistration) {
       RegistrationPage()
+    }
+    // El flujo de recuperación se abre encima del login con su propia navegación
+    .fullScreenCover(isPresented: $showForgotPassword) {
+      NavigationStack {
+        ForgotPasswordPage()
+      }
     }
   }
 }
