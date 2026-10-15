@@ -183,4 +183,28 @@ struct APIProtocol {
       }
     }
   }
+
+  // get raw data (csv) for US-V-08
+  static func getData(
+    _ path: String,
+    parameters: Parameters? = nil
+  ) async throws -> Data {
+    return try await withCheckedThrowingContinuation { continuation in
+      AF.request(
+        APIConfig.baseURL + path,
+        parameters: parameters,
+        headers: authHeaders
+      )
+      .validate()
+      .responseData { response in
+        switch response.result {
+        case .success(let data):
+          continuation.resume(returning: data)
+        case .failure(let error):
+          continuation.resume(
+            throwing: mapError(error, response: response.response, data: response.data))
+        }
+      }
+    }
+  }
 }
