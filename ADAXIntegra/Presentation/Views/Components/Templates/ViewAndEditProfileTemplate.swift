@@ -45,7 +45,6 @@ struct ViewAndEditProfileTemplate: View {
             title: "Apellidos", placeholder: "Escribe aquí...", text: $lastName)
 
           PhoneField(
-            placeholder: "4461253367",
             countryCodes: countryCodes,
             countryCode: $countryCode,
             phone: $phone
