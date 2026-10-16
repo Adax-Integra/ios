@@ -74,12 +74,17 @@ struct EventsListPage: View {
         .font(.subheadline)
         .foregroundStyle(.secondary)
     } else {
-      // Lazy vertical stack rendering the event cards efficiently.
-      LazyVStack(spacing: 16) {
-        ForEach(viewModel.events) { event in
-          EventListCard(event: event)
+      // Lazy vertical stack for a more efficient event cards
+        LazyVStack(spacing: 16) {
+          ForEach(viewModel.events) { event in
+            NavigationLink {
+              EventDetailPage(event: event)
+            } label: {
+              EventListCard(event: event)
+            }
+            .buttonStyle(.plain)
+          }
         }
-      }
     }
   }
 }
