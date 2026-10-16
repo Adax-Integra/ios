@@ -53,11 +53,15 @@ struct ProfilePage: View {
         .foregroundColor(Color("OnBackground"))
         .padding(.top, 8)
 
-      MenuRow(
-        icon: "person",
-        title: "Datos Personales",
-        subtitle: "Nombre, teléfono, correo"
-      )
+      NavigationLink {
+        ViewAndEditProfilePage(userId: session.userId, roles: session.roles)
+      } label: {
+        MenuRow(
+          icon: "person",
+          title: "Datos Personales",
+          subtitle: "Nombre, teléfono, correo"
+        )
+      }
 
       NavigationLink {
         ChangePasswordPage()
