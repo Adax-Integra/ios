@@ -184,6 +184,29 @@ struct APIProtocol {
     }
   }
 
+  // get raw data (csv) for US-V-08
+  static func getData(
+    _ path: String,
+    parameters: Parameters? = nil
+  ) async throws -> Data {
+    return try await withCheckedThrowingContinuation { continuation in
+      AF.request(
+        APIConfig.baseURL + path,
+        parameters: parameters,
+        headers: authHeaders
+      )
+      .validate()
+      .responseData { response in
+        switch response.result {
+        case .success(let data):
+          continuation.resume(returning: data)
+        case .failure(let error):
+          continuation.resume(throwing: error)
+        }
+      }
+    }
+  }
+
   // PATCH that sends files in a multipart request. Errors go through mapError
   static func patchMultipart<T: Decodable>(
     _ path: String,
