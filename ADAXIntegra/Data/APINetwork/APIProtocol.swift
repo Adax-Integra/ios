@@ -202,6 +202,11 @@ struct APIProtocol {
           continuation.resume(returning: data)
         case .failure(let error):
           continuation.resume(throwing: error)
+        }
+      }
+    }
+  }
+
   // PATCH that sends files in a multipart request. Errors go through mapError
   static func patchMultipart<T: Decodable>(
     _ path: String,
