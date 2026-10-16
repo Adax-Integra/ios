@@ -31,12 +31,20 @@ struct RegistrationForm: View {
     return "\(firstName) \(surname)"
   }
 
+  // allows only letters, accents, ñ and spaces
+  private func isValidNameText(_ text: String) -> Bool {
+    let pattern = "^[a-zA-ZáéíóúÁÉÍÓÚñÑ ]+$"
+    return text.range(of: pattern, options: .regularExpression) != nil
+  }
+
+  // validates names and the maximum length
   private var isNameValid: Bool {
     let firstName = name.trimmingCharacters(in: .whitespacesAndNewlines)
     let surname = lastName.trimmingCharacters(in: .whitespacesAndNewlines)
     let fullName = "\(firstName) \(surname)"
-
-    return !firstName.isEmpty && !surname.isEmpty && fullName.count <= 100
+    return isValidNameText(firstName)
+      && isValidNameText(surname)
+      && fullName.count <= 100
   }
 
   private var isEmailValid: Bool {
@@ -67,18 +75,34 @@ struct RegistrationForm: View {
   var body: some View {
     VStack(alignment: .leading, spacing: 18) {
 
-      LabeledTextField(
-        title: "Nombre",
-        placeholder: "Ingresa tu nombre",
-        text: $name
-      )
+      // name field
+      VStack(alignment: .leading, spacing: 6) {
+        LabeledTextField(
+          title: "Nombre",
+          placeholder: "Ingresa tu nombre",
+          text: $name
+        )
 
+        if !name.isEmpty && !isValidNameText(name) {
+          Text("Solo se permiten letras, acentos y ñ.")
+            .font(.caption)
+            .foregroundStyle(.red)
+        }
+      }
+
+      // last name field
       VStack(alignment: .leading, spacing: 6) {
         LabeledTextField(
           title: "Apellido",
           placeholder: "Ingresa tu apellido",
           text: $lastName
         )
+
+        if !lastName.isEmpty && !isValidNameText(lastName) {
+          Text("Solo se permiten letras, acentos y ñ.")
+            .font(.caption)
+            .foregroundStyle(.red)
+        }
 
         if fullName.count > 100 {
           Text("El nombre completo debe tener máximo 100 caracteres.")
