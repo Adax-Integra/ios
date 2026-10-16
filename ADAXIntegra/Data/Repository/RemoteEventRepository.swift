@@ -23,4 +23,12 @@ struct RemoteEventRepository: EventRepository {
     )
     return response.data
   }
+  // E-03: PATCH /events/:eventId/disable
+  func disableEvent(eventId: String) async throws -> DisabledEvent {
+    let response = try await APIProtocol.patch(
+      "/events/\(eventId)/disable",
+      as: APIResponse<DisabledEvent>.self
+    )
+    return response.data
+  }
 }
