@@ -15,11 +15,17 @@ struct MainTabPageExterna: View {
     VStack(spacing: 0) {
       Group {
         switch selectedTab {
-        case .home: HomePageExterna()
-        case .cases: CasesPage(
+        case .home:
+          // E-01: the events title opens a list, so the home needs a NavigationStack
+          NavigationStack {
+            HomePageExterna()
+              .toolbar(.hidden, for: .navigationBar)
+          }
+        case .cases:
+          CasesPage(
             viewModel: CasesViewModel(
-                repository: RemoteCaseRepository(),
-                userId: userId
+              repository: RemoteCaseRepository(),
+              userId: userId
             ),
             // R-02: lets CasesPage open "Nuevo caso" for this user
             userId: userId

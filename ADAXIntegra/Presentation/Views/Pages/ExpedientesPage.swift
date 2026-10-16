@@ -48,6 +48,16 @@ struct ExpedientesPage: View {
           )
         }
 
+        NavigationLink {
+          ReportPage(viewModel: ReportViewModel(repository: RemoteReportRepository()))
+        } label: {
+          MenuRow(
+            icon: "arrow.down.document",
+            title: "Reportes",
+            subtitle: "Desglose mensual de expedientes"
+          )
+        }
+
       }
       .padding(16)
     }

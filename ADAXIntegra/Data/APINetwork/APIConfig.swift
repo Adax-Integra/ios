@@ -11,7 +11,7 @@ enum APIConfig {
 
   static let baseURL = useLocalBackend
     ? "http://localhost:3001/api"
-    : "https://adax-integra.duckdns.org/api"
+    : "https://dev-api.adaxdigitales.com/api"
 
   // Set by AuthSession after login; sent as "Authorization: Bearer <token>"
   static var token: String?

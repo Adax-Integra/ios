@@ -97,9 +97,9 @@ struct RecordDetailPage: View {
           LazyVStack(spacing: 16) {
             ForEach(recordDetailsViewModel.recordDetails) { recordDetail in
               RecordCaseDetail(
-                caseId: recordDetail.caseNumber ?? recordDetail.id,
+                caseId: recordDetail.displayCaseNumber,
                 externalName: recordDetail.userName,
-                status: recordDetail.status ?? .open,
+                urgencyType: recordDetail.urgencyType ?? .sinEvaluar,
                 violenceType: recordDetail.violenceTypes.joined(separator: ", "),
                 internalAssigned: recordDetail.assignedUsers.map(\.name).joined(separator: ", "),
                 lastUpdated: recordDetail.updatedDateString
