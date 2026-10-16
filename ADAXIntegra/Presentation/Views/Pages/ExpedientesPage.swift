@@ -53,7 +53,7 @@ struct ExpedientesPage: View {
         } label: {
           MenuRow(
             icon: "arrow.down.document",
-            title: "Expedientes",
+            title: "Reportes",
             subtitle: "Desglose mensual de expedientes"
           )
         }
