@@ -8,14 +8,14 @@
 import SwiftUI
 
 struct MainTabPageInterna: View {
-  @State private var selectedTab: InternaTab = .expedientes
+  @State private var selectedTab: InternaTab = .home
   let userId: String
 
   var body: some View {
     VStack(spacing: 0) {
       Group {
         switch selectedTab {
-        case .home: HomePage()
+        case .home: NavigationStack { HomePage() }
         case .expedientes: NavigationStack { ExpedientesPage() }
         case .profile: ProfilePage()
         }

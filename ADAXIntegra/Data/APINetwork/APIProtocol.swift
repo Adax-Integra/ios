@@ -202,6 +202,32 @@ struct APIProtocol {
           continuation.resume(returning: data)
         case .failure(let error):
           continuation.resume(throwing: error)
+  // PATCH that sends files in a multipart request. Errors go through mapError
+  static func patchMultipart<T: Decodable>(
+    _ path: String,
+    files: [String: DocumentFile],
+    as type: T.Type
+  ) async throws -> T {
+    try await withCheckedThrowingContinuation { continuation in
+      AF.upload(
+        multipartFormData: { form in
+          for (name, file) in files {
+            form.append(
+              file.data, withName: name, fileName: file.fileName, mimeType: file.mimeType)
+          }
+        },
+        to: APIConfig.baseURL + path,
+        method: .patch,
+        headers: authHeaders
+      )
+      .validate()
+      .responseDecodable(of: T.self) { response in
+        switch response.result {
+        case .success(let value):
+          continuation.resume(returning: value)
+        case .failure(let error):
+          continuation.resume(
+            throwing: mapError(error, response: response.response, data: response.data))
         }
       }
     }

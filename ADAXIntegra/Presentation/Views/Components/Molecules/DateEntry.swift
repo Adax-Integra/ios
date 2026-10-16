@@ -20,13 +20,7 @@ struct DateEntry: View {
   @Binding var date: Date?
 
   @State private var isPresented = false
-
-  private var selection: Binding<Date> {
-    Binding(
-      get: { date ?? Date() },
-      set: { date = $0 }
-    )
-  }
+  @State private var sheetDate = Date()
 
   private var label: String {
     date?.formatted(date: .numeric, time: .omitted) ?? placeholder
@@ -57,7 +51,10 @@ struct DateEntry: View {
             alignment: .leading
           )
           .contentShape(Rectangle())
-          .onTapGesture { isPresented = true }
+          .onTapGesture {
+            sheetDate = date ?? Date()
+            isPresented = true
+          }
       }
 
       if let errorMessage {
@@ -66,12 +63,32 @@ struct DateEntry: View {
     }
     .frame(maxWidth: .infinity, alignment: .leading)
     .sheet(isPresented: $isPresented) {
-      DatePicker(title, selection: selection, displayedComponents: .date)
-        .datePickerStyle(.graphical)
-        .labelsHidden()
-        .padding()
-        .presentationDetents([.medium])
-        .presentationDragIndicator(.visible)
+      NavigationStack {
+        VStack {
+          DatePicker("", selection: $sheetDate, displayedComponents: .date)
+            .datePickerStyle(.graphical)
+            .labelsHidden()
+            .tint(Color("PrimaryAdax"))
+            .padding()
+          Spacer()
+        }
+        .navigationTitle(title)
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+          ToolbarItem(placement: .cancellationAction) {
+            Button("Cancelar") { isPresented = false }
+          }
+          ToolbarItem(placement: .confirmationAction) {
+            Button("Listo") {
+              date = sheetDate
+              isPresented = false
+            }
+            .fontWeight(.semibold)
+          }
+        }
+      }
+      .tint(Color("PrimaryAdax"))
+      .presentationDetents([.medium])
     }
   }
 }

@@ -10,4 +10,7 @@ import Foundation
 protocol CollaboratorRepository {
 
   func createCollaborator(_ collaborator: NewCollaborator) async throws -> Collaborator
+
+  // G-06: internal accounts, newest first
+  func listCollaborators() async throws -> [CollaboratorListItem]
 }
