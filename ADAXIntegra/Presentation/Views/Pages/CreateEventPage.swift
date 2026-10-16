@@ -15,50 +15,54 @@ struct CreateEventPage: View {
     ZStack {
       Color("Background").ignoresSafeArea()
 
-      VStack(alignment: .leading, spacing: 16) {
-        ScrollView {
-          VStack(alignment: .leading, spacing: 16) {
-            PageHeader(
-              title: "Nuevo evento",
-              backAction: { dismiss() }
-            )
+      ScrollView {
+        VStack(alignment: .leading, spacing: 16) {
+          PageHeader(
+            title: "Nuevo evento",
+            backAction: { dismiss() }
+          )
 
-            CreateEventForm(
-              title: $viewModel.title,
-              startDate: $viewModel.startDate,
-              endDate: $viewModel.endDate,
-              startTime: $viewModel.startTime,
-              endTime: $viewModel.endTime,
-              modality: $viewModel.modality,
-              location: $viewModel.location,
-              link: $viewModel.link,
-              countryCode: $viewModel.countryCode,
-              phone: $viewModel.phone,
-              description: $viewModel.description,
-              notes: $viewModel.notes,
-              image: viewModel.image,
-              onPickImage: { viewModel.selectImage($0) },
-              onImageError: { viewModel.errorMessage = $0 },
-              countryCodes: viewModel.countryCodes,
-              endDateError: viewModel.endDateError,
-              endTimeError: viewModel.endTimeError,
-              linkError: viewModel.linkError,
-              phoneError: viewModel.phoneError
-            )
-          }
+          CreateEventForm(
+            title: $viewModel.title,
+            startDate: $viewModel.startDate,
+            endDate: $viewModel.endDate,
+            startTime: $viewModel.startTime,
+            endTime: $viewModel.endTime,
+            modality: $viewModel.modality,
+            location: $viewModel.location,
+            link: $viewModel.link,
+            countryCode: $viewModel.countryCode,
+            phone: $viewModel.phone,
+            description: $viewModel.description,
+            notes: $viewModel.notes,
+            image: viewModel.image,
+            onPickImage: { viewModel.selectImage($0) },
+            onImageError: { viewModel.errorMessage = $0 },
+            countryCodes: viewModel.countryCodes,
+            titleError: viewModel.titleError,
+            startDateError: viewModel.startDateError,
+            endDateError: viewModel.endDateError,
+            startTimeError: viewModel.startTimeError,
+            endTimeError: viewModel.endTimeError,
+            locationError: viewModel.locationError,
+            linkError: viewModel.linkError,
+            phoneError: viewModel.phoneError,
+            descriptionError: viewModel.descriptionError
+          )
+
+          PrimaryButton(
+            title: viewModel.isSaving ? "Guardando..." : "Guardar evento",
+            isDisabled: viewModel.isSaving,
+            action: {
+              dismissKeyboard()
+              Task { await viewModel.createEvent() }
+            }
+          )
+          .padding(.top, 8)
         }
-        .scrollDismissesKeyboard(.interactively)
-
-        PrimaryButton(
-          title: viewModel.isSaving ? "Guardando..." : "Guardar evento",
-          isDisabled: !viewModel.isFormValid || viewModel.isSaving,
-          action: {
-            dismissKeyboard()
-            Task { await viewModel.createEvent() }
-          }
-        )
+        .padding()
       }
-      .padding()
+      .scrollDismissesKeyboard(.interactively)
     }
     .navigationBarBackButtonHidden(true)
     .task { await viewModel.loadCountries() }
