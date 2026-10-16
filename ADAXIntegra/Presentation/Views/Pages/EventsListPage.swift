@@ -117,20 +117,17 @@ struct EventsListPage: View {
   }
 
   private func disableMenu(for event: EventListItem) -> some View {
-    Menu {
-      Button(role: .destructive) {
-        disableViewModel.onDisableTapped(eventId: event.id)
-      } label: {
-        Label("Deshabilitar evento", systemImage: "calendar.badge.minus")
-      }
+    Button {
+      disableViewModel.onDisableTapped(eventId: event.id)
     } label: {
-      Image(systemName: "ellipsis")
-        .font(.system(size: 16, weight: .bold))
-        .foregroundColor(Color("PrimaryAdax"))
+      Image(systemName: "calendar.badge.minus")
+        .font(.system(size: 16, weight: .semibold))
+        .foregroundColor(Color("Error"))
         .frame(width: 32, height: 32)
         .background(Circle().fill(Color.white))
         .padding(10)
     }
+    .buttonStyle(.plain)
   }
 }
 
