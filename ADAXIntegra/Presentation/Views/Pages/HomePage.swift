@@ -38,8 +38,8 @@ struct HomePage: View {
       await profileViewModel.loadProfile(for: session.userId)
     }
     .task {
-          await eventsViewModel.loadEvents()
-        }
+      await eventsViewModel.loadEvents()
+    }
     .refreshable {
       await viewModel.loadRecords()
       await eventsViewModel.loadEvents()
@@ -99,17 +99,17 @@ struct HomePage: View {
     }
   }
 
-    private var eventsSection: some View {
-      EventsCarousel(viewModel: eventsViewModel) {
-        NavigationLink {
-          CreateEventPage()
-        } label: {
-          Text("Agregar evento")
-            .font(.subheadline)
-            .foregroundColor(Color("PrimaryAdax"))
-        }
+  private var eventsSection: some View {
+    EventsCarousel(viewModel: eventsViewModel) {
+      NavigationLink {
+        CreateEventPage()
+      } label: {
+        Text("Agregar evento")
+          .font(.subheadline)
+          .foregroundColor(Color("PrimaryAdax"))
       }
     }
+  }
 
   private var podcastSection: some View {
     VStack(alignment: .leading, spacing: 12) {

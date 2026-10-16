@@ -34,16 +34,16 @@ struct EventCoverImage: View {
 
   private var placeholder: some View {
     ZStack {
-        Color("SecondaryAdax").opacity(0.20)
-              
-              Image(systemName: "calendar")
-                .font(.largeTitle)
-                .foregroundColor(Color("PrimaryAdax").opacity(0.6))
-            }
-          }
-        }
+      Color("SecondaryAdax").opacity(0.20)
 
-        #Preview {
-          EventCoverImage(url: nil, height: 120)
-            .padding()
-        }
+      Image(systemName: "calendar")
+        .font(.largeTitle)
+        .foregroundColor(Color("PrimaryAdax").opacity(0.6))
+    }
+  }
+}
+
+#Preview {
+  EventCoverImage(url: nil, height: 120)
+    .padding()
+}

@@ -21,10 +21,11 @@ struct MainTabPageExterna: View {
             HomePageExterna()
               .toolbar(.hidden, for: .navigationBar)
           }
-        case .cases: CasesPage(
+        case .cases:
+          CasesPage(
             viewModel: CasesViewModel(
-                repository: RemoteCaseRepository(),
-                userId: userId
+              repository: RemoteCaseRepository(),
+              userId: userId
             ),
             // R-02: lets CasesPage open "Nuevo caso" for this user
             userId: userId
