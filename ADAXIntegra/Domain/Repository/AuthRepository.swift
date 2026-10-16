@@ -13,4 +13,6 @@ protocol AuthRepository {
   func login(email: String, password: String) async throws -> LoginResult
   func changePassword(currentPassword: String, newPassword: String, confirmPassword: String)
     async throws -> ChangePasswordResult
+
+  func logout() async throws
 }

@@ -24,4 +24,10 @@ struct LoginResult: Decodable {
   }
 }
 
+struct EmptyBody: Encodable {}
+
+struct LogoutResult: Decodable {
+  let message: String
+}
+
 // Token: 5 days = 120 hours

@@ -35,4 +35,12 @@ class RemoteAuthRepository: AuthRepository {
     )
     return response.data
   }
+
+  func logout() async throws {
+    _ = try await APIProtocol.post(
+      "/auth/logout",
+      body: EmptyBody(),
+      as: APIResponse<LogoutResult>.self
+    )
+  }
 }
