@@ -9,16 +9,16 @@ import Foundation
 
 // Backend implementation of ViewAndEditProfileRepository (R-04)
 struct RemoteViewAndEditProfileRepository: ViewAndEditProfileRepository {
-  // The backend only sends the address to external users, so both use the same endpoint
+  // The edit endpoint only sends the address to external users, so both use it
   func getStaffProfile(for userId: String) async throws -> ProfileStaff {
     let response = try await APIProtocol.get(
-      "/profile/\(userId)", as: APIResponse<ProfileStaff>.self)
+      "/profile/\(userId)/edit", as: APIResponse<ProfileStaff>.self)
     return response.data
   }
 
   func getExternalProfile(for userId: String) async throws -> ProfileExternal {
     let response = try await APIProtocol.get(
-      "/profile/\(userId)", as: APIResponse<ProfileExternal>.self)
+      "/profile/\(userId)/edit", as: APIResponse<ProfileExternal>.self)
     return response.data
   }
 
