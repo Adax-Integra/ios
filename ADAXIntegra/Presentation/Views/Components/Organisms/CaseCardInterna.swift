@@ -29,41 +29,39 @@ struct CaseCardInterna: View {
   }
 
   var body: some View {
+    VStack(alignment: .leading, spacing: 6) {
+      Text("N.º DE CASO")
+        .font(.system(size: 11, weight: .bold))
+        .foregroundColor(Color("InsideTextAndIcons"))
 
-    HStack(spacing: 0) {
-      // Urgency bar
-      Rectangle()
-        .fill(urgencyColor)
-        .frame(width: 6)
-      VStack(alignment: .leading, spacing: 6) {
-        Text("N.º DE CASO")
-          .font(.system(size: 11, weight: .bold))
-          .foregroundColor(Color("InsideTextAndIcons"))
+      Text(caseNumber)
+        .font(.system(size: 22, weight: .bold))
+        .foregroundColor(Color("OnBackground"))
 
-        Text(caseNumber)
-          .font(.system(size: 22, weight: .bold))
-          .foregroundColor(Color("OnBackground"))
+      Text(name)
+        .font(.system(size: 16))
+        .foregroundColor(Color("OnBackground"))
+        .lineLimit(1)
 
-        Text(name)
-          .font(.system(size: 16))
-          .foregroundColor(Color("OnBackground"))
-          .lineLimit(1)
+      Divider()
+        .padding(.vertical, 4)
 
-        Divider()
-          .padding(.vertical, 4)
-
-        infoRow(title: "Violencia:", value: joined(violenceTypes))
-        infoRow(title: "Asignada al caso:", value: joined(assignedTo))
-      }
-      .padding(.horizontal, 16)
-      .padding(.vertical, 14)
-      .frame(maxWidth: .infinity, alignment: .leading)
+      infoRow(title: "Violencia:", value: joined(violenceTypes))
+      infoRow(title: "Asignada al caso:", value: joined(assignedTo))
     }
+    .padding(.leading, 22)
+    .padding(.trailing, 16)
+    .padding(.vertical, 14)
+    .frame(maxWidth: .infinity, alignment: .leading)
     .background(Color.white)
+    .overlay(alignment: .leading) {
+      urgencyColor
+        .frame(width: 6)
+    }
     .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     .shadow(color: Color.black.opacity(0.07), radius: 6, x: 0, y: 3)
     .accessibilityElement(children: .combine)
-    accessibilityLabel(
+    .accessibilityLabel(
       "Caso \(caseNumber), \(name), urgencia \(urgency), violencia \(joined(violenceTypes)), asignada a \(joined(assignedTo))"
     )
   }
