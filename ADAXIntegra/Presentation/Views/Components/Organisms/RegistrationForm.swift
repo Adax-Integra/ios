@@ -47,11 +47,10 @@ struct RegistrationForm: View {
       && fullName.count <= 100
   }
 
+  // validates email format without accents, ñ or emojis
   private var isEmailValid: Bool {
-    email.range(
-      of: #"^[^\s@]+@[^\s@]+\.[^\s@]+$"#,
-      options: .regularExpression
-    ) != nil
+    let pattern = #"^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)+$"#
+    return email.range(of: pattern, options: .regularExpression) != nil
   }
 
   // checks the password requirements
@@ -111,19 +110,30 @@ struct RegistrationForm: View {
         }
       }
 
-      LabeledTextField(
-        title: "Correo electrónico",
-        placeholder: "correo@ejemplo.com",
-        keyboardType: .emailAddress,
-        text: $email
-      )
+      // email field
+      VStack(alignment: .leading, spacing: 6) {
+        LabeledTextField(
+          title: "Correo electrónico",
+          placeholder: "correo@ejemplo.com",
+          keyboardType: .emailAddress,
+          text: $email
+        )
 
+        if !email.isEmpty && !isEmailValid {
+          Text("Ingresa un correo electrónico válido, sin acentos ni ñ.")
+            .font(.caption)
+            .foregroundStyle(.red)
+        }
+      }
+
+      // phone field
       PhoneField(
         countryCodes: countryCodes,
         countryCode: $countryCode,
         phone: $phoneNumber
       )
 
+      // password field
       VStack(alignment: .leading, spacing: 6) {
         PasswordTextField(
           title: "Contraseña",
@@ -139,6 +149,7 @@ struct RegistrationForm: View {
         .fixedSize(horizontal: false, vertical: true)
       }
 
+      // confirm password field
       VStack(alignment: .leading, spacing: 6) {
         PasswordTextField(
           title: "Confirmar contraseña",
