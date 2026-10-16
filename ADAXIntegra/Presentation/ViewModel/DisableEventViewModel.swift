@@ -17,25 +17,28 @@ final class DisableEventViewModel: ObservableObject {
   @Published var toastMessage = ""
   @Published var showToast = false
 
-  private let eventId: String
+  // E-03: the list has many events, so the one to disable is saved when it is tapped
+  private var eventId: String?
   var disableEventUseCase: DisableEventUseCaseProtocol
 
-  init(eventId: String, disableEventUseCase: DisableEventUseCaseProtocol? = nil) {
-    self.eventId = eventId
-    // Built here so it runs on the main actor, same as other ViewModels
+  init(disableEventUseCase: DisableEventUseCaseProtocol? = nil) {
+    //Built here so it runs on the main actor, same as other ViewModels
     self.disableEventUseCase =
       disableEventUseCase ?? DisableEventUseCase(repository: RemoteEventRepository())
   }
 
-  func onDisableTapped() {
+  func onDisableTapped(eventId: String) {
+    self.eventId = eventId
     isShowingConfirmation = true
   }
 
   func onCancel() {
+    eventId = nil
     isShowingConfirmation = false
   }
 
   func confirm() async {
+    guard let eventId else { return }
     isDisabling = true
 
     do {
@@ -46,6 +49,7 @@ final class DisableEventViewModel: ObservableObject {
       showToast = true
     }
 
+    self.eventId = nil
     isShowingConfirmation = false
     isDisabling = false
   }
