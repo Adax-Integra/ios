@@ -26,7 +26,7 @@ class AuthSession: ObservableObject {
   private let storageKey = "session"
 
   // seconds (5 days)
-  private let sessionLifetime: TimeInterval = 120 * 60 * 60
+  private let sessionLifetime: TimeInterval = 167 * 60 * 60
 
   init() { restore() }
 
