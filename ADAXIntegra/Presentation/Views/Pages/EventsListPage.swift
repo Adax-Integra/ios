@@ -12,6 +12,9 @@ struct EventsListPage: View {
   @Environment(\.dismiss) private var dismiss
   // View model that manages the UI state and event data load
   @StateObject private var viewModel: EventsViewModel
+  @EnvironmentObject private var session: AuthSession
+  // E-03: confirmation and result of disabling an event
+  @StateObject private var disableViewModel = DisableEventViewModel()
 
   // Initializes the view with an optional view model dependency
   init(viewModel: EventsViewModel? = nil) {
@@ -41,6 +44,19 @@ struct EventsListPage: View {
       .refreshable {
         await viewModel.loadEvents()
       }
+      // E-03: the screen is dimmed while the confirmation is shown
+      if disableViewModel.isShowingConfirmation {
+        Color.black.opacity(0.4)
+          .ignoresSafeArea()
+          .onTapGesture {
+            if !disableViewModel.isDisabling { disableViewModel.onCancel() }
+          }
+        DisableEventDialog(
+          isLoading: disableViewModel.isDisabling,
+          onConfirm: { Task { await disableViewModel.confirm() } },
+          onCancel: { disableViewModel.onCancel() }
+        )
+      }
     }
     .navigationBarBackButtonHidden(true)
     .toolbar(.hidden, for: .navigationBar)
@@ -48,6 +64,14 @@ struct EventsListPage: View {
     .task {
       await viewModel.loadEvents()
     }
+    // E-03: after "Entendido" the list is loaded again so the event disappears
+    .fullScreenCover(isPresented: $disableViewModel.isShowingSuccess) {
+      EventDisabledPage(onFinish: {
+        disableViewModel.isShowingSuccess = false
+        Task { await viewModel.loadEvents() }
+      })
+    }
+    .toast(isPresented: $disableViewModel.showToast, message: disableViewModel.toastMessage)
   }
 
   @ViewBuilder
@@ -74,18 +98,42 @@ struct EventsListPage: View {
         .font(.subheadline)
         .foregroundStyle(.secondary)
     } else {
-      // Lazy vertical stack for a more efficient event cards
-        LazyVStack(spacing: 16) {
-          ForEach(viewModel.events) { event in
-            NavigationLink {
-              EventDetailPage(event: event)
-            } label: {
-              EventListCard(event: event)
-            }
-            .buttonStyle(.plain)
-          }
+        
+        // Lazy vertical stack rendering the event cards efficiently.
+              LazyVStack(spacing: 16) {
+                ForEach(viewModel.events) { event in
+                  NavigationLink {
+                    EventDetailPage(event: event)
+                  } label: {
+                    EventListCard(event: event)
+                      .overlay(alignment: .topTrailing) {
+                        if canDisableEvents {
+                          disableMenu(for: event)
+                        }
+                      }
+                  }
+                  .buttonStyle(.plain)
+                }
         }
     }
+  }
+  // E-03: only internal users and admins can disable an event
+  private var canDisableEvents: Bool {
+    session.roles.contains("admin") || session.roles.contains("internal")
+  }
+
+  private func disableMenu(for event: EventListItem) -> some View {
+    Button {
+      disableViewModel.onDisableTapped(eventId: event.id)
+    } label: {
+      Image(systemName: "calendar.badge.minus")
+        .font(.system(size: 16, weight: .semibold))
+        .foregroundColor(Color("Error"))
+        .frame(width: 32, height: 32)
+        .background(Circle().fill(Color.white))
+        .padding(10)
+    }
+    .buttonStyle(.plain)
   }
 }
 
@@ -113,4 +161,5 @@ private struct MockGetEventsUseCase: GetEventsUseCaseProtocol {
     EventsListPage(
       viewModel: EventsViewModel(scope: .all, getEventsUseCase: MockGetEventsUseCase()))
   }
+  .environmentObject(AuthSession())
 }
