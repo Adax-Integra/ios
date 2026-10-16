@@ -11,7 +11,7 @@ struct ProfileStaff: Identifiable, Codable {
   let id: String
   let name: String
   let lastName: String
-  let phone: String
+  let phone: String?
 
   enum CodingKeys: String, CodingKey {
     case id = "user_id"
@@ -25,7 +25,7 @@ struct ProfileExternal: Identifiable, Codable {
   let id: String
   let name: String
   let lastName: String
-  let phone: String
+  let phone: String?
   let address: AddressProfile?
 
   enum CodingKeys: String, CodingKey {
