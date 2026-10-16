@@ -38,16 +38,21 @@ struct RecordDetailPage: View {
 
         ScrollView {
           LazyVStack(spacing: 16) {
-            ForEach(recordDetailsViewModel.recordDetails) { recordDetail in
-              RecordCaseDetail(
-                caseId: recordDetail.displayCaseNumber,
-                externalName: recordDetail.userName,
-                urgencyType: recordDetail.urgencyType ?? .sinEvaluar,
-                violenceType: recordDetail.violenceTypes.joined(separator: ", "),
-                internalAssigned: recordDetail.assignedUsers.map(\.name).joined(separator: ", "),
-                lastUpdated: recordDetail.updatedDateString
-              )
-            }
+              ForEach(recordDetailsViewModel.recordDetails) { recordDetail in
+                NavigationLink {
+                  CaseDetailsPage(caseId: recordDetail.id)
+                } label: {
+                  RecordCaseDetail(
+                    caseId: recordDetail.displayCaseNumber,
+                    externalName: recordDetail.userName,
+                    urgencyType: recordDetail.urgencyType ?? .sinEvaluar,
+                    violenceType: recordDetail.violenceTypes.joined(separator: ", "),
+                    internalAssigned: recordDetail.assignedUsers.map(\.name).joined(separator: ", "),
+                    lastUpdated: recordDetail.updatedDateString
+                  )
+                }
+                .buttonStyle(.plain)
+              }
           }
           .padding()
         }
