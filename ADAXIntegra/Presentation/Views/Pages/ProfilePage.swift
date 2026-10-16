@@ -47,6 +47,10 @@ struct ProfilePage: View {
         fullName: viewModel.fullName,
         memberSince: viewModel.memberSince
       )
+      
+      VerificationBadge(
+        status: viewModel.profile?.verification ?? .noVerificado
+      )
 
       Text("Información Personal")
         .font(.system(size: 15, weight: .semibold))

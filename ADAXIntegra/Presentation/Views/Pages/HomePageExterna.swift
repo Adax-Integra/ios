@@ -13,12 +13,13 @@ struct HomePageExterna: View {
   @EnvironmentObject private var session: AuthSession
   @StateObject private var profileViewModel = ProfileViewModel()
   @StateObject private var eventsViewModel = EventsViewModel(scope: .month)
+  @State private var showUpload = false
 
   var body: some View {
     HomeTemplate {
       HomeHeader()
     } welcome: {
-      VStack(alignment: .leading, spacing: 8) {
+      VStack(alignment: .leading, spacing: 12) {
         Text(
           profileViewModel.profile.map { "¡Hola, \($0.name)!" }
             ?? "¡Hola!"
@@ -29,6 +30,14 @@ struct HomePageExterna: View {
         Text("No estás sola, estamos aquí para acompañarte")
           .font(.subheadline)
           .foregroundColor(Color("PrimaryAdax"))
+          
+        if let profile = profileViewModel.profile,
+           profile.verification != .verificado {
+            VerificationBanner(status: profile.verification) {
+                showUpload = true
+            }
+            .padding(.top, 4)
+        }
       }
     } caseProgress: {
       // space reserved for the case progress component
@@ -93,6 +102,21 @@ struct HomePageExterna: View {
     }
     .task {
       await eventsViewModel.loadEvents()
+    }
+    
+    .fullScreenCover(isPresented: $showUpload) {
+        PreSubmissionPage(
+            viewModel: PreSubmissionViewModel(
+                repository: RemotePreSubmissionRepository(),
+                countryRepository: CachedCountryRepository(remote: RemoteCountryRepository()),
+                userId: session.userId ?? "",
+                onFinish: {
+                    showUpload = false
+                    Task { await profileViewModel.loadProfile(for: session.userId) }
+                }
+            ),
+            onBack: { showUpload = false }
+        )
     }
   }
 
