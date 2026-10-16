@@ -6,7 +6,12 @@
 //
 
 enum APIConfig {
-  static let baseURL = "https://adax-integra.duckdns.org/api"
+  // Flip to true to hit the local backend while the server is not deployed (R-09 testing).
+  static let useLocalBackend = false
+
+  static let baseURL = useLocalBackend
+    ? "http://localhost:3001/api"
+    : "https://adax-integra.duckdns.org/api"
 
   // Set by AuthSession after login; sent as "Authorization: Bearer <token>"
   static var token: String?
