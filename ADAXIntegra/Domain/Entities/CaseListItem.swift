@@ -6,15 +6,6 @@
 //
 import Foundation
 
-struct CaseListResult: Decodable {
-
-  let cases: [CaseListItem]
-  let total: Int
-  let page: Int
-  let limit: Int
-
-}
-
 // reads keys by name so a field can come in snake_case or camelCase
 
 private struct AnyKey: CodingKey {
@@ -22,6 +13,75 @@ private struct AnyKey: CodingKey {
   var intValue: Int? { nil }
   init(stringValue: String) { self.stringValue = stringValue }
   init?(intValue: Int) { nil }
+}
+
+extension KeyedDecodingContainer where Key == AnyKey {
+  // tries every possible name of a field
+  fileprivate func value<T: Decodable>(_ type: T.Type, _ keys: [String]) -> T? {
+    for key in keys {
+      if let found = try? decodeIfPresent(type, forKey: AnyKey(stringValue: key)) {
+        return found
+      }
+    }
+    return nil
+  }
+
+  // text that can also come as a number
+  fileprivate func text(_ keys: String...) -> String? {
+    if let found = value(String.self, keys) { return found }
+    if let found = value(Int.self, keys) { return String(found) }
+    return nil
+  }
+
+  // number that can also come as text
+  fileprivate func number(_ keys: String...) -> Int? {
+    if let found = value(Int.self, keys) { return found }
+    if let found = value(String.self, keys) { return Int(found) }
+    return nil
+  }
+}
+
+struct CaseListResult: Decodable {
+
+  let cases: [CaseListItem]
+  let total: Int
+  let page: Int
+  let limit: Int
+
+  init(from decoder: Decoder) throws {
+    // the list can come directly without an object
+    if let list = try? decoder.singleValueContainer().decode([CaseListItem].self) {
+      cases = list
+      total = list.count
+      page = 1
+      limit = list.count
+      return
+    }
+
+    let container = try decoder.container(keyedBy: AnyKey.self)
+
+    let listKey = ["cases", "items", "rows", "data"]
+      .map { AnyKey(stringValue: $0) }
+      .first { container.contains($0) }
+
+    if let listKey {
+      cases = try container.decode([CaseListItem].self, forKey: listKey)
+    } else {
+      cases = []
+    }
+
+    // pagination can come at the top or inside another object
+    let pagination = ["pagination", "meta"]
+      .compactMap {
+        try? container.nestedContainer(keyedBy: AnyKey.self, forKey: AnyKey(stringValue: $0))
+      }
+      .first
+
+    total =
+      container.number("total", "count") ?? pagination?.number("total", "count") ?? cases.count
+    page = container.number("page") ?? pagination?.number("page") ?? 1
+    limit = container.number("limit") ?? pagination?.number("limit") ?? cases.count
+  }
 }
 
 // collaborator assigned to a case, can come as text or as an object
@@ -38,20 +98,11 @@ private struct CaseAssignee: Decodable {
 
     // object with name and last name
     let container = try decoder.container(keyedBy: AnyKey.self)
-    func text(_ keys: String...) -> String? {
-      for key in keys {
-        if let value = try? container.decodeIfPresent(String.self, forKey: AnyKey(stringValue: key))
-        {
-          return value
-        }
-      }
-      return nil
-    }
 
-    if let full = text("full_name", "fullName") {
+    if let full = container.text("full_name", "fullName") {
       fullName = full
     } else {
-      fullName = [text("name"), text("last_name", "lastName")]
+      fullName = [container.text("name"), container.text("last_name", "lastName")]
         .compactMap { $0?.trimmingCharacters(in: .whitespaces) }
         .filter { !$0.isEmpty }
         .joined(separator: " ")
@@ -73,17 +124,7 @@ struct CaseListItem: Identifiable, Decodable {
   init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: AnyKey.self)
 
-    // tries every possible name of a field
-    func value<T: Decodable>(_ type: T.Type, _ keys: String...) -> T? {
-      for key in keys {
-        if let found = try? container.decodeIfPresent(type, forKey: AnyKey(stringValue: key)) {
-          return found
-        }
-      }
-      return nil
-    }
-
-    guard let caseId = value(String.self, "case_id", "caseId", "id") else {
+    guard let caseId = container.text("case_id", "caseId", "id") else {
       throw DecodingError.keyNotFound(
         AnyKey(stringValue: "case_id"),
         .init(codingPath: decoder.codingPath, debugDescription: "Case without id")
@@ -91,15 +132,17 @@ struct CaseListItem: Identifiable, Decodable {
     }
 
     id = caseId
-    caseNumber = value(String.self, "case_number", "caseNumber", "number")
-    name = value(String.self, "name", "full_name", "fullName") ?? ""
-    violenceTypes = value([String].self, "violence_types", "violenceTypes") ?? []
-    state = value(String.self, "state", "status") ?? ""
-    urgency = value(String.self, "urgency") ?? "Sin evaluar"
-    updatedAt = value(String.self, "updated_at", "updatedAt")
+    caseNumber = container.text("case_number", "caseNumber", "number")
+    name = container.text("name", "full_name", "fullName") ?? ""
+    violenceTypes = container.value([String].self, ["violence_types", "violenceTypes"]) ?? []
+    state = container.text("state", "status") ?? ""
+    urgency = container.text("urgency") ?? "Sin evaluar"
+    updatedAt = container.text("updated_at", "updatedAt")
     assignedNames =
-      (value([CaseAssignee].self, "assigned_users", "assignedUsers", "assigned_to", "assignedTo")
-      ?? [])
+      (container.value(
+        [CaseAssignee].self,
+        ["assigned_users", "assignedUsers", "assigned_to", "assignedTo"]
+      ) ?? [])
       .map(\.fullName)
       .filter { !$0.isEmpty }
   }
