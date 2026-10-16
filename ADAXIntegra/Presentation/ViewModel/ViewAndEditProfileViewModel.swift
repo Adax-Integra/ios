@@ -37,9 +37,13 @@ final class ViewAndEditProfileViewModel: ObservableObject {
   private let useCase: ViewAndEditProfileUseCaseProtocol
   private let countryRepository: CountryRepository
 
+  // Same code the phone field shows as its placeholder
+  private static let defaultCountryCode = "+52"
+
   init(userId: String?, roles: [String]) {
     self.userId = userId
-    self.showsAddress = roles == ["external"]
+    self.showsAddress =
+      roles.contains("external") && !roles.contains("admin") && !roles.contains("internal")
     self.useCase = ViewAndEditProfileUseCase(
       dataRepository: RemoteViewAndEditProfileRepository())
     self.countryRepository = CachedCountryRepository(remote: RemoteCountryRepository())
@@ -77,15 +81,25 @@ final class ViewAndEditProfileViewModel: ObservableObject {
     guard let userId else { return }
     isSaving = true
 
-    var request = UpdateProfileRequest(
-      name: form.name,
-      lastName: form.lastName,
-      phone: (form.countryCode ?? "") + form.phone
-    )
+    // Only the changed fields are sent, so an untouched field is never revalidated
+    var request = UpdateProfileRequest()
+    if form.name != saved.name { request.name = form.name }
+    if form.lastName != saved.lastName { request.lastName = form.lastName }
+    if form.countryCode != saved.countryCode || form.phone != saved.phone {
+      request.phone = (form.countryCode ?? Self.defaultCountryCode) + form.phone
+    }
     if showsAddress {
-      request.country = form.country
-      request.state = form.state
-      request.municipality = form.municipality.isEmpty ? nil : form.municipality
+      if form.country != saved.country { request.country = form.country }
+      if form.state != saved.state { request.state = form.state }
+      if form.municipality != saved.municipality, !form.municipality.isEmpty {
+        request.municipality = form.municipality
+      }
+    }
+
+    guard !request.isEmpty else {
+      isEditing = false
+      isSaving = false
+      return
     }
 
     do {
@@ -106,7 +120,7 @@ final class ViewAndEditProfileViewModel: ObservableObject {
       let profile = try await useCase.getExternalProfile(for: userId)
       data.name = profile.name
       data.lastName = profile.lastName
-      data.phone = profile.phone
+      data.phone = profile.phone ?? ""
       data.country = profile.address?.country
       data.state = profile.address?.state
       data.municipality = profile.address?.municipality ?? ""
@@ -114,12 +128,14 @@ final class ViewAndEditProfileViewModel: ObservableObject {
       let profile = try await useCase.getStaffProfile(for: userId)
       data.name = profile.name
       data.lastName = profile.lastName
-      data.phone = profile.phone
+      data.phone = profile.phone ?? ""
     }
 
     if data.phone.count > 10 {
       data.countryCode = String(data.phone.dropLast(10))
       data.phone = String(data.phone.suffix(10))
+    } else {
+      data.countryCode = Self.defaultCountryCode
     }
 
     saved = data
