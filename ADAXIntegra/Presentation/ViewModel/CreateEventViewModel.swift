@@ -32,6 +32,8 @@ final class CreateEventViewModel: ObservableObject {
   // Separate from a loading state: saving only changes the button, it does not dim the screen
   @Published var isSaving = false
   @Published var errorMessage: String?
+  // Turned on by the "Guardar evento" tap, so empty fields are not marked before the user tries to save
+  @Published var showErrors = false
 
   private let createEventUseCase: CreateEventUseCaseProtocol
   private let uploadEventImageUseCase: UploadEventImageUseCaseProtocol
@@ -57,8 +59,20 @@ final class CreateEventViewModel: ObservableObject {
     return codes.isEmpty ? ["+52"] : codes
   }
 
+  var titleError: String? { requiredError(title) }
+  var descriptionError: String? { requiredError(description) }
+  var startDateError: String? { requiredError(startDate) }
+  var startTimeError: String? { requiredError(startTime) }
+
+  var locationError: String? {
+    modality == "Presencial" ? requiredError(location) : nil
+  }
+
   // Same rules as the backend validator
   var endDateError: String? {
+    if let error = requiredError(endDate) {
+      return error
+    }
     guard let startDate, let endDate else {
       return nil
     }
@@ -70,6 +84,9 @@ final class CreateEventViewModel: ObservableObject {
   }
 
   var endTimeError: String? {
+    if let error = requiredError(endTime) {
+      return error
+    }
     guard endDateError == nil, let startsAt, let endsAt else {
       return nil
     }
@@ -93,7 +110,6 @@ final class CreateEventViewModel: ObservableObject {
     PhoneField.validationError(for: phone)
   }
 
-  // "Guardar evento" stays disabled until the required fields are filled
   // The backend only requires the place for in person events
   var isFormValid: Bool {
     !title.isEmpty && !description.isEmpty
@@ -116,7 +132,9 @@ final class CreateEventViewModel: ObservableObject {
   }
 
   func createEvent() async {
-    guard let newEvent = makeEvent() else { return }
+    // The button is always enabled, so the first tap reveals the missing fields
+    showErrors = true
+    guard isFormValid, let newEvent = makeEvent() else { return }
     isSaving = true
     errorMessage = nil
 
@@ -138,6 +156,16 @@ final class CreateEventViewModel: ObservableObject {
     }
 
     isSaving = false
+  }
+
+  private func requiredError(_ value: String) -> String? {
+    guard showErrors else { return nil }
+    return value.isEmpty ? "Este campo es obligatorio." : nil
+  }
+
+  private func requiredError(_ value: Date?) -> String? {
+    guard showErrors else { return nil }
+    return value == nil ? "Este campo es obligatorio." : nil
   }
 
   private var startsAt: Date? { combine(startDate, startTime) }

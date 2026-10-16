@@ -12,6 +12,7 @@ struct HomePageExterna: View {
   @Environment(\.openURL) private var openURL
   @EnvironmentObject private var session: AuthSession
   @StateObject private var profileViewModel = ProfileViewModel()
+  @StateObject private var eventsViewModel = EventsViewModel(scope: .month)
 
   var body: some View {
     HomeTemplate {
@@ -40,15 +41,7 @@ struct HomePageExterna: View {
           .padding(20)
       }
     } events: {
-      // space reserved for the events carousel
-      VStack(alignment: .leading, spacing: 12) {
-        Text("Eventos")
-          .font(.title2.bold())
-          .foregroundColor(Color("OnBackground"))
-
-        Color.clear
-          .frame(height: 200)
-      }
+      EventsCarousel(viewModel: eventsViewModel)
     } socialMedia: {
       VStack(alignment: .leading, spacing: 12) {
         Text("Redes sociales")
@@ -98,6 +91,9 @@ struct HomePageExterna: View {
     .task(id: session.userId) {
       await profileViewModel.loadProfile(for: session.userId)
     }
+    .task {
+      await eventsViewModel.loadEvents()
+    }
   }
 
   // opens an external address using the system URL action
@@ -108,6 +104,8 @@ struct HomePageExterna: View {
 }
 
 #Preview {
-  HomePageExterna()
-    .environmentObject(AuthSession())
+  NavigationStack {
+    HomePageExterna()
+  }
+  .environmentObject(AuthSession())
 }

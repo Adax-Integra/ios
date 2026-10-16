@@ -131,8 +131,8 @@ struct CreateEventForm: View {
       )
 
       LabeledTextField(
-        title: "Notas",
-        placeholder: "Opcional",
+        title: "Notas (opcional)",
+        placeholder: "Escribe notas adicionales...",
         customHeight: 90,
         maxLength: 1000,
         errorMessage: notesError,
@@ -140,7 +140,7 @@ struct CreateEventForm: View {
       )
 
       ImagePickerField(
-        title: "Imagen del evento",
+        title: "Imagen del evento (opcional)",
         image: image,
         errorMessage: imageError,
         onPick: onPickImage,
