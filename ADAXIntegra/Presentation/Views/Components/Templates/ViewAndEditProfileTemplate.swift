@@ -71,6 +71,7 @@ struct ViewAndEditProfileTemplate: View {
           }
         }
         .disabled(!isEditing)
+        .animation(.easeInOut(duration: 0.2), value: isEditing)
         .padding(.horizontal, 24)
         .padding(.vertical, 20)
       }
