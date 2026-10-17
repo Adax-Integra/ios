@@ -51,7 +51,7 @@ struct ExternalProfilePage: View {
     .navigationDestination(isPresented: $viewModel.isEditing) {
       EditExternalProfilePage(viewModel: viewModel)
     }
-    .toast(isPresented: $viewModel.isShowingSuccessToast, message: "Datos actualizados")
+    .toast(isPresented: $viewModel.isShowingSuccessToast, message: "Datos actualizados", edge: .top)
     // The edit page shows its own alert, so this one only runs on the detail
     .alert(
       "Aviso",
@@ -114,13 +114,9 @@ struct ExternalProfilePage: View {
   // In the same order as the "Registrar externa" form
   private var addressSection: some View {
     ProfileSectionCard(title: "Domicilio") {
-      InfoRow(label: "Calle y número", value: viewModel.display(viewModel.saved.addressLine1))
-      InfoRow(label: "Interior / depto.", value: viewModel.display(viewModel.saved.addressLine2))
-      InfoRow(label: "Colonia", value: viewModel.display(viewModel.saved.neighborhood))
-      InfoRow(label: "Código postal", value: viewModel.display(viewModel.saved.zipCode))
       InfoRow(label: "País", value: viewModel.display(viewModel.saved.country))
       InfoRow(label: "Estado", value: viewModel.display(viewModel.saved.state))
-      InfoRow(label: "Ciudad / Municipio", value: viewModel.display(viewModel.saved.city))
+      InfoRow(label: "Municipio/Localidad", value: viewModel.display(viewModel.saved.municipality))
     }
   }
 }
