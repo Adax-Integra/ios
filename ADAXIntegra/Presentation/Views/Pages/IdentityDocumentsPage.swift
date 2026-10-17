@@ -54,6 +54,7 @@ struct IdentityDocumentsPage: View {
     }
     .navigationTitle("Documentos de Identidad")
     .task { await viewModel.load() }
+    .toast(isPresented: $viewModel.showToast, message: viewModel.toastMessage)
     .alert(
       "Aviso",
       isPresented: Binding(
