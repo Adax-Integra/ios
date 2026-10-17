@@ -33,7 +33,7 @@ struct RegistrationForm: View {
 
   // allows letters, accents, ñ, ü, spaces and hyphens
   private func isValidNameText(_ text: String) -> Bool {
-    let pattern = #"^[\p{L}\p{M}]+(?:[ -][\p{L}\p{M}]+)*$"#
+    let pattern = #"^[\p{L}\p{M}]+(?: [\p{L}\p{M}]+)*$"#
     return text.range(of: pattern, options: .regularExpression) != nil
   }
 
@@ -100,7 +100,7 @@ struct RegistrationForm: View {
         )
 
         if !lastName.isEmpty && !isValidNameText(lastName) {
-          Text("Solo se permiten letras, acentos, espacios y guiones.")
+          Text("Solo se permiten letras, acentos y espacios.")
             .font(.caption)
             .foregroundStyle(.red)
         }
