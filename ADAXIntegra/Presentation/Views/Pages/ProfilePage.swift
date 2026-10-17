@@ -12,6 +12,12 @@ struct ProfilePage: View {
   @StateObject private var viewModel = ProfileViewModel()
   @State private var showLogoutConfirmation = false
 
+  // Same rule as ViewAndEditProfileViewModel: staff roles take precedence
+  private var isExternal: Bool {
+    session.roles.contains("external") && !session.roles.contains("admin")
+      && !session.roles.contains("internal")
+  }
+
   var body: some View {
     NavigationStack {
       ZStack {
@@ -61,7 +67,17 @@ struct ProfilePage: View {
         MenuRow(
           icon: "person",
           title: "Datos Personales",
-          subtitle: "Nombre, teléfono, correo"
+          subtitle: isExternal ? "Nombre, teléfono, dirección" : "Nombre, teléfono"
+        )
+      }
+
+      // R-06: hook up the upload documents page once it exists
+      Button {
+      } label: {
+        MenuRow(
+          icon: "person.text.rectangle",
+          title: "Mis documentos",
+          subtitle: "INE y comprobante de domicilio"
         )
       }
 
