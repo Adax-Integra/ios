@@ -66,10 +66,14 @@ struct EventsListPage: View {
     }
     // E-03: after "Entendido" the list is loaded again so the event disappears
     .fullScreenCover(isPresented: $disableViewModel.isShowingSuccess) {
-      EventDisabledPage(onFinish: {
-        disableViewModel.isShowingSuccess = false
-        Task { await viewModel.loadEvents() }
-      })
+      EventSuccessPage(
+        title: "Evento deshabilitado",
+        message: "El evento ya no aparece en el calendario.",
+        onFinish: {
+          disableViewModel.isShowingSuccess = false
+          Task { await viewModel.loadEvents() }
+        }
+      )
     }
     .toast(isPresented: $disableViewModel.showToast, message: disableViewModel.toastMessage)
   }
@@ -98,23 +102,23 @@ struct EventsListPage: View {
         .font(.subheadline)
         .foregroundStyle(.secondary)
     } else {
-        
-        // Lazy vertical stack rendering the event cards efficiently.
-              LazyVStack(spacing: 16) {
-                ForEach(viewModel.events) { event in
-                  NavigationLink {
-                    EventDetailPage(event: event)
-                  } label: {
-                    EventListCard(event: event)
-                      .overlay(alignment: .topTrailing) {
-                        if canDisableEvents {
-                          disableMenu(for: event)
-                        }
-                      }
-                  }
-                  .buttonStyle(.plain)
+
+      // Lazy vertical stack rendering the event cards efficiently.
+      LazyVStack(spacing: 16) {
+        ForEach(viewModel.events) { event in
+          NavigationLink {
+            EventDetailPage(event: event)
+          } label: {
+            EventListCard(event: event)
+              .overlay(alignment: .topTrailing) {
+                if canDisableEvents {
+                  disableMenu(for: event)
                 }
+              }
+          }
+          .buttonStyle(.plain)
         }
+      }
     }
   }
   // E-03: only internal users and admins can disable an event
