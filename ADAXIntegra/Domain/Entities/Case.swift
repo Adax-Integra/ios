@@ -13,6 +13,16 @@ enum CaseState: String {
   case closed = "closed"
   case pending = "pending"
 
+  init(dbValue: String?) {
+    switch dbValue?.trimmingCharacters(
+      in:
+        .whitespaces
+    ).lowercased() {
+    case "closed": self = .closed
+    default: self = .inProgress
+    }
+  }
+
   var displayText: String {
     switch self {
     case .inProgress: return "En proceso"
@@ -32,18 +42,26 @@ enum CaseState: String {
 
 struct Case: Identifiable, Codable {
   let id: String
-  let writtenDescription: String?
-  let writtenHelpsWanted: String?
-  let hasLawyer: Bool
-  let state: String
-  let createdAt: String
-  let updatedAt: String
-  let helps: [String]
+  let caseNumber: String?
+  let state: String?
+  let urgency: String?
   let violenceTypes: [String]
+  let updatedAt: String?
 
   enum CodingKeys: String, CodingKey {
     case id = "caseId"
-    case writtenDescription, writtenHelpsWanted, hasLawyer
-    case state, createdAt, updatedAt, helps, violenceTypes
+    case caseNumber, state, urgency, violenceTypes, updatedAt
+  }
+}
+
+extension Case {
+  var updatedAtDate: Date? { Case.parse(updatedAt) }
+
+  // El backend manda fechas en UTC con milisegundos: "2026-10-15T20:30:00.000Z"
+  private static func parse(_ text: String?) -> Date? {
+    guard let text else { return nil }
+    let formatter = ISO8601DateFormatter()
+    formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+    return formatter.date(from: text)
   }
 }
