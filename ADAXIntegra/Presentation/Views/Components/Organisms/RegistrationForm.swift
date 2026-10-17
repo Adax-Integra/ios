@@ -31,9 +31,9 @@ struct RegistrationForm: View {
     return "\(firstName) \(surname)"
   }
 
-  // allows only letters, accents, ñ and spaces
+  // allows letters, accents, ñ, ü, spaces and hyphens
   private func isValidNameText(_ text: String) -> Bool {
-    let pattern = "^[a-zA-ZáéíóúÁÉÍÓÚñÑ ]+$"
+    let pattern = #"^[\p{L}\p{M}]+(?:[ -][\p{L}\p{M}]+)*$"#
     return text.range(of: pattern, options: .regularExpression) != nil
   }
 
@@ -60,14 +60,15 @@ struct RegistrationForm: View {
       && password.rangeOfCharacter(from: .decimalDigits) != nil
       && password.rangeOfCharacter(from: .punctuationCharacters.union(.symbols)) != nil
       && password.unicodeScalars.allSatisfy { $0.isASCII && $0.value >= 33 && $0.value <= 126 }
+      && password.rangeOfCharacter(from: .lowercaseLetters) != nil
   }
 
   // enables registration if all fields contain valid data
   private var isFormValid: Bool {
     isNameValid && isEmailValid
       && countryCode != nil
+      && phoneNumber.count == 10
       && phoneNumber.allSatisfy { $0.isASCII && $0.isNumber }
-      && phoneNumber.allSatisfy { $0.isNumber }
       && isPasswordValid
       && password == confirmPassword
   }
@@ -99,7 +100,7 @@ struct RegistrationForm: View {
         )
 
         if !lastName.isEmpty && !isValidNameText(lastName) {
-          Text("Solo se permiten letras, acentos y ñ.")
+          Text("Solo se permiten letras, acentos, espacios y guiones.")
             .font(.caption)
             .foregroundStyle(.red)
         }
@@ -128,20 +129,21 @@ struct RegistrationForm: View {
       }
 
       // phone field
-    VStack(alignment: .leading, spacing: 6) {
-      PhoneField(
-        countryCodes: countryCodes,
-        countryCode: $countryCode,
-        phone: $phoneNumber
-      )
-        
-        if !phoneNumber.isEmpty &&
-              (phoneNumber.count != 10 || !phoneNumber.allSatisfy({ $0.isASCII && $0.isNumber })) {
-            Text("El teléfono debe contener 10 dígitos.")
-              .font(.caption)
-              .foregroundStyle(.red)
-          }
+      VStack(alignment: .leading, spacing: 6) {
+        PhoneField(
+          countryCodes: countryCodes,
+          countryCode: $countryCode,
+          phone: $phoneNumber
+        )
+
+        if !phoneNumber.isEmpty
+          && (phoneNumber.count != 10 || !phoneNumber.allSatisfy({ $0.isASCII && $0.isNumber }))
+        {
+          Text("El teléfono debe contener 10 dígitos.")
+            .font(.caption)
+            .foregroundStyle(.red)
         }
+      }
 
       // password field
       VStack(alignment: .leading, spacing: 6) {
@@ -157,45 +159,46 @@ struct RegistrationForm: View {
         .font(.caption)
         .foregroundStyle(.secondary)
         .fixedSize(horizontal: false, vertical: true)
-          
-          // shows missing password requirements
-          if !password.isEmpty {
-            if password.count < 8 || password.count > 24 {
-              Text("La contraseña debe tener entre 8 y 24 caracteres.")
-                .font(.caption)
-                .foregroundStyle(.red)
-            }
 
-            if password.rangeOfCharacter(from: .uppercaseLetters) == nil {
-              Text("Falta una letra mayúscula.")
-                .font(.caption)
-                .foregroundStyle(.red)
-            }
-
-            if password.rangeOfCharacter(from: .lowercaseLetters) == nil {
-              Text("Falta una letra minúscula.")
-                .font(.caption)
-                .foregroundStyle(.red)
-            }
-
-            if password.rangeOfCharacter(from: .decimalDigits) == nil {
-              Text("Falta un número.")
-                .font(.caption)
-                .foregroundStyle(.red)
-            }
-
-            if password.rangeOfCharacter(from: .punctuationCharacters.union(.symbols)) == nil {
-              Text("Falta un carácter especial.")
-                .font(.caption)
-                .foregroundStyle(.red)
-            }
-
-            if !password.unicodeScalars.allSatisfy({ $0.isASCII && $0.value >= 33 && $0.value <= 126 }) {
-              Text("No se permiten espacios, acentos, ñ ni emojis.")
-                .font(.caption)
-                .foregroundStyle(.red)
-            }
+        // shows missing password requirements
+        if !password.isEmpty {
+          if password.count < 8 || password.count > 24 {
+            Text("La contraseña debe tener entre 8 y 24 caracteres.")
+              .font(.caption)
+              .foregroundStyle(.red)
           }
+
+          if password.rangeOfCharacter(from: .uppercaseLetters) == nil {
+            Text("Falta una letra mayúscula.")
+              .font(.caption)
+              .foregroundStyle(.red)
+          }
+
+          if password.rangeOfCharacter(from: .lowercaseLetters) == nil {
+            Text("Falta una letra minúscula.")
+              .font(.caption)
+              .foregroundStyle(.red)
+          }
+
+          if password.rangeOfCharacter(from: .decimalDigits) == nil {
+            Text("Falta un número.")
+              .font(.caption)
+              .foregroundStyle(.red)
+          }
+
+          if password.rangeOfCharacter(from: .punctuationCharacters.union(.symbols)) == nil {
+            Text("Falta un carácter especial.")
+              .font(.caption)
+              .foregroundStyle(.red)
+          }
+
+          if !password.unicodeScalars.allSatisfy({ $0.isASCII && $0.value >= 33 && $0.value <= 126 }
+          ) {
+            Text("No se permiten espacios, acentos, ñ ni emojis.")
+              .font(.caption)
+              .foregroundStyle(.red)
+          }
+        }
       }
 
       // confirm password field
