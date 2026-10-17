@@ -57,6 +57,7 @@ struct Case: Identifiable, Codable {
 extension Case {
   var updatedAtDate: Date? { Case.parse(updatedAt) }
 
+  private static func parse(_ text: String?) -> Date? {
     guard let text else { return nil }
     let formatter = ISO8601DateFormatter()
     formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
