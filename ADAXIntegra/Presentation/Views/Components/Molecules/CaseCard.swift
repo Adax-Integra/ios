@@ -9,16 +9,14 @@ import SwiftUI
 
 struct CaseCard: View {
   let caseItem: Case
+  private var state: CaseState { CaseState(dbValue: caseItem.state) }
   var body: some View {
     HStack(spacing: 0) {
-      Rectangle().fill(Color.orange).frame(width: 4)
+      Rectangle().fill(state.indicatorColor).frame(width: 4)
       VStack(alignment: .leading, spacing: 8) {
         CaseNumberLabel(
           number: String(caseItem.id.prefix(8))
         )
-        DateLabel(
-          prefix: "Fecha de creación",
-          value: caseItem.createdAt)
         CaseTypeLabel(
           text: caseItem.violenceTypes.isEmpty
             ? "Sin tipo asignado"
@@ -26,7 +24,7 @@ struct CaseCard: View {
         )
         StatusRow(
           state: .pending,
-          updatedAt: caseItem.updatedAt)  // hardcoded due to lack of status on table
+          updatedAt: caseItem.updatedAtDate?.relativeDescription ?? "-")
       }
       .padding(16)
     }
