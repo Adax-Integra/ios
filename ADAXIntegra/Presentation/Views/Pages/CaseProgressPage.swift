@@ -27,23 +27,13 @@ struct CaseProgressPage: View {
   var body: some View {
     ScrollView {
       VStack(alignment: .leading, spacing: 28) {
-        HStack(alignment: .top, spacing: 16) {
-          Button(action: onBack) {
-            Image(systemName: "chevron.left")
-              .font(.title3)
-              .foregroundStyle(Color("PrimaryAdax"))
-              .frame(width: 44, height: 44)
-          }
-          .accessibilityLabel("Volver a mis casos")
+        VStack(alignment: .leading, spacing: 6) {
+          Text("Progreso del caso")
+            .font(.title2.bold())
 
-          VStack(alignment: .leading, spacing: 6) {
-            Text("Progreso del caso")
-              .font(.title2.bold())
-
-            if viewModel.caseDetail != nil {
-              Text("ID: \(viewModel.caseNumberText)")
-                .font(.subheadline)
-            }
+          if viewModel.caseDetail != nil {
+            Text("ID: \(viewModel.caseNumberText)")
+              .font(.subheadline)
           }
         }
 
