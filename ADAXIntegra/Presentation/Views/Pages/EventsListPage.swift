@@ -9,7 +9,6 @@ import SwiftUI
 
 // Events list page that shows every active event, same for internal and external users
 struct EventsListPage: View {
-  @Environment(\.dismiss) private var dismiss
   // View model that manages the UI state and event data load
   @StateObject private var viewModel: EventsViewModel
   @EnvironmentObject private var session: AuthSession
@@ -31,12 +30,10 @@ struct EventsListPage: View {
 
       ScrollView {
         VStack(alignment: .leading, spacing: 16) {
-          // Main navigation header with title and back button
-          PageHeader(
-            title: "Eventos",
-            backAction: { dismiss() },
-            subtitle: "Gestiona los eventos de la asociación"
-          )
+          // Same subtitle style as PageHeader, the native bar only has the title
+          Text("Gestiona los eventos de la asociación")
+            .font(.subheadline)
+            .foregroundColor(Color("OnBackground").opacity(0.7))
 
           content
         }
@@ -61,8 +58,7 @@ struct EventsListPage: View {
         )
       }
     }
-    .navigationBarBackButtonHidden(true)
-    .toolbar(.hidden, for: .navigationBar)
+    .navigationTitle("Eventos")
     // Asynchronously loads events when the view appears
     .task {
       await viewModel.loadEvents()

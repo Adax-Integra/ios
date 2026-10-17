@@ -26,11 +26,6 @@ struct CreateEventPage: View {
 
       ScrollView {
         VStack(alignment: .leading, spacing: 16) {
-          PageHeader(
-            title: viewModel.isEditing ? "Editar evento" : "Nuevo evento",
-            backAction: { dismiss() }
-          )
-
           // The list does not send the picture file, so the saved one is only shown
           if let event {
             FieldLabel("Imagen actual")
@@ -80,7 +75,7 @@ struct CreateEventPage: View {
       }
       .scrollDismissesKeyboard(.interactively)
     }
-    .navigationBarBackButtonHidden(true)
+    .navigationTitle(viewModel.isEditing ? "Editar evento" : "Nuevo evento")
     .task { await viewModel.loadCountries() }
     .alert("Atención", isPresented: showError) {
       Button("Aceptar", role: .cancel) {}
