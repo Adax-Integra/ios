@@ -53,6 +53,23 @@ struct CaseDetail: Decodable {
   var steps: [CaseDetailStep] { caseSteps }
   var helps: [CaseDetailHelp] { caseHelp.map { $0.helpTypes } }
   var violenceTypes: [CaseDetailViolenceType] { caseViolence.map { $0.violenceTypes } }
+    // Parses the backend's timestamps (e.g. "2026-10-08T03:33:38.891779").
+      // Returns nil if the format doesn't match, instead of falling back to today's date.
+      private static let backendDateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.timeZone = TimeZone(identifier: "UTC")
+        formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSSS"
+        return formatter
+      }()
+
+      var createdDate: Date? {
+        createdAt.flatMap { Self.backendDateFormatter.date(from: $0) }
+      }
+
+      var updatedDate: Date? {
+        updatedAt.flatMap { Self.backendDateFormatter.date(from: $0) }
+      }
 }
 
 // Intermediate container as the backend nests the external user info
