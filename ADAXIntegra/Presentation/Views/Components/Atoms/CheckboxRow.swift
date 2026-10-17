@@ -6,7 +6,7 @@
 //
 import SwiftUI
 
-// option with a checkbox and its text
+// option with a checkbox and its text gray when it can not be changed
 
 struct CheckboxRow: View {
   let title: String
@@ -14,15 +14,20 @@ struct CheckboxRow: View {
   var isEnabled: Bool = true
   let onToggle: () -> Void
 
+  private var boxColor: Color {
+    guard isChecked else { return Color("InsideTextAndIcons") }
+    return isEnabled ? Color("PrimaryAdax") : Color("InsideTextAndIcons")
+  }
+
   var body: some View {
     Button(action: onToggle) {
       HStack(spacing: 12) {
         Image(systemName: isChecked ? "checkmark.square.fill" : "square")
-          .font(.system(size: 20))
-          .foregroundColor(isChecked ? Color("PrimaryAdax") : Color("InsideTextAndIcons"))
+          .font(.system(size: 22))
+          .foregroundColor(boxColor)
 
         Text(title)
-          .font(.system(size: 17))
+          .font(.system(size: 16))
           .foregroundColor(Color("OnBackground"))
           .multilineTextAlignment(.leading)
 
@@ -32,12 +37,12 @@ struct CheckboxRow: View {
     }
     .buttonStyle(.plain)
     .disabled(!isEnabled)
-    .opacity(isEnabled ? 1 : 0.5)
     .accessibilityLabel(title)
     .accessibilityValue(isChecked ? "Seleccionado" : "No seleccionado")
   }
 }
 
+// checked, unchecked and read only options
 #Preview {
   VStack(alignment: .leading, spacing: 16) {
     CheckboxRow(title: "Orientación jurídica", isChecked: true) {}
