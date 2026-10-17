@@ -151,9 +151,9 @@ final class CollaboratorDetailViewModel: ObservableObject {
 
   // Actions
 
-  func load() async {
-    // Coming back to the page should not reload the detail
-    guard detail == nil, !isLoading else { return }
+    func load(force: Bool = false) async {
+      // Si force es true, ignoramos si detail ya tiene datos
+      guard force || detail == nil else { return }
     isLoading = true
     errorMessage = nil
     defer { isLoading = false }
@@ -165,20 +165,21 @@ final class CollaboratorDetailViewModel: ObservableObject {
     }
   }
 
-  func loadCases() async {
-    guard !hasLoadedCases, !isLoadingCases else { return }
-    isLoadingCases = true
-    casesErrorMessage = nil
-    defer { isLoadingCases = false }
+    func loadCases(force: Bool = false) async {
+        guard !isLoadingCases else { return }
+        guard force || !hasLoadedCases else { return }
 
-    do {
-      let result = try await getAssignedCasesUseCase.getAssignedCases(for: userId)
-      cases = result.cases
-      hasLoadedCases = true
-    } catch {
-      casesErrorMessage = message(for: error, subject: "los casos asignados")
-    }
-  }
+        isLoadingCases = true
+        defer { isLoadingCases = false } // Es buena práctica asegurar que el candado se libere
+
+        do {
+          let result = try await getAssignedCasesUseCase.getAssignedCases(for: userId)
+          cases = result.cases
+          hasLoadedCases = true
+        } catch {
+          casesErrorMessage = message(for: error, subject: "los casos asignados")
+        }
+      }
 
   // The view writes in the portapepeles and the ViewModel only shows the confirmation
   func didCopy() {

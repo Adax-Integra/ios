@@ -6,8 +6,6 @@
 //
 // General page for US g-1o where the admin gets the detail of an internal user
 
-
-
 import SwiftUI
 import UIKit
 
@@ -23,7 +21,7 @@ struct CollaboratorDetailPage: View {
   var body: some View {
     ZStack {
       Color("Background").ignoresSafeArea()
-
+      
       ScrollView(showsIndicators: false) {
         VStack(alignment: .leading, spacing: 16) {
           PageHeader(
@@ -31,22 +29,20 @@ struct CollaboratorDetailPage: View {
             backAction: { dismiss() },
             subtitle: "Gestión de colaboradoras"
           )
-
+          
           content
         }
         .padding(20)
       }
       .refreshable {
-              await viewModel.load()
-              if viewModel.selectedTab == .cases {
-                await viewModel.loadCases()
-              }
-            }
+        await viewModel.load(force: true)
+        if viewModel.selectedTab == .cases {
+          await viewModel.loadCases(force: true)
+        }
+      }
     }
-      
     .toolbar(.hidden, for: .navigationBar)
     .task { await viewModel.load() }
-    
     .toast(isPresented: $viewModel.isShowingCopiedToast, message: "Copiado al portapapeles")
   }
 
@@ -111,29 +107,26 @@ struct CollaboratorDetailPage: View {
   }
 
   // Cases tab
-      private var casesTab: some View {
-        VStack(alignment: .leading, spacing: 12) {
-          Text(viewModel.casesTitle)
-            .font(.system(size: 18, weight: .bold))
-            .foregroundColor(Color("OnBackground"))
+  private var casesTab: some View {
+    VStack(alignment: .leading, spacing: 12) {
+      Text(viewModel.casesTitle)
+        .font(.system(size: 18, weight: .bold))
+        .foregroundColor(Color("OnBackground"))
 
-          activeChip
-          
-          // fix thkns to a teammate that pointed outi could re use the molecule of seachBar
-          SearchBar(text: $viewModel.searchText)
-            
-            .overlay(
-              RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .stroke(Color("InsideTextAndIcons").opacity(0.5), lineWidth: 1)
-            )
-          
-          casesList
-        }
-       
-        .onAppear {
-          Task { await viewModel.loadCases() }
-        }
-      }
+      activeChip
+      
+      SearchBar(text: $viewModel.searchText)
+        .overlay(
+          RoundedRectangle(cornerRadius: 12, style: .continuous)
+            .stroke(Color("InsideTextAndIcons").opacity(0.5), lineWidth: 1)
+        )
+      
+      casesList
+    }
+    .onAppear {
+      Task { await viewModel.loadCases() }
+    }
+  }
 
   // Only shows the active  cases
   private var activeChip: some View {
@@ -154,7 +147,6 @@ struct CollaboratorDetailPage: View {
     .animation(.snappy, value: viewModel.onlyActiveCases)
   }
 
-
   @ViewBuilder
   private var casesList: some View {
     if let message = viewModel.casesErrorMessage {
@@ -174,27 +166,26 @@ struct CollaboratorDetailPage: View {
           : "Prueba con otro texto o apaga el filtro \"Casos Activos\"."
       )
     } else {
-        ForEach(viewModel.filteredCases) { item in
-                NavigationLink {
-                  CaseDetailsPage(caseId: item.id)
-                    .onDisappear {
-                      Task { await viewModel.loadCases() }
-                    }
-                } label: {
-                  CollaboratorCaseCard(
-                    caseNumber: item.caseNumber ?? "Sin número",
-                    externalName: item.name.isEmpty ? "Sin nombre" : item.name,
-                    violenceText: viewModel.violenceText(for: item),
-                    stateText: viewModel.stateText(for: item),
-                    isOpen: item.state == "Open",
-                    updatedAtText: viewModel.updatedAtText(for: item)
-                  )
-                }
-                .buttonStyle(.plain)
+      ForEach(viewModel.filteredCases) { item in
+        NavigationLink {
+          CaseDetailsPage(caseId: item.id)
+            .onDisappear {
+              Task { await viewModel.loadCases(force: true) }
             }
+        } label: {
+          CollaboratorCaseCard(
+            caseNumber: item.caseNumber ?? "Sin número",
+            externalName: item.name.isEmpty ? "Sin nombre" : item.name,
+            violenceText: viewModel.violenceText(for: item),
+            stateText: viewModel.stateText(for: item),
+            isOpen: item.state == "Open",
+            updatedAtText: viewModel.updatedAtText(for: item)
+          )
+        }
+        .buttonStyle(.plain)
+      }
     }
   }
-
 
   private func copy(_ text: String) {
     UIPasteboard.general.string = text
