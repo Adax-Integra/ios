@@ -82,9 +82,15 @@ struct CollaboratorManagementPage: View {
       } else if viewModel.collaborators.isEmpty {
         emptyCard
       } else {
-        ForEach(viewModel.collaborators) { item in
-          CollaboratorCard(item: item)
-        }
+          ForEach(viewModel.collaborators) { item in
+            // G-10: tapping a collaborator opens her detail
+            NavigationLink {
+              CollaboratorDetailPage(userId: item.id)
+            } label: {
+              CollaboratorCard(item: item)
+            }
+            .buttonStyle(.plain)
+          }
       }
     }
   }
