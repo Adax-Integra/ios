@@ -54,11 +54,14 @@ struct ProfilePage: View {
         initials: viewModel.initials,
         fullName: viewModel.fullName,
         memberSince: viewModel.memberSince
-      )
-      
-      VerificationBadge(
-        status: viewModel.profile?.verification ?? .noVerificado
-      )
+      ) {
+          if isExternal {
+              VerificationBadge(
+                status: viewModel.profile?.verification ?? .noVerificado
+              )
+              .padding(.top, 2)
+          }
+      }
 
       Text("Información Personal")
         .font(.system(size: 15, weight: .semibold))

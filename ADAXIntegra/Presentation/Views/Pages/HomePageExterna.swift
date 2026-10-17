@@ -104,19 +104,13 @@ struct HomePageExterna: View {
       await eventsViewModel.loadEvents()
     }
     
-    .fullScreenCover(isPresented: $showUpload) {
-        PreSubmissionPage(
-            viewModel: PreSubmissionViewModel(
-                repository: RemotePreSubmissionRepository(),
-                countryRepository: CachedCountryRepository(remote: RemoteCountryRepository()),
-                userId: session.userId ?? "",
-                onFinish: {
-                    showUpload = false
-                    Task { await profileViewModel.loadProfile(for: session.userId) }
-                }
-            ),
-            onBack: { showUpload = false }
-        )
+    .navigationDestination(isPresented: $showUpload) {
+        IdentityDocumentsPage(userId: session.userId)
+    }
+    .onChange(of: showUpload) { _, isShowing in
+        if !isShowing {
+            Task { await profileViewModel.loadProfile(for: session.userId) }
+        }
     }
   }
 
