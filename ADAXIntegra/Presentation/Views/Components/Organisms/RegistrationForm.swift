@@ -31,7 +31,7 @@ struct RegistrationForm: View {
     return "\(firstName) \(surname)"
   }
 
-  // allows letters, accents, ñ, ü, spaces and hyphens
+  // allows letters, accents, ñ, ü, and spaces
   private func isValidNameText(_ text: String) -> Bool {
     let pattern = #"^[\p{L}\p{M}]+(?: [\p{L}\p{M}]+)*$"#
     return text.range(of: pattern, options: .regularExpression) != nil
