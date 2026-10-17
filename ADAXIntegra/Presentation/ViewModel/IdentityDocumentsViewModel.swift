@@ -17,6 +17,9 @@ final class IdentityDocumentsViewModel: ObservableObject {
   // Documents being sent, so their picker shows a spinner
   @Published private(set) var uploading: Set<DocumentKind> = []
   @Published var errorMessage: String?
+  // Confirms an upload with the "Toast"
+  @Published var toastMessage = ""
+  @Published var showToast = false
   // File written to disk so the share sheet can save it
   @Published var downloadedFileURL: URL?
   @Published var isShowingShareSheet = false
@@ -44,6 +47,14 @@ final class IdentityDocumentsViewModel: ObservableObject {
     switch kind {
     case .identity: "comprobante-identidad.jpg"
     case .proofOfAddress: "comprobante-domicilio.jpg"
+    }
+  }
+
+  // Name used in the toast, the same as the title of its section
+  private static func title(for kind: DocumentKind) -> String {
+    switch kind {
+    case .identity: "Comprobante de identidad"
+    case .proofOfAddress: "Comprobante de domicilio"
     }
   }
 
@@ -81,12 +92,15 @@ final class IdentityDocumentsViewModel: ObservableObject {
 
     uploading.insert(kind)
     defer { uploading.remove(kind) }
+    let isReplacing = uploaded.contains(kind)
 
     do {
       let saved = try await uploadDocumentUseCase.uploadDocument(file, kind: kind, for: userId)
       uploaded.insert(kind)
       signedUrls[kind] =
         kind == .identity ? saved.identityDocumentUrl : saved.proofOfAddressUrl
+      toastMessage = "\(Self.title(for: kind)) \(isReplacing ? "actualizado" : "subido")"
+      showToast = true
     } catch {
       handle(error, fallback: "No se pudo subir el documento. Intenta de nuevo.")
     }
