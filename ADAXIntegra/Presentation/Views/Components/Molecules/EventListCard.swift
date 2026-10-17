@@ -16,7 +16,7 @@ struct EventListCard: View {
       VStack(alignment: .leading, spacing: 0) {
         EventCoverImage(url: event.imageURL, height: 140)
           .overlay(alignment: .topLeading) {
-            EventDateBadge(day: event.dayString, month: event.monthString)
+            EventDateBadge(day: event.badgeDayString, month: event.badgeMonthString)
               .padding(10)
           }
 
@@ -29,7 +29,7 @@ struct EventListCard: View {
 
             Spacer(minLength: 8)
 
-            Text(event.timeString)
+            Text(event.listTimeString)
               .font(.caption.bold())
               .foregroundColor(Color("PrimaryAdax"))
               .padding(.horizontal, 10)

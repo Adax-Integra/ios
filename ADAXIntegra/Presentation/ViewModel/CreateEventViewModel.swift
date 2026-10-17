@@ -109,6 +109,10 @@ final class CreateEventViewModel: ObservableObject {
     if endsAt <= startsAt {
       return "La fecha y hora de fin deben ser posteriores al inicio."
     }
+    // An event that already ended would not appear in the list after saving
+    if endsAt <= Date() {
+      return "La fecha y hora de fin ya pasaron."
+    }
     return nil
   }
 
