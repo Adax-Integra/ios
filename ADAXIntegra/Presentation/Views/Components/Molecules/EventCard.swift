@@ -18,7 +18,7 @@ struct EventCard: View {
       VStack(alignment: .leading, spacing: 0) {
         EventCoverImage(url: event.imageURL, height: 80)
           .overlay(alignment: .topLeading) {
-            EventDateBadge(day: event.dayString, month: event.monthString)
+            EventDateBadge(day: event.badgeDayString, month: event.badgeMonthString)
               .padding(8)
           }
 

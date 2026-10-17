@@ -223,4 +223,22 @@ extension EventListItem {
   private static func hour(_ date: Date) -> String {
     "\(hourFormatter.string(from: date)) \(periodFormatter.string(from: date))"
   }
+
+  // Badge over the image: "15" / "15–18" and "OCT" / "OCT–NOV"
+  var badgeDayString: String {
+    guard isMultiDay, let startDate, let endDate else { return dayString }
+    let start = EventListItem.dayFormatter.string(from: startDate)
+    let end = EventListItem.dayFormatter.string(from: endDate)
+    return "\(start)–\(end)"
+  }
+
+  var badgeMonthString: String {
+    guard isMultiDay, let startDate, let endDate,
+      !Calendar.current.isDate(startDate, equalTo: endDate, toGranularity: .month)
+    else { return monthString }
+    let start = startDate.formatted(
+      .dateTime.month(.abbreviated).locale(EventListItem.displayLocale))
+    let end = endDate.formatted(.dateTime.month(.abbreviated).locale(EventListItem.displayLocale))
+    return "\(start)–\(end)".uppercased()
+  }
 }
