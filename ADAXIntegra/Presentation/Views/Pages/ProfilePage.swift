@@ -11,11 +11,19 @@ struct ProfilePage: View {
   @EnvironmentObject private var session: AuthSession
   @StateObject private var viewModel = ProfileViewModel()
   @State private var showLogoutConfirmation = false
+  @State private var showDeactivateConfirmation = false
+  @State private var showDeactivateError = false
+  @State private var isDeactivating = false
 
   // Same rule as ViewAndEditProfileViewModel: staff roles take precedence
   private var isExternal: Bool {
     session.roles.contains("external") && !session.roles.contains("admin")
       && !session.roles.contains("internal")
+  }
+
+  private var canDeactivate: Bool {
+    !session.roles.contains("admin")
+      && (session.roles.contains("external") || session.roles.contains("internal"))
   }
 
   var body: some View {
@@ -44,6 +52,28 @@ struct ProfilePage: View {
         Button("Cancelar", role: .cancel) {}
       } message: {
         Text("¿Quieres cerrar tu sesión?")
+      }
+      .alert("Desactivar cuenta", isPresented: $showDeactivateConfirmation) {
+        Button("Desactivar", role: .destructive) {
+          isDeactivating = true
+          Task {
+            let success = await session.deactivateAccount()
+            if !success {
+              isDeactivating = false
+              showDeactivateError = true
+            }
+          }
+        }
+        Button("Cancelar", role: .cancel) {}
+      } message: {
+        Text(
+          "Tu cuenta quedará inactiva y no podrás volver a iniciar sesión. Esta acción no se puede deshacer."
+        )
+      }
+      .alert("No se pudo desactivar la cuenta", isPresented: $showDeactivateError) {
+        Button("Entendido", role: .cancel) {}
+      } message: {
+        Text("Revisa tu conexión e inténtalo de nuevo.")
       }
     }
   }
@@ -92,6 +122,25 @@ struct ProfilePage: View {
           title: "Seguridad",
           subtitle: "Cambio de contraseña"
         )
+      }
+
+      if canDeactivate {
+        Text("Acciones")
+          .font(.system(size: 15, weight: .semibold))
+          .foregroundColor(Color("OnBackground"))
+          .padding(.top, 8)
+
+        Button {
+          showDeactivateConfirmation = true
+        } label: {
+          DangerMenuRow(
+            icon: "trash",
+            title: "Desactivar cuenta",
+            subtitle: "Esta acción no se puede deshacer"
+          )
+        }
+        .buttonStyle(.plain)
+        .disabled(isDeactivating)
       }
 
       Spacer()
