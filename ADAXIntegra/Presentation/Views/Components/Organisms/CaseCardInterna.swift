@@ -13,8 +13,9 @@ struct CaseCardInterna: View {
   let urgency: String
   let violenceTypes: [String]
   let assignedTo: [String]
+  var caseId: String = ""
 
-  // same colores as the resto of the case lists
+  // same colors as the rest of the case lists
   private var urgencyColor: Color {
     switch urgency {
     case "Alta": return Color("UrgencyHigh")
@@ -27,7 +28,6 @@ struct CaseCardInterna: View {
   private func joined(_ values: [String]) -> String {
     values.isEmpty ? "-" : values.joined(separator: ", ")
   }
-
   var body: some View {
     VStack(alignment: .leading, spacing: 6) {
       Text("N.º DE CASO")

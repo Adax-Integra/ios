@@ -32,7 +32,9 @@ struct ProfilePage: View {
       .toolbar(.hidden, for: .navigationBar)
       .task { await viewModel.loadProfile(for: session.userId) }
       .alert("Cerrar sesión", isPresented: $showLogoutConfirmation) {
-        Button("Cerrar sesión") { session.logout() }
+        Button("Cerrar sesión") {
+          Task { await session.logout() }
+        }
         Button("Cancelar", role: .cancel) {}
       } message: {
         Text("¿Quieres cerrar tu sesión?")

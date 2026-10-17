@@ -18,6 +18,8 @@ struct EventListItem: Identifiable, Decodable, Equatable {
   let modality: String?
   let location: String?
   let imageUrl: String?
+  var notes: String? = nil
+
 }
 
 extension EventListItem {
@@ -46,7 +48,7 @@ extension EventListItem {
     imageUrl.flatMap { URL(string: $0) }
   }
 
-  // Fixed locale: the app is in Spanish, so the badges always read "ENE" "FEB" "MAR"
+  // the app is in Spanish, so the badges always read "ENE" "FEB" "MAR"
   private static let displayLocale = Locale(identifier: "es_MX")
 
   // Day number for the date badge
@@ -75,5 +77,69 @@ extension EventListItem {
   var displayLocation: String? {
     if let location, !location.isEmpty { return location }
     return modality
+  }
+
+  // Detail screen
+
+  private static let detailDateFormatter: DateFormatter = {
+    let formatter = DateFormatter()
+    formatter.locale = EventListItem.displayLocale
+    formatter.dateFormat = "EEEE d 'de' MMMM, yyyy"
+    return formatter
+  }()
+
+  private static let hourFormatter: DateFormatter = {
+    let formatter = DateFormatter()
+    formatter.locale = Locale(identifier: "en_US_POSIX")
+    formatter.dateFormat = "h:mm"
+    return formatter
+  }()
+
+  private static let periodFormatter: DateFormatter = {
+    let formatter = DateFormatter()
+    formatter.locale = Locale(identifier: "en_US_POSIX")
+    formatter.dateFormat = "a"
+    return formatter
+  }()
+
+  var detailDateString: String {
+    guard let startDate else { return "" }
+    let text = EventListItem.detailDateFormatter.string(from: startDate)
+    return text.prefix(1).uppercased() + text.dropFirst()
+  }
+
+  var timeRangeString: String {
+    guard let startDate else { return "" }
+    let start = EventListItem.hourFormatter.string(from: startDate)
+    let startPeriod = EventListItem.periodFormatter.string(from: startDate)
+
+    guard let endDate else { return "\(start) \(startPeriod)" }
+    let end = EventListItem.hourFormatter.string(from: endDate)
+    let endPeriod = EventListItem.periodFormatter.string(from: endDate)
+
+    if startPeriod == endPeriod {
+      return "\(start)-\(end) \(endPeriod)"
+    }
+    return "\(start) \(startPeriod) - \(end) \(endPeriod)"
+  }
+
+  var detailPlaceString: String? {
+    let place = (location?.isEmpty == false) ? location : nil
+    let mode = (modality?.isEmpty == false) ? modality?.lowercased() : nil
+
+    switch (place, mode) {
+    case let (place?, mode?): return "\(place) (\(mode))"
+    case let (place?, nil): return place
+    case let (nil, mode?): return mode.capitalized
+    default: return nil
+    }
+  }
+
+  // nil when the event has no notes, so the section is not shown
+  var displayNotes: String? {
+    guard let notes,
+      !notes.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    else { return nil }
+    return notes
   }
 }
