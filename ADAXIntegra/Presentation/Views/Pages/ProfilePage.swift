@@ -71,14 +71,17 @@ struct ProfilePage: View {
         )
       }
 
-      // R-06: hook up the upload documents page once it exists
-      Button {
-      } label: {
-        MenuRow(
-          icon: "person.text.rectangle",
-          title: "Mis documentos",
-          subtitle: "INE y comprobante de domicilio"
-        )
+      // R-06: only external users upload identity documents
+      if isExternal {
+        NavigationLink {
+          IdentityDocumentsPage(userId: session.userId)
+        } label: {
+          MenuRow(
+            icon: "person.text.rectangle",
+            title: "Mis documentos",
+            subtitle: "INE y comprobante de domicilio"
+          )
+        }
       }
 
       NavigationLink {
