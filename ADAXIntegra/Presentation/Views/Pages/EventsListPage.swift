@@ -15,6 +15,9 @@ struct EventsListPage: View {
   @EnvironmentObject private var session: AuthSession
   // E-03: confirmation and result of disabling an event
   @StateObject private var disableViewModel = DisableEventViewModel()
+  // E-02: last event opened in the form, it is kept so the page does not go blank while closing
+  @State private var eventToEdit: EventListItem?
+  @State private var isEditingEvent = false
 
   // Initializes the view with an optional view model dependency
   init(viewModel: EventsViewModel? = nil) {
@@ -75,6 +78,15 @@ struct EventsListPage: View {
         }
       )
     }
+    // E-02: after saving, the list is loaded again so the card shows the changes
+    .navigationDestination(isPresented: $isEditingEvent) {
+      if let eventToEdit {
+        CreateEventPage(
+          event: eventToEdit,
+          onSaved: { Task { await viewModel.loadEvents() } }
+        )
+      }
+    }
     .toast(isPresented: $disableViewModel.showToast, message: disableViewModel.toastMessage)
   }
 
@@ -102,7 +114,6 @@ struct EventsListPage: View {
         .font(.subheadline)
         .foregroundStyle(.secondary)
     } else {
-
       // Lazy vertical stack rendering the event cards efficiently.
       LazyVStack(spacing: 16) {
         ForEach(viewModel.events) { event in
@@ -112,7 +123,10 @@ struct EventsListPage: View {
             EventListCard(event: event)
               .overlay(alignment: .topTrailing) {
                 if canDisableEvents {
-                  disableMenu(for: event)
+                  HStack(spacing: 0) {
+                    editButton(for: event)
+                    disableMenu(for: event)
+                  }
                 }
               }
           }
@@ -124,6 +138,22 @@ struct EventsListPage: View {
   // E-03: only internal users and admins can disable an event
   private var canDisableEvents: Bool {
     session.roles.contains("admin") || session.roles.contains("internal")
+  }
+
+  // E-02: same look as the disable button, only the vertical padding so both stay close
+  private func editButton(for event: EventListItem) -> some View {
+    Button {
+      eventToEdit = event
+      isEditingEvent = true
+    } label: {
+      Image(systemName: "pencil")
+        .font(.system(size: 16, weight: .semibold))
+        .foregroundColor(Color("PrimaryAdax"))
+        .frame(width: 32, height: 32)
+        .background(Circle().fill(Color.white))
+        .padding(.vertical, 10)
+    }
+    .buttonStyle(.plain)
   }
 
   private func disableMenu(for event: EventListItem) -> some View {
