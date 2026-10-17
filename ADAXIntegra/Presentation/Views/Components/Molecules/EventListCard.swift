@@ -29,7 +29,7 @@ struct EventListCard: View {
 
             Spacer(minLength: 8)
 
-            Text(event.timeString)
+            Text(event.listTimeString)
               .font(.caption.bold())
               .foregroundColor(Color("PrimaryAdax"))
               .padding(.horizontal, 10)

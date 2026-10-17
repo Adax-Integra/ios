@@ -18,7 +18,7 @@ struct EventDetailCard: View {
         VStack(alignment: .leading, spacing: 20) {
           EventDetailSection(
             title: "Fecha y hora",
-            text: "\(event.detailDateString) · \(event.timeRangeString)",
+            text: event.scheduleString,
             systemImage: "clock"
           )
 

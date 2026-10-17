@@ -44,7 +44,7 @@ struct EventCard: View {
               .lineLimit(1)
           }
 
-          Text(event.longDateString)
+          Text(event.carouselDateString)
             .font(.caption2)
             .foregroundColor(Color("OnBackground").opacity(0.7))
             .lineLimit(1)
