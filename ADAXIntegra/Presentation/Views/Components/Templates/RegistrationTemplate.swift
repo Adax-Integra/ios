@@ -75,6 +75,16 @@ struct RegistrationTemplate: View {
         .padding(.horizontal, 24)
         .padding(.vertical, 20)
       }
+      .scrollDismissesKeyboard(.interactively)
+      // dismisses the keyboard when tapping outside the fields
+      .onTapGesture {
+        UIApplication.shared.sendAction(
+          #selector(UIResponder.resignFirstResponder),
+          to: nil,
+          from: nil,
+          for: nil
+        )
+      }
     }
   }
 }

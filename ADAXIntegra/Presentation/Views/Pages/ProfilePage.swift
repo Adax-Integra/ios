@@ -12,6 +12,12 @@ struct ProfilePage: View {
   @StateObject private var viewModel = ProfileViewModel()
   @State private var showLogoutConfirmation = false
 
+  // Same rule as ViewAndEditProfileViewModel: staff roles take precedence
+  private var isExternal: Bool {
+    session.roles.contains("external") && !session.roles.contains("admin")
+      && !session.roles.contains("internal")
+  }
+
   var body: some View {
     NavigationStack {
       ZStack {
@@ -32,7 +38,9 @@ struct ProfilePage: View {
       .toolbar(.hidden, for: .navigationBar)
       .task { await viewModel.loadProfile(for: session.userId) }
       .alert("Cerrar sesión", isPresented: $showLogoutConfirmation) {
-        Button("Cerrar sesión") { session.logout() }
+        Button("Cerrar sesión") {
+          Task { await session.logout() }
+        }
         Button("Cancelar", role: .cancel) {}
       } message: {
         Text("¿Quieres cerrar tu sesión?")
@@ -59,8 +67,21 @@ struct ProfilePage: View {
         MenuRow(
           icon: "person",
           title: "Datos Personales",
-          subtitle: "Nombre, teléfono, correo"
+          subtitle: isExternal ? "Nombre, teléfono, dirección" : "Nombre, teléfono"
         )
+      }
+
+      // R-06: only external users upload identity documents
+      if isExternal {
+        NavigationLink {
+          IdentityDocumentsPage(userId: session.userId)
+        } label: {
+          MenuRow(
+            icon: "person.text.rectangle",
+            title: "Mis documentos",
+            subtitle: "INE y comprobante de domicilio"
+          )
+        }
       }
 
       NavigationLink {

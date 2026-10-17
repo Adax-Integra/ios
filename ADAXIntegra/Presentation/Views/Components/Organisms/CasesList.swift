@@ -9,22 +9,15 @@ import SwiftUI
 
 struct CasesList: View {
   let cases: [Case]
-  var onSelectCase: ((Case) -> Void)? = nil
+  var onLoadMore: () -> Void = {}
 
   var body: some View {
     LazyVStack(spacing: 12) {
-      ForEach(cases) { caseItem in
-        if let onSelectCase = onSelectCase {
-          Button {
-            onSelectCase(caseItem)
-          } label: {
-            CaseCard(caseItem: caseItem)
+      ForEach(cases) { item in
+        CaseCard(caseItem: item)
+          .onAppear {
+            if item.id == cases.last?.id { onLoadMore() }
           }
-          .buttonStyle(.plain)
-          .accessibilityHint("Consultar el progreso del caso")
-        } else {
-          CaseCard(caseItem: caseItem)
-        }
       }
     }
   }

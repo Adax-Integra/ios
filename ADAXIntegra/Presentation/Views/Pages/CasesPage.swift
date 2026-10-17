@@ -12,49 +12,30 @@ struct CasesPage: View {
   // closes and the undo toast can be shown on this list
   @StateObject private var newCaseViewModel: NewCaseViewModel
   @State private var isShowingNewCase = false
-  // R-01: the user reviews the preSubmission before creating a case
-  @State private var isShowingPreSubmission = false
-  // Set when the review finishes, so "Nuevo caso" opens once the review has closed
-  @State private var shouldOpenNewCase = false
-  // V-07: opens the progress screen for the selected case
-  @State private var selectedCase: Case?
-
-  private let userId: String
-  private let countryRepository = CachedCountryRepository(remote: RemoteCountryRepository())
 
   init(viewModel: CasesViewModel, userId: String) {
-    self.userId = userId
     _viewModel = StateObject(wrappedValue: viewModel)
     _newCaseViewModel = StateObject(wrappedValue: NewCaseViewModel(userId: userId))
   }
 
   var body: some View {
-    Group {
-      if let caseItem = selectedCase {
-        CaseProgressPage(caseId: caseItem.id) {
-          selectedCase = nil
-        }
-        .id(caseItem.id)
-      } else {
-        CasesScreenTemplate {
-          CasesListHeader(searchText: $viewModel.searchText, count: viewModel.filteredCases.count)
+    CasesScreenTemplate {
+      CasesListHeader(searchText: $viewModel.searchText, count: viewModel.totalCount)
 
-          // R-02: entry point to register a new case.
-          // Disabled during the undo window so a second case cannot replace the pending one
-          IconTextPrimaryButton(
-            systemName: "plus",
-            title: "Nuevo caso",
-            isDisabled: newCaseViewModel.isShowingUndoToast
-          ) {
-            // R-01: the user reviews the preSubmission before creating a case
-            isShowingPreSubmission = true
-          }
-        } content: {
-          CasesList(cases: viewModel.filteredCases) { caseItem in
-            selectedCase = caseItem
-          }
-        }
+      // R-02: entry point to register a new case.
+      // Disabled during the undo window so a second case cannot replace the pending one
+      IconTextPrimaryButton(
+        systemName: "plus",
+        title: "Nuevo caso",
+        isDisabled: newCaseViewModel.isShowingUndoToast
+      ) {
+        isShowingNewCase = true
       }
+    } content: {
+      CasesList(cases: viewModel.filteredCases, onLoadMore: viewModel.loadMore)
+    }
+    .refreshable {
+      await viewModel.loadCases()
     }
     // R-02: undo window shown on the list after "Nuevo caso" closes
     .toast(
@@ -83,31 +64,6 @@ struct CasesPage: View {
       Text(newCaseViewModel.messageAlert)
     }
     .task { await viewModel.loadCases() }
-    /*
-     R-01: first the user confirms or edits the preSubmission,
-     then "Nuevo caso" opens.
-    */
-    .fullScreenCover(
-      isPresented: $isShowingPreSubmission,
-      onDismiss: {
-        guard shouldOpenNewCase else { return }
-        shouldOpenNewCase = false
-        isShowingNewCase = true
-      }
-    ) {
-      PreSubmissionPage(
-        viewModel: PreSubmissionViewModel(
-          repository: RemotePreSubmissionRepository(),
-          countryRepository: countryRepository,
-          userId: userId,
-          onFinish: {
-            shouldOpenNewCase = true
-            isShowingPreSubmission = false
-          }
-        ),
-        onBack: { isShowingPreSubmission = false }
-      )
-    }
     .fullScreenCover(isPresented: $isShowingNewCase) {
       NewCasePage(viewModel: newCaseViewModel)
     }

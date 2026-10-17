@@ -9,7 +9,16 @@ import SwiftUI
 
 struct CreateEventPage: View {
   @Environment(\.dismiss) private var dismiss
-  @StateObject private var viewModel = CreateEventViewModel()
+  @StateObject private var viewModel: CreateEventViewModel
+
+  private let event: EventListItem?
+  private let onSaved: (() -> Void)?
+
+  init(event: EventListItem? = nil, onSaved: (() -> Void)? = nil) {
+    self.event = event
+    self.onSaved = onSaved
+    _viewModel = StateObject(wrappedValue: CreateEventViewModel(event: event))
+  }
 
   var body: some View {
     ZStack {
@@ -17,10 +26,12 @@ struct CreateEventPage: View {
 
       ScrollView {
         VStack(alignment: .leading, spacing: 16) {
-          PageHeader(
-            title: "Nuevo evento",
-            backAction: { dismiss() }
-          )
+          // The list does not send the picture file, so the saved one is only shown
+          if let event {
+            FieldLabel("Imagen actual")
+            EventCoverImage(url: event.imageURL, height: 160)
+              .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+          }
 
           CreateEventForm(
             title: $viewModel.title,
@@ -51,11 +62,11 @@ struct CreateEventPage: View {
           )
 
           PrimaryButton(
-            title: viewModel.isSaving ? "Guardando..." : "Guardar evento",
+            title: buttonTitle,
             isDisabled: viewModel.isSaving,
             action: {
               dismissKeyboard()
-              Task { await viewModel.createEvent() }
+              Task { await viewModel.saveEvent() }
             }
           )
           .padding(.top, 8)
@@ -63,19 +74,39 @@ struct CreateEventPage: View {
         .padding()
       }
       .scrollDismissesKeyboard(.interactively)
+      // dismisses the keyboard when tapping outside the fields
+      .onTapGesture { dismissKeyboard() }
     }
-    .navigationBarBackButtonHidden(true)
+    .navigationTitle(viewModel.isEditing ? "Editar evento" : "Nuevo evento")
     .task { await viewModel.loadCountries() }
     .alert("Atención", isPresented: showError) {
       Button("Aceptar", role: .cancel) {}
     } message: {
       Text(viewModel.errorMessage ?? "")
     }
-    .alert("Evento creado", isPresented: $viewModel.eventCreated) {
+    .alert("Evento creado", isPresented: showCreated) {
       Button("Entendido") { dismiss() }
     } message: {
       Text(successMessage)
     }
+    .fullScreenCover(isPresented: showUpdated) {
+      EventSuccessPage(
+        title: "Evento actualizado",
+        message: updatedMessage,
+        onFinish: {
+          viewModel.eventSaved = false
+          onSaved?()
+          dismiss()
+        }
+      )
+    }
+  }
+
+  private var buttonTitle: String {
+    if viewModel.isSaving {
+      return "Guardando..."
+    }
+    return viewModel.isEditing ? "Guardar cambios" : "Guardar evento"
   }
 
   // The event is saved even if its picture fails, so the user only gets a warning
@@ -83,6 +114,12 @@ struct CreateEventPage: View {
     viewModel.imageUploadFailed
       ? "El evento ha sido registrado exitosamente, pero no se pudo subir la imagen."
       : "El evento ha sido registrado exitosamente."
+  }
+
+  private var updatedMessage: String {
+    viewModel.imageUploadFailed
+      ? "Los cambios se guardaron, pero no se pudo subir la imagen."
+      : "Los cambios ya aparecen en el calendario."
   }
 
   // Shows the alert while there is an error and clears it when it is closed
@@ -93,7 +130,22 @@ struct CreateEventPage: View {
     )
   }
 
-  // Closes the keyboard before saving
+  // Creating keeps the alert, editing shows the same success page as disabling
+  private var showCreated: Binding<Bool> {
+    Binding(
+      get: { viewModel.eventSaved && !viewModel.isEditing },
+      set: { if !$0 { viewModel.eventSaved = false } }
+    )
+  }
+
+  private var showUpdated: Binding<Bool> {
+    Binding(
+      get: { viewModel.eventSaved && viewModel.isEditing },
+      set: { if !$0 { viewModel.eventSaved = false } }
+    )
+  }
+
+  // Closes the keyboard before saving or when tapping outside the fields
   private func dismissKeyboard() {
     UIApplication.shared.sendAction(
       #selector(UIResponder.resignFirstResponder),
@@ -104,8 +156,28 @@ struct CreateEventPage: View {
   }
 }
 
-#Preview {
+#Preview("Nuevo") {
   NavigationStack {
     CreateEventPage()
+  }
+}
+
+#Preview("Editar") {
+  NavigationStack {
+    CreateEventPage(
+      event: EventListItem(
+        id: "preview-event",
+        title: "Taller de derechos laborales",
+        description: "Sesión informativa para personas trabajadoras.",
+        startsAt: "2026-11-20T16:00:00Z",
+        endsAt: "2026-11-20T18:00:00Z",
+        modality: "Presencial",
+        location: "Centro comunitario, Querétaro",
+        imageUrl: nil,
+        notes: "Llevar identificación.",
+        link: "https://adaxdigitales.com",
+        phone: "+524421234567"
+      )
+    )
   }
 }

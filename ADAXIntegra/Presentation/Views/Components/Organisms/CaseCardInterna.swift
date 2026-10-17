@@ -13,6 +13,7 @@ struct CaseCardInterna: View {
   let state: String
   let updateAt: Date?
   let categories: [String]
+  var caseId: String = ""
 
   var body: some View {
     VStack(alignment: .leading, spacing: 10) {

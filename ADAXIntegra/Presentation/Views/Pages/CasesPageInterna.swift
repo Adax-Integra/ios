@@ -36,13 +36,19 @@ struct CasesPageInterna: View {
           .padding()
       } else {
         ForEach(viewModel.cases) { item in
-          CaseCardInterna(
-            name: item.displayName,
-            urgency: item.urgency,
-            state: item.stateText,
-            updateAt: item.updatedDate,
-            categories: item.violenceTypes
-          )
+          NavigationLink {
+            CaseDetailsPage(caseId: item.id)
+          } label: {
+            CaseCardInterna(
+              name: item.displayName,
+              urgency: item.urgency,
+              state: item.stateText,
+              updateAt: item.updatedDate,
+              categories: item.violenceTypes,
+              caseId: item.id
+            )
+          }
+          .buttonStyle(.plain)
         }
       }
     }
