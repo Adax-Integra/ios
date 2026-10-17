@@ -7,7 +7,7 @@
 
 import Foundation
 
-// G-10: Reads the detail and the assigned cases of one collaborator
+// Reads the detail and the assigned cases of one collaborator for us G-10
 protocol CollaboratorDetailRepository {
   func fetchDetail(userId: String) async throws -> CollaboratorDetail
   func fetchAssignedCases(userId: String) async throws -> CollaboratorAssignedCases
