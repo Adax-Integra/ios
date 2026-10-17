@@ -65,7 +65,7 @@ struct RegistrationForm: View {
   private var isFormValid: Bool {
     isNameValid && isEmailValid
       && countryCode != nil
-      && phoneNumber.count == 10
+      && phoneNumber.allSatisfy { $0.isASCII && $0.isNumber }
       && phoneNumber.allSatisfy { $0.isNumber }
       && isPasswordValid
       && password == confirmPassword
@@ -127,11 +127,20 @@ struct RegistrationForm: View {
       }
 
       // phone field
+    VStack(alignment: .leading, spacing: 6) {
       PhoneField(
         countryCodes: countryCodes,
         countryCode: $countryCode,
         phone: $phoneNumber
       )
+        
+        if !phoneNumber.isEmpty &&
+              (phoneNumber.count != 10 || !phoneNumber.allSatisfy({ $0.isASCII && $0.isNumber })) {
+            Text("El teléfono debe contener 10 dígitos.")
+              .font(.caption)
+              .foregroundStyle(.red)
+          }
+        }
 
       // password field
       VStack(alignment: .leading, spacing: 6) {
