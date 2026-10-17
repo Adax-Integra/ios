@@ -117,7 +117,8 @@ struct APIProtocol {
         case .success(let value):
           continuation.resume(returning: value)
         case .failure(let error):
-          continuation.resume(throwing: APIError.requestFailed(error.localizedDescription))
+          continuation.resume(
+            throwing: mapError(error, response: response.response, data: response.data))
         }
       }
     }
