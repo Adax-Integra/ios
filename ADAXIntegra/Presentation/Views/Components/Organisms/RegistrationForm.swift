@@ -59,6 +59,7 @@ struct RegistrationForm: View {
       && password.rangeOfCharacter(from: .uppercaseLetters) != nil
       && password.rangeOfCharacter(from: .decimalDigits) != nil
       && password.rangeOfCharacter(from: .punctuationCharacters.union(.symbols)) != nil
+      && password.unicodeScalars.allSatisfy { $0.isASCII && $0.value >= 33 && $0.value <= 126 }
   }
 
   // enables registration if all fields contain valid data
@@ -156,6 +157,45 @@ struct RegistrationForm: View {
         .font(.caption)
         .foregroundStyle(.secondary)
         .fixedSize(horizontal: false, vertical: true)
+          
+          // shows missing password requirements
+          if !password.isEmpty {
+            if password.count < 8 || password.count > 24 {
+              Text("La contraseña debe tener entre 8 y 24 caracteres.")
+                .font(.caption)
+                .foregroundStyle(.red)
+            }
+
+            if password.rangeOfCharacter(from: .uppercaseLetters) == nil {
+              Text("Falta una letra mayúscula.")
+                .font(.caption)
+                .foregroundStyle(.red)
+            }
+
+            if password.rangeOfCharacter(from: .lowercaseLetters) == nil {
+              Text("Falta una letra minúscula.")
+                .font(.caption)
+                .foregroundStyle(.red)
+            }
+
+            if password.rangeOfCharacter(from: .decimalDigits) == nil {
+              Text("Falta un número.")
+                .font(.caption)
+                .foregroundStyle(.red)
+            }
+
+            if password.rangeOfCharacter(from: .punctuationCharacters.union(.symbols)) == nil {
+              Text("Falta un carácter especial.")
+                .font(.caption)
+                .foregroundStyle(.red)
+            }
+
+            if !password.unicodeScalars.allSatisfy({ $0.isASCII && $0.value >= 33 && $0.value <= 126 }) {
+              Text("No se permiten espacios, acentos, ñ ni emojis.")
+                .font(.caption)
+                .foregroundStyle(.red)
+            }
+          }
       }
 
       // confirm password field
