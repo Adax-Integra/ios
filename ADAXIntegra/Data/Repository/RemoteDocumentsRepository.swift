@@ -38,7 +38,12 @@ struct RemoteDocumentsRepository: DocumentsRepository {
       throw URLError(.badServerResponse)
     }
 
-    let fileURL = FileManager.default.temporaryDirectory.appendingPathComponent(fileName)
+    // Other apps can upload png, so the extension follows the type storage answers with
+    let fileExtension = response.mimeType == "image/png" ? "png" : "jpg"
+    let fileURL = FileManager.default.temporaryDirectory
+      .appendingPathComponent(fileName)
+      .deletingPathExtension()
+      .appendingPathExtension(fileExtension)
     try data.write(to: fileURL, options: .atomic)
     return fileURL
   }
