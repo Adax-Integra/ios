@@ -1,5 +1,5 @@
 //
-//  EventDisabledPage.swift
+//  EventSuccessPage.swift
 //  ADAXIntegra
 //
 //  Created by Gerardo Martínez Carbajal on 14/10/26.
@@ -7,8 +7,10 @@
 
 import SwiftUI
 
-// E-03: shown after the backend confirms that the event was disabled
-struct EventDisabledPage: View {
+// E-02 and E-03: shown after the backend confirms that the event was updated or disabled
+struct EventSuccessPage: View {
+  let title: String
+  let message: String
   let onFinish: () -> Void
 
   var body: some View {
@@ -26,11 +28,11 @@ struct EventDisabledPage: View {
             .foregroundColor(.white)
         }
 
-        Text("Evento deshabilitado")
+        Text(title)
           .font(.system(size: 26, weight: .bold))
           .foregroundColor(.primary)
 
-        Text("El evento ya no aparece en el calendario.")
+        Text(message)
           .font(.system(size: 15))
           .multilineTextAlignment(.center)
           .foregroundColor(.gray)
@@ -49,6 +51,18 @@ struct EventDisabledPage: View {
   }
 }
 
-#Preview {
-  EventDisabledPage(onFinish: { print("Finish tap") })
+#Preview("Deshabilitado") {
+  EventSuccessPage(
+    title: "Evento deshabilitado",
+    message: "El evento ya no aparece en el calendario.",
+    onFinish: {}
+  )
+}
+
+#Preview("Actualizado") {
+  EventSuccessPage(
+    title: "Evento actualizado",
+    message: "Los cambios ya aparecen en el calendario.",
+    onFinish: {}
+  )
 }

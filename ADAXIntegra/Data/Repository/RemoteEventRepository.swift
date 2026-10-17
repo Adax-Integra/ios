@@ -31,4 +31,11 @@ struct RemoteEventRepository: EventRepository {
     )
     return response.data
   }
+
+  func updateEvent(eventId: String, event: NewEvent) async throws -> Event {
+    let response = try await APIProtocol.put(
+      "/events/\(eventId)", body: event, as: APIResponse<Event>.self
+    )
+    return response.data
+  }
 }

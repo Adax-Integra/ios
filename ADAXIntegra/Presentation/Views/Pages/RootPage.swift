@@ -16,7 +16,9 @@ struct RootPage: View {
         MainTabPageInterna(userId: userId)
       } else if session.roles.contains("external") {
         // V-02: external users reach the app only after accepting the privacy notice
-        ConsentGatePage(onLogout: { session.logout() }) {
+        ConsentGatePage(
+          onLogout: { Task { await session.logout() } }
+        ) {
           MainTabPageExterna(userId: userId)
         }
       } else {
