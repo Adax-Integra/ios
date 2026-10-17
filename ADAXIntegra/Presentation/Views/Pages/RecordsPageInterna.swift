@@ -64,7 +64,7 @@ struct RecordsPageInterna: View {
         } label: {
           FilterChip(title: statusFilterText)
         }
-        
+
         Spacer()
 
         if hasActiveFilters {
@@ -73,9 +73,9 @@ struct RecordsPageInterna: View {
             viewModel.hasOpenCasesFilter = nil
             viewModel.statusFilter = nil
           } label: {
-              Text("Limpiar filtros")
-                .font(.system(size: 13, weight: .semibold))
-                .foregroundColor(Color("PrimaryAdax"))
+            Text("Limpiar filtros")
+              .font(.system(size: 13, weight: .semibold))
+              .foregroundColor(Color("PrimaryAdax"))
           }
           .buttonStyle(.plain)
         }
@@ -108,7 +108,11 @@ struct RecordsPageInterna: View {
     } else {
       ForEach(viewModel.records) { item in
         NavigationLink {
-          RecordDetailPage(externalID: item.userId)
+          RecordDetailPage(
+            externalID: item.userId,
+            recordId: item.id,
+            initialStatus: RecordStatus(rawValue: item.status ?? "") ?? .sinEmpezar
+          )
         } label: {
           RecordCardInterna(item: item)
         }
