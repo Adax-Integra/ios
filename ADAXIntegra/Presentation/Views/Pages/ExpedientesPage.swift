@@ -8,6 +8,9 @@
 import SwiftUI
 
 struct ExpedientesPage: View {
+  // G-16: the external accounts list is only for the admin
+  @EnvironmentObject private var session: AuthSession
+
   var body: some View {
     ScrollView {
       VStack(
@@ -38,14 +41,16 @@ struct ExpedientesPage: View {
           )
         }
 
-        NavigationLink {
-          CuentasExternasPage()
-        } label: {
-          MenuRow(
-            icon: "person",
-            title: "Cuentas Externas",
-            subtitle: "Control de cuentas"
-          )
+        if session.roles.contains("admin") {
+          NavigationLink {
+            CuentasExternasPage()
+          } label: {
+            MenuRow(
+              icon: "person",
+              title: "Cuentas Externas",
+              subtitle: "Control de cuentas"
+            )
+          }
         }
 
         NavigationLink {
