@@ -96,15 +96,17 @@ struct CaseDetailsPage: View {
           dismiss()
         },
         content: {
-          RecordCaseSummary(
-            userName: userFullName,
-            recordId: viewModel.caseDetail?.record.recordNumber
-              ?? viewModel.caseDetail?.recordId
-              ?? "—",
-            lastModified: viewModel.caseDetail?.updatedAt ?? "—",
-            createdAt: viewModel.caseDetail?.createdAt ?? "—",
-            onEditTapped: { print("Edit tapped") }
-          )
+            RecordCaseSummary(
+              userName: userFullName,
+              recordId: viewModel.caseDetail?.record.recordNumber
+                  ?? viewModel.caseDetail?.recordId
+                  ?? "—",
+              lastModified: viewModel.caseDetail?.updatedDate
+                .map { "\($0.dateString) \($0.timeString)" } ?? "—",
+              createdAt: viewModel.caseDetail?.createdDate
+                .map { "\($0.dateString) \($0.timeString)" } ?? "—",
+              onEditTapped: { print("Edit tapped") }
+            )
 
           CaseInfoCard(
             hasLawyer: viewModel.caseDetail?.hasLawyer ?? false

@@ -48,7 +48,7 @@ struct CaseDetailsTemplate<Content: View, BottomActions: View>: View {
       .padding(.horizontal, 16)
       .padding(.bottom, 16)
     }
-    .background(Color(UIColor.systemGray6).ignoresSafeArea())
+    .background(Color("BackgroundColor").ignoresSafeArea())
     .navigationBarHidden(true)
   }
 }
