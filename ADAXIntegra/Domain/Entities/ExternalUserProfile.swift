@@ -11,7 +11,7 @@ import Foundation
 struct ExternalUserProfile: Identifiable, Decodable {
   let id: String
   let profile: PersonalData?
-  let address: Address?
+  let address: AddressData?
 
   enum CodingKeys: String, CodingKey {
     case id = "user_id"
@@ -34,5 +34,11 @@ struct ExternalUserProfile: Identifiable, Decodable {
       case birthDate = "birth_date"
       case phone
     }
+  }
+  // The address only keeps the country, the state and the municipality
+  struct AddressData: Decodable {
+    let country: String?
+    let state: String?
+    let municipality: String?
   }
 }

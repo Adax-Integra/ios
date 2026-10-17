@@ -38,22 +38,15 @@ struct EditExternalProfilePage: View {
           addressSection
           changeSection
 
+          // Always enabled, same as the new case form: the tap shows the invalid fields
           FormActions(
             primaryTitle: "Guardar",
             secondaryTitle: "Cancelar",
-            isPrimaryDisabled: !viewModel.canSave,
+            isPrimaryDisabled: viewModel.isSaving,
             onPrimary: viewModel.onSaveTapped,
             onSecondary: viewModel.cancelEditing
           )
           .padding(.top, 12)
-
-          if !viewModel.canSave {
-            Text(
-              "Para guardar haz al menos un cambio, escribe el motivo y confirma la autorización."
-            )
-            .font(.system(size: 12))
-            .foregroundColor(Color("InsideTextAndIcons"))
-          }
         }
         .padding(20)
       }
@@ -120,53 +113,24 @@ struct EditExternalProfilePage: View {
         title: "Correo electrónico",
         placeholder: "correo@ejemplo.com",
         keyboardType: .emailAddress,
-        errorMessage: viewModel.errors.email,
+        errorMessage: viewModel.emailError,
         text: $viewModel.form.email
       )
       .textInputAutocapitalization(.never)
       .autocorrectionDisabled()
 
       PhoneField(
-        errorMessage: viewModel.errors.phone,
+        errorMessage: viewModel.phoneError,
         countryCode: $viewModel.form.countryCode,
         phone: $viewModel.form.phone
       )
     }
   }
 
-  //Same fields and order as the "Registrar exerna" form
+  //Same fields and order as the "Registrar externa" form
   private var addressSection: some View {
     VStack(alignment: .leading, spacing: 16) {
       sectionTitle("Domicilio")
-
-      LabeledTextField(
-        title: "Calle y número",
-        placeholder: "Av. Insurgentes Sur 1234",
-        errorMessage: viewModel.errors.addressLine1,
-        text: $viewModel.form.addressLine1
-      )
-
-      LabeledTextField(
-        title: "Interior / depto (opcional)",
-        placeholder: "Interior 203N",
-        text: $viewModel.form.addressLine2
-      )
-
-      LabeledTextField(
-        title: "Colonia",
-        placeholder: "Colonia...",
-        errorMessage: viewModel.errors.neighborhood,
-        text: $viewModel.form.neighborhood
-      )
-
-      LabeledTextField(
-        title: "Código postal",
-        placeholder: "00000",
-        keyboardType: .numberPad,
-        maxLength: 5,
-        errorMessage: viewModel.errors.zipCode,
-        text: $viewModel.form.zipCode
-      )
 
       SearchableDropdown(
         title: "País",
@@ -175,26 +139,22 @@ struct EditExternalProfilePage: View {
         selection: countryBinding
       )
 
-      VStack(alignment: .leading, spacing: 6) {
-        SearchableDropdown(
-          title: "Estado",
-          prompt: viewModel.form.country == nil ? "Primero elige un país" : "Selecciona un estado",
-          options: viewModel.stateOptions,
-          selection: $viewModel.form.state
-        )
-        .disabled(viewModel.form.country == nil)
-
-        if let error = viewModel.errors.state {
-          FieldErrorLabel(error)
-        }
-      }
+      SearchableDropdown(
+        title: "Estado",
+        prompt: viewModel.form.country == nil ? "Primero elige un país" : "Selecciona un estado",
+        options: viewModel.stateOptions,
+        selection: stateBinding,
+        errorMessage: viewModel.stateError
+      )
+      .disabled(viewModel.form.country == nil)
 
       LabeledTextField(
-        title: "Ciudad / Municipio",
-        placeholder: "Ciudad o municipio...",
-        errorMessage: viewModel.errors.city,
-        text: $viewModel.form.city
+        title: "Municipio/Localidad",
+        placeholder: "Municipio o localidad...",
+        errorMessage: viewModel.municipalityError,
+        text: $viewModel.form.municipality
       )
+      .disabled(viewModel.form.state == nil)
 
     }
   }
@@ -210,7 +170,7 @@ struct EditExternalProfilePage: View {
             placeholder: "Describe por qué se modificaron los datos...",
             customHeight: 110,
             maxLength: ExternalProfileViewModel.maxReasonLength,
-            errorMessage: viewModel.errors.reason,
+            errorMessage: viewModel.reasonError,
             text: $viewModel.reason
           )
 
@@ -230,6 +190,9 @@ struct EditExternalProfilePage: View {
             Text("Confirmo que la externa dio su consentimiento para modificar sus datos.")
               .font(.system(size: 12))
               .foregroundColor(Color("InsideTextAndIcons"))
+            if let error = viewModel.consentError {
+              FieldErrorLabel(error)
+            }
           }
           .padding(.top, 12)
           .frame(maxWidth: .infinity, alignment: .leading)
@@ -244,6 +207,14 @@ struct EditExternalProfilePage: View {
     Binding(
       get: { viewModel.form.country },
       set: { viewModel.selectCountry($0) }
+    )
+  }
+
+  // Changing the state clears the municipality
+  private var stateBinding: Binding<String?> {
+    Binding(
+      get: { viewModel.form.state },
+      set: { viewModel.selectState($0) }
     )
   }
 
