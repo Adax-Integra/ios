@@ -17,6 +17,10 @@ struct ImagePickerField: View {
   var errorMessage: String? = nil
   let onPick: (DocumentFile) -> Void
   var onError: ((String) -> Void)? = nil
+  var placeholder: String = "Agregar imagen"
+  var hint: String = "PNG o JPG · máx. 5 MB"
+  // Name given to the JPEG sent to the backend
+  var fileName: String = "event-image.jpg"
 
   @State private var selectedItem: PhotosPickerItem? = nil
   @State private var showPhotos = false
@@ -83,15 +87,17 @@ struct ImagePickerField: View {
       VStack(spacing: 6) {
         Icon(size: 28, color: Color("PrimaryAdax"), systemName: "arrow.up.square")
 
-        Text("Agregar imagen")
+        Text(placeholder)
           .font(.system(size: 16, weight: .semibold))
           .foregroundColor(Color("PrimaryAdax"))
 
-        Text("PNG o JPG · máx. 5 MB")
+        Text(hint)
           .font(.system(size: 13))
           .foregroundColor(Color("InsideTextAndIcons"))
+          .multilineTextAlignment(.center)
       }
       .padding(.vertical, 24)
+      .padding(.horizontal, 16)
     }
   }
 
@@ -121,7 +127,7 @@ struct ImagePickerField: View {
       onError?(Self.readErrorMessage)
       return
     }
-    onPick(DocumentFile(data: jpeg, fileName: "event-image.jpg", mimeType: "image/jpeg"))
+    onPick(DocumentFile(data: jpeg, fileName: fileName, mimeType: "image/jpeg"))
   }
 }
 
