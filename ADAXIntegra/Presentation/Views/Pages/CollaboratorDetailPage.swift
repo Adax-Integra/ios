@@ -36,14 +36,17 @@ struct CollaboratorDetailPage: View {
         }
         .padding(20)
       }
+      .refreshable {
+              await viewModel.load()
+              if viewModel.selectedTab == .cases {
+                await viewModel.loadCases()
+              }
+            }
     }
+      
     .toolbar(.hidden, for: .navigationBar)
     .task { await viewModel.load() }
-    .onChange(of: viewModel.selectedTab) { _, tab in
-      if tab == .cases {
-        Task { await viewModel.loadCases() }
-      }
-    }
+    
     .toast(isPresented: $viewModel.isShowingCopiedToast, message: "Copiado al portapapeles")
   }
 
@@ -108,18 +111,29 @@ struct CollaboratorDetailPage: View {
   }
 
   // Cases tab
+      private var casesTab: some View {
+        VStack(alignment: .leading, spacing: 12) {
+          Text(viewModel.casesTitle)
+            .font(.system(size: 18, weight: .bold))
+            .foregroundColor(Color("OnBackground"))
 
-  private var casesTab: some View {
-    VStack(alignment: .leading, spacing: 12) {
-      Text(viewModel.casesTitle)
-        .font(.system(size: 18, weight: .bold))
-        .foregroundColor(Color("OnBackground"))
-
-      activeChip
-      searchField
-      casesList
-    }
-  }
+          activeChip
+          
+          // fix thkns to a teammate that pointed outi could re use the molecule of seachBar
+          SearchBar(text: $viewModel.searchText)
+            
+            .overlay(
+              RoundedRectangle(cornerRadius: 12, style: .continuous)
+                .stroke(Color("InsideTextAndIcons").opacity(0.5), lineWidth: 1)
+            )
+          
+          casesList
+        }
+       
+        .onAppear {
+          Task { await viewModel.loadCases() }
+        }
+      }
 
   // Only shows the active  cases
   private var activeChip: some View {
@@ -140,35 +154,6 @@ struct CollaboratorDetailPage: View {
     .animation(.snappy, value: viewModel.onlyActiveCases)
   }
 
-  private var searchField: some View {
-    HStack(spacing: 10) {
-      Image(systemName: "magnifyingglass")
-        .foregroundColor(Color("InsideTextAndIcons"))
-
-      TextField("Buscar por número o nombre", text: $viewModel.searchText)
-        .textInputAutocapitalization(.never)
-        .autocorrectionDisabled()
-
-      if !viewModel.searchText.isEmpty {
-        Button {
-          viewModel.searchText = ""
-        } label: {
-          Image(systemName: "xmark.circle.fill")
-            .foregroundColor(Color("InsideTextAndIcons"))
-        }
-        .buttonStyle(.plain)
-      }
-    }
-    .padding(.horizontal, 14)
-    .padding(.vertical, 12)
-    .background(
-      RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Color.white)
-    )
-    .overlay(
-      RoundedRectangle(cornerRadius: 12, style: .continuous)
-        .stroke(Color("InsideTextAndIcons").opacity(0.5), lineWidth: 1)
-    )
-  }
 
   @ViewBuilder
   private var casesList: some View {
@@ -190,9 +175,11 @@ struct CollaboratorDetailPage: View {
       )
     } else {
         ForEach(viewModel.filteredCases) { item in
-               // We make use of the V-11 get case Details to load the detials of the case assigned to a internal
                 NavigationLink {
                   CaseDetailsPage(caseId: item.id)
+                    .onDisappear {
+                      Task { await viewModel.loadCases() }
+                    }
                 } label: {
                   CollaboratorCaseCard(
                     caseNumber: item.caseNumber ?? "Sin número",
@@ -203,8 +190,8 @@ struct CollaboratorDetailPage: View {
                     updatedAtText: viewModel.updatedAtText(for: item)
                   )
                 }
-                .buttonStyle(.plain) 
-              }
+                .buttonStyle(.plain)
+            }
     }
   }
 
@@ -254,6 +241,6 @@ struct CollaboratorDetailPage: View {
 
 #Preview {
   NavigationStack {
-    CollaboratorDetailPage(userId: "130ebfd0-313e-446b-ae7e-970ed4624169")
+    CollaboratorDetailPage(userId: "#############")
   }
 }
