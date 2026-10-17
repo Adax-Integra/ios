@@ -90,9 +90,9 @@ struct HomePage: View {
         ForEach(viewModel.records) { item in
           NavigationLink {
             RecordDetailPage(
-                externalID: item.userId,
-                recordId: item.id,
-                initialStatus: RecordStatus(rawValue: item.status ?? "") ?? .sinEmpezar
+              externalID: item.userId,
+              recordId: item.id,
+              initialStatus: RecordStatus(rawValue: item.status ?? "") ?? .sinEmpezar
             )
           } label: {
             RecordCardInterna(item: item)

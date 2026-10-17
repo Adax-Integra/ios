@@ -9,7 +9,8 @@ enum APIConfig {
   // Flip to true to hit the local backend while the server is not deployed (R-09 testing).
   static let useLocalBackend = false
 
-  static let baseURL = useLocalBackend
+  static let baseURL =
+    useLocalBackend
     ? "http://localhost:3001/api"
     : "https://dev-api.adaxdigitales.com/api"
 
