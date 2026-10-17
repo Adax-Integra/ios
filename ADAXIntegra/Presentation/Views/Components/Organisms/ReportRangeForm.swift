@@ -26,8 +26,17 @@ struct ReportRangeForm: View {
         }
       }
 
-      DateFieldRow(label: "Fecha de inicio", date: $startDate)
-      DateFieldRow(label: "Fecha de fin", date: $endDate)
+      DateEntry(title: "Fecha de inicio", date: asOptional($startDate))
+      DateEntry(title: "Fecha de fin", date: asOptional($endDate))
     }
+  }
+
+  private func asOptional(_ date: Binding<Date>) -> Binding<Date?> {
+    Binding(
+      get: { date.wrappedValue },
+      set: { newValue in
+        if let newValue { date.wrappedValue = newValue }
+      }
+    )
   }
 }

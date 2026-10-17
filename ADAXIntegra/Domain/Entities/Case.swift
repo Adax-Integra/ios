@@ -57,8 +57,6 @@ struct Case: Identifiable, Codable {
 extension Case {
   var updatedAtDate: Date? { Case.parse(updatedAt) }
 
-  // El backend manda fechas en UTC con milisegundos: "2026-10-15T20:30:00.000Z"
-  private static func parse(_ text: String?) -> Date? {
     guard let text else { return nil }
     let formatter = ISO8601DateFormatter()
     formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
