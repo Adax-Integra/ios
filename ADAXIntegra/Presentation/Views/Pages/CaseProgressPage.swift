@@ -9,19 +9,14 @@ import SwiftUI
 
 struct CaseProgressPage: View {
   @StateObject private var viewModel: CaseProgressViewModel
-  let onBack: () -> Void
 
-  init(
-    caseId: String,
-    onBack: @escaping () -> Void
-  ) {
+  init(caseId: String) {
     _viewModel = StateObject(
       wrappedValue: CaseProgressViewModel(
         repository: RemoteCaseRepository(),
         caseId: caseId
       )
     )
-    self.onBack = onBack
   }
 
   var body: some View {

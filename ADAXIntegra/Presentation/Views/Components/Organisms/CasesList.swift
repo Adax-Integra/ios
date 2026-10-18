@@ -15,10 +15,7 @@ struct CasesList: View {
     LazyVStack(spacing: 12) {
       ForEach(cases) { item in
         NavigationLink {
-          CaseProgressPage(
-            caseId: item.id,
-            onBack: {}
-          )
+          CaseProgressPage(caseId: item.id)
         } label: {
           CaseCard(caseItem: item)
         }
