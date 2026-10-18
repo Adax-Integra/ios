@@ -12,6 +12,12 @@ struct ProfilePage: View {
   @StateObject private var viewModel = ProfileViewModel()
   @State private var showLogoutConfirmation = false
 
+  // Same rule as ViewAndEditProfileViewModel: staff roles take precedence
+  private var isExternal: Bool {
+    session.roles.contains("external") && !session.roles.contains("admin")
+      && !session.roles.contains("internal")
+  }
+
   var body: some View {
     NavigationStack {
       ZStack {
@@ -48,7 +54,14 @@ struct ProfilePage: View {
         initials: viewModel.initials,
         fullName: viewModel.fullName,
         memberSince: viewModel.memberSince
-      )
+      ) {
+        if isExternal {
+          VerificationBadge(
+            status: viewModel.profile?.verification ?? .noVerificado
+          )
+          .padding(.top, 2)
+        }
+      }
 
       Text("Información Personal")
         .font(.system(size: 15, weight: .semibold))
@@ -61,8 +74,21 @@ struct ProfilePage: View {
         MenuRow(
           icon: "person",
           title: "Datos Personales",
-          subtitle: "Nombre, teléfono, correo"
+          subtitle: isExternal ? "Nombre, teléfono, dirección" : "Nombre, teléfono"
         )
+      }
+
+      // R-06: only external users upload identity documents
+      if isExternal {
+        NavigationLink {
+          IdentityDocumentsPage(userId: session.userId)
+        } label: {
+          MenuRow(
+            icon: "person.text.rectangle",
+            title: "Mis documentos",
+            subtitle: "INE y comprobante de domicilio"
+          )
+        }
       }
 
       NavigationLink {

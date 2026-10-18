@@ -20,7 +20,7 @@ struct CasesPage: View {
 
   var body: some View {
     CasesScreenTemplate {
-      CasesListHeader(searchText: $viewModel.searchText, count: viewModel.filteredCases.count)
+      CasesListHeader(searchText: $viewModel.searchText, count: viewModel.totalCount)
 
       // R-02: entry point to register a new case.
       // Disabled during the undo window so a second case cannot replace the pending one
@@ -32,7 +32,10 @@ struct CasesPage: View {
         isShowingNewCase = true
       }
     } content: {
-      CasesList(cases: viewModel.filteredCases)
+      CasesList(cases: viewModel.filteredCases, onLoadMore: viewModel.loadMore)
+    }
+    .refreshable {
+      await viewModel.loadCases()
     }
     // R-02: undo window shown on the list after "Nuevo caso" closes
     .toast(

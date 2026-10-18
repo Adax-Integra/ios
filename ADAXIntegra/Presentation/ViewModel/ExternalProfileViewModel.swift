@@ -24,7 +24,9 @@ final class ExternalProfileViewModel: ObservableObject {
   @Published var form = ExternalProfileFormModel()
   @Published var reason = ""
   @Published var hasConsent = false
-  @Published var errors = ExternalProfileFormErrors()
+  // Turned on by the "Guardar" tap, so empty fields are not marked
+  // as errors before the admin tries to save, same as the new case form
+  @Published var showErrors = false
 
   // UI state
   @Published var isLoading = false
@@ -33,6 +35,9 @@ final class ExternalProfileViewModel: ObservableObject {
   @Published var isShowingConfirmation = false
   @Published var isShowingSuccessToast = false
   @Published var errorMessage: String?
+
+  // Email that the backend answered as already registered (409)
+  private var takenEmail: String?
 
   private let getExternalProfileUseCase: GetExternalProfileUseCaseProtocol
   private let updateExternalProfileUseCase: UpdateExternalProfileUseCaseProtocol
@@ -105,13 +110,9 @@ final class ExternalProfileViewModel: ObservableObject {
     let fields: [(label: String, old: String, new: String)] = [
       ("Correo electrónico", cleanEmail(saved.email), cleanEmail(form.email)),
       ("Teléfono celular", phoneText(for: saved), phoneText(for: form)),
-      ("Calle y número", clean(saved.addressLine1), clean(form.addressLine1)),
-      ("Interior / dpto.", clean(saved.addressLine2), clean(form.addressLine2)),
-      ("Colonia", clean(saved.neighborhood), clean(form.neighborhood)),
-      ("Código postal", clean(saved.zipCode), clean(form.zipCode)),
       ("País", saved.country ?? "", form.country ?? ""),
       ("Estado", saved.state ?? "", form.state ?? ""),
-      ("Ciudad / Municipio", clean(saved.city), clean(form.city)),
+      ("Municipio/Localidad", clean(saved.municipality), clean(form.municipality)),
     ]
 
     return
@@ -124,9 +125,28 @@ final class ExternalProfileViewModel: ObservableObject {
       }
   }
 
-  // "Guardar" is enabled only with a change, a reason and the consent checked
-  var canSave: Bool {
-    !changes.isEmpty && !clean(reason).isEmpty && hasConsent && !isSaving
+  // Error messages for each field. They are computed,
+  // so they disappear as soon as the admin fixes the field
+  var emailError: String? { showErrors ? emailProblem : nil }
+  var phoneError: String? { showErrors ? phoneProblem : nil }
+  var stateError: String? { showErrors ? stateProblem : nil }
+  var municipalityError: String? { showErrors ? municipalityProblem : nil }
+  var reasonError: String? {
+    showErrors && clean(reason).isEmpty ? "Este campo es obligatorio" : nil
+  }
+  var consentError: String? {
+    showErrors && !hasConsent ? "Confirma que la externa autorizó el cambio" : nil
+  }
+
+  // Only the reason and the consent are required,
+  // the other fields are checked only when the admin changed them
+  var isFormValid: Bool {
+    emailProblem == nil
+      && phoneProblem == nil
+      && stateProblem == nil
+      && municipalityProblem == nil
+      && !clean(reason).isEmpty
+      && hasConsent
   }
 
   var trimmedReason: String {
@@ -179,7 +199,8 @@ final class ExternalProfileViewModel: ObservableObject {
     form = saved
     reason = ""
     hasConsent = false
-    errors = ExternalProfileFormErrors()
+    showErrors = false
+    takenEmail = nil
     isEditing = true
   }
 
@@ -187,15 +208,30 @@ final class ExternalProfileViewModel: ObservableObject {
     isEditing = false
   }
 
-  // A new country invalidates the selected state
+  // A new country invalidates the selected state and the municipality
   func selectCountry(_ country: String?) {
     guard country != form.country else { return }
     form.country = country
     form.state = nil
+    form.municipality = ""
   }
 
+  // A new state invalidates the municipality
+  func selectState(_ state: String?) {
+    guard state != form.state else { return }
+    form.state = state
+    form.municipality = ""
+  }
+
+  // Without changes there is nothing to save, so it leaves like the back button.
+  // Otherwise the first tap reveals the invalid fields
   func onSaveTapped() {
-    guard canSave, validate() else { return }
+    guard !changes.isEmpty else {
+      cancelEditing()
+      return
+    }
+    showErrors = true
+    guard isFormValid else { return }
     isShowingConfirmation = true
   }
 
@@ -236,13 +272,9 @@ final class ExternalProfileViewModel: ObservableObject {
     }
 
     let address = profile.address
-    data.addressLine1 = address?.addressLine1 ?? ""
-    data.addressLine2 = address?.addressLine2 ?? ""
-    data.neighborhood = address?.neighborhood ?? ""
-    data.zipCode = address?.zipCode ?? ""
     data.country = address?.country
     data.state = address?.state
-    data.city = address?.city ?? ""
+    data.municipality = address?.municipality ?? ""
 
     saved = data
     form = data
@@ -259,13 +291,9 @@ final class ExternalProfileViewModel: ObservableObject {
     )
 
     let addressChanges = UpdateExternalProfileRequest.AddressChanges(
-      addressLine1: changed(form.addressLine1, saved.addressLine1),
-      addressLine2: changed(form.addressLine2, saved.addressLine2),
-      neighborhood: changed(form.neighborhood, saved.neighborhood),
-      zipCode: changed(form.zipCode, saved.zipCode),
       country: form.country != saved.country ? form.country : nil,
       state: form.state != saved.state ? form.state : nil,
-      city: changed(form.city, saved.city)
+      municipality: changed(form.municipality, saved.municipality)
     )
 
     return UpdateExternalProfileRequest(
@@ -276,40 +304,45 @@ final class ExternalProfileViewModel: ObservableObject {
     )
   }
 
-  // Same rules as the backend. Fields that did not change are not checked
-  private func validate() -> Bool {
-    let required = "Este campo es obligatorio."
-    var newErrors = ExternalProfileFormErrors()
+  // The address counts as changed when any of its three files changed
+  private var addressChanged: Bool {
+    form.country != saved.country
+      || form.state != saved.state
+      || clean(form.municipality) != clean(saved.municipality)
+  }
 
+  // Only checked when the admin chanhed the email
+  private var emailProblem: String? {
     let email = cleanEmail(form.email)
-    if email != cleanEmail(saved.email) {
-      if email.isEmpty {
-        newErrors.email = required
-      } else if email.range(of: #"^[^\s@]+@[^\s@]+\.[^\s@]+$"#, options: .regularExpression) == nil
-      {
-        newErrors.email = "Por favor, introduce una dirección de correo electrónico válida."
-      }
+    guard email != cleanEmail(saved.email) else { return nil }
+    if email.range(of: #"^[^\s@]+@[^\s@]+\.[^\s@]+$"#, options: .regularExpression) == nil {
+      return "Ingresa un correo electrónico válido"
     }
-
-    if fullPhone(form) != fullPhone(saved) {
-      newErrors.phone = form.phone.isEmpty ? required : PhoneField.validationError(for: form.phone)
+    if email == takenEmail {
+      return "Este correo ya está registrado en otra cuenta."
     }
+    return nil
+  }
 
-    newErrors.addressLine1 = requiredError(form.addressLine1, saved.addressLine1)
-    newErrors.neighborhood = requiredError(form.neighborhood, saved.neighborhood)
-    newErrors.zipCode = requiredError(form.zipCode, saved.zipCode)
-    newErrors.city = requiredError(form.city, saved.city)
-
-    if form.state != saved.state && form.state == nil {
-      newErrors.state = "Selecciona un estado."
+  // Only checked when teh admin changed the phone
+  private var phoneProblem: String? {
+    guard fullPhone(form) != fullPhone(saved) else { return nil }
+    if form.phone.isEmpty {
+      return "Ingresa un número válido"
     }
+    return PhoneField.validationError(for: form.phone)
+  }
 
-    if clean(reason).isEmpty {
-      newErrors.reason = "El motivo es obligatorio."
-    }
+  //The state depends on the country and the municipality on the state
+  private var stateProblem: String? {
+    guard addressChanged else { return nil }
+    return form.country != nil && form.state == nil ? "Selecciona un estado" : nil
+  }
 
-    errors = newErrors
-    return newErrors.isEmpty
+  private var municipalityProblem: String? {
+    guard addressChanged else { return nil }
+    return form.state != nil && clean(form.municipality).isEmpty
+      ? "Escribe el municipio o localidad" : nil
   }
 
   private func handle(_ error: Error) {
@@ -319,7 +352,10 @@ final class ExternalProfileViewModel: ObservableObject {
     }
 
     switch statusCode {
-    case 409: errors.email = "Este correo ya está registrado en otra cuenta."
+    case 409:
+      // The email field gets the red outline with the message
+      takenEmail = cleanEmail(form.email)
+      showErrors = true
     case 403: errorMessage = "No tienes permiso para modificar estos datos."
     case 404: errorMessage = "La cuenta de la externa no está disponible."
     case 400: errorMessage = "Revisa los datos e intenta de nuevo."
@@ -331,12 +367,6 @@ final class ExternalProfileViewModel: ObservableObject {
   private func changed(_ value: String, _ savedValue: String) -> String? {
     let text = clean(value)
     return text != clean(savedValue) ? text : nil
-  }
-
-  private func requiredError(_ value: String, _ savedValue: String) -> String? {
-    let text = clean(value)
-    guard text != clean(savedValue) else { return nil }
-    return text.isEmpty ? "Este campo es obligatorio." : nil
   }
 
   private func fullPhone(_ data: ExternalProfileFormModel) -> String {

@@ -20,7 +20,8 @@ struct EventDateBadge: View {
         .font(.caption2)
     }
     .foregroundColor(Color("OnBackground"))
-    .frame(width: 44, height: 44)
+    .padding(.horizontal, 6)
+    .frame(minWidth: 44, minHeight: 44)
     .background(Color.white, in: RoundedRectangle(cornerRadius: 10))
     .shadow(color: .black.opacity(0.15), radius: 3, y: 1)
     .accessibilityElement(children: .combine)
@@ -28,6 +29,10 @@ struct EventDateBadge: View {
 }
 
 #Preview {
-  EventDateBadge(day: "25", month: "OCT")
-    .padding()
+  VStack(spacing: 16) {
+    EventDateBadge(day: "25", month: "OCT")
+    EventDateBadge(day: "15–18", month: "OCT")
+    EventDateBadge(day: "30–2", month: "OCT–NOV")
+  }
+  .padding()
 }

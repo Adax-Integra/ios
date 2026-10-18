@@ -9,12 +9,14 @@ import SwiftUI
 
 // Events list page that shows every active event, same for internal and external users
 struct EventsListPage: View {
-  @Environment(\.dismiss) private var dismiss
   // View model that manages the UI state and event data load
   @StateObject private var viewModel: EventsViewModel
   @EnvironmentObject private var session: AuthSession
   // E-03: confirmation and result of disabling an event
   @StateObject private var disableViewModel = DisableEventViewModel()
+  // E-02: last event opened in the form, it is kept so the page does not go blank while closing
+  @State private var eventToEdit: EventListItem?
+  @State private var isEditingEvent = false
 
   // Initializes the view with an optional view model dependency
   init(viewModel: EventsViewModel? = nil) {
@@ -28,12 +30,10 @@ struct EventsListPage: View {
 
       ScrollView {
         VStack(alignment: .leading, spacing: 16) {
-          // Main navigation header with title and back button
-          PageHeader(
-            title: "Eventos",
-            backAction: { dismiss() },
-            subtitle: "Gestiona los eventos de la asociación"
-          )
+          // Same subtitle style as PageHeader, the native bar only has the title
+          Text("Gestiona los eventos de la asociación")
+            .font(.subheadline)
+            .foregroundColor(Color("OnBackground").opacity(0.7))
 
           content
         }
@@ -58,18 +58,30 @@ struct EventsListPage: View {
         )
       }
     }
-    .navigationBarBackButtonHidden(true)
-    .toolbar(.hidden, for: .navigationBar)
+    .navigationTitle("Eventos")
     // Asynchronously loads events when the view appears
     .task {
       await viewModel.loadEvents()
     }
     // E-03: after "Entendido" the list is loaded again so the event disappears
     .fullScreenCover(isPresented: $disableViewModel.isShowingSuccess) {
-      EventDisabledPage(onFinish: {
-        disableViewModel.isShowingSuccess = false
-        Task { await viewModel.loadEvents() }
-      })
+      EventSuccessPage(
+        title: "Evento deshabilitado",
+        message: "El evento ya no aparece en el calendario.",
+        onFinish: {
+          disableViewModel.isShowingSuccess = false
+          Task { await viewModel.loadEvents() }
+        }
+      )
+    }
+    // E-02: after saving, the list is loaded again so the card shows the changes
+    .navigationDestination(isPresented: $isEditingEvent) {
+      if let eventToEdit {
+        CreateEventPage(
+          event: eventToEdit,
+          onSaved: { Task { await viewModel.loadEvents() } }
+        )
+      }
     }
     .toast(isPresented: $disableViewModel.showToast, message: disableViewModel.toastMessage)
   }
@@ -98,28 +110,46 @@ struct EventsListPage: View {
         .font(.subheadline)
         .foregroundStyle(.secondary)
     } else {
-        
-        // Lazy vertical stack rendering the event cards efficiently.
-              LazyVStack(spacing: 16) {
-                ForEach(viewModel.events) { event in
-                  NavigationLink {
-                    EventDetailPage(event: event)
-                  } label: {
-                    EventListCard(event: event)
-                      .overlay(alignment: .topTrailing) {
-                        if canDisableEvents {
-                          disableMenu(for: event)
-                        }
-                      }
+      // Lazy vertical stack rendering the event cards efficiently.
+      LazyVStack(spacing: 16) {
+        ForEach(viewModel.events) { event in
+          NavigationLink {
+            EventDetailPage(event: event)
+          } label: {
+            EventListCard(event: event)
+              .overlay(alignment: .topTrailing) {
+                if canDisableEvents {
+                  HStack(spacing: 0) {
+                    editButton(for: event)
+                    disableMenu(for: event)
                   }
-                  .buttonStyle(.plain)
                 }
+              }
+          }
+          .buttonStyle(.plain)
         }
+      }
     }
   }
   // E-03: only internal users and admins can disable an event
   private var canDisableEvents: Bool {
     session.roles.contains("admin") || session.roles.contains("internal")
+  }
+
+  // E-02: same look as the disable button, only the vertical padding so both stay close
+  private func editButton(for event: EventListItem) -> some View {
+    Button {
+      eventToEdit = event
+      isEditingEvent = true
+    } label: {
+      Image(systemName: "pencil")
+        .font(.system(size: 16, weight: .semibold))
+        .foregroundColor(Color("PrimaryAdax"))
+        .frame(width: 32, height: 32)
+        .background(Circle().fill(Color.white))
+        .padding(.vertical, 10)
+    }
+    .buttonStyle(.plain)
   }
 
   private func disableMenu(for event: EventListItem) -> some View {

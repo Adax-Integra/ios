@@ -6,7 +6,7 @@
 //
 import SwiftUI
 
-// Purple uppercase title 
+// Purple uppercase title
 struct EventDetailSection: View {
   let title: String
   let text: String

@@ -10,9 +10,13 @@ import Foundation
 
 final class CasesViewModel: ObservableObject {
   @Published var cases: [Case] = []
-  @Published var searchText: String = ""
+  @Published var searchText: String = "" {
+    didSet { visibleCount = Self.pageSize }
+  }
   @Published var errorMessage: String?
+  @Published private var visibleCount = CasesViewModel.pageSize
 
+  private static let pageSize = 10
   private let repository: CaseRepository
   private let userId: String
 
@@ -21,15 +25,43 @@ final class CasesViewModel: ObservableObject {
     self.userId = userId
   }
 
+  private var matchingCases: [Case] {
+    guard !searchText.isEmpty else { return cases }
+    return cases.filter { item in
+      (item.caseNumber ?? "").localizedCaseInsensitiveContains(searchText)
+        || item.violenceTypes.contains { $0.localizedCaseInsensitiveContains(searchText) }
+    }
+  }
+
   var filteredCases: [Case] {
-    searchText.isEmpty
-      ? cases
-      : cases.filter { ($0.writtenDescription ?? "").localizedCaseInsensitiveContains(searchText) }
+    Array(matchingCases.prefix(visibleCount))
+  }
+
+  var totalCount: Int { matchingCases.count }
+
+  // returns the most recently updated active case for the home screen
+  var latestActiveCase: Case? {
+    cases
+      .filter {
+        let state = $0.state?.lowercased()
+        return state == "open" || state == "in_progress"
+      }
+      .sorted {
+        ($0.updatedAtDate ?? .distantPast) > ($1.updatedAtDate ?? .distantPast)
+      }
+      .first
+  }
+
+  func loadMore() {
+    guard visibleCount < matchingCases.count else { return }
+    visibleCount += Self.pageSize
   }
 
   func loadCases() async {
     do {
       cases = try await repository.getCases(for: userId)
+      visibleCount = Self.pageSize
+      errorMessage = nil
     } catch {
       cases = []
       errorMessage = "No se pudieron cargar los casos."

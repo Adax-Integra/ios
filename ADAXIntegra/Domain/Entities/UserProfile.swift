@@ -12,10 +12,17 @@ struct UserProfile: Decodable {
   let name: String
   let lastName: String
   let createdAt: String
+  let verificationStatus: String?
 
   enum CodingKeys: String, CodingKey {
     case name
     case lastName = "last_name"
     case createdAt = "created_at"
+    case verificationStatus = "verification_status"
+
+  }
+
+  var verification: VerificationStatus {
+    VerificationStatus(rawValue: verificationStatus ?? "") ?? .noVerificado
   }
 }
