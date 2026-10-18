@@ -141,7 +141,7 @@ struct CaseListItem: Identifiable, Decodable {
     assignedNames =
       (container.value(
         [CaseAssignee].self,
-        ["assigned_users", "assignedUsers", "assigned_to", "assignedTo"]
+        ["interns_assigned", "assigned_users", "assignedUsers", "assigned_to", "assignedTo"]
       ) ?? [])
       .map(\.fullName)
       .filter { !$0.isEmpty }
