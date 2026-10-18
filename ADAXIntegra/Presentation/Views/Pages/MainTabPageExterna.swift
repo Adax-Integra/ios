@@ -18,7 +18,7 @@ struct MainTabPageExterna: View {
         case .home:
           // E-01: the events title opens a list, so the home needs a NavigationStack
           NavigationStack {
-            HomePageExterna()
+            HomePageExterna(userId: userId)
               .toolbar(.hidden, for: .navigationBar)
           }
         case .cases:

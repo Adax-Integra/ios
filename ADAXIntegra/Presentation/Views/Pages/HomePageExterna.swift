@@ -13,6 +13,17 @@ struct HomePageExterna: View {
   @EnvironmentObject private var session: AuthSession
   @StateObject private var profileViewModel = ProfileViewModel()
   @StateObject private var eventsViewModel = EventsViewModel(scope: .month)
+  @StateObject private var casesViewModel: CasesViewModel
+  @State private var isLoadingCases = true
+
+  init(userId: String) {
+    _casesViewModel = StateObject(
+      wrappedValue: CasesViewModel(
+        repository: RemoteCaseRepository(),
+        userId: userId
+      )
+    )
+  }
 
   var body: some View {
     HomeTemplate {
@@ -31,14 +42,30 @@ struct HomePageExterna: View {
           .foregroundColor(Color("PrimaryAdax"))
       }
     } caseProgress: {
-      // space reserved for the case progress component
-      SurfaceCard(cornerRadius: 28) {
-        Text("Tu caso en curso")
-          .font(.headline)
-          .foregroundColor(Color("OnBackground"))
-          .frame(maxWidth: .infinity, alignment: .topLeading)
-          .frame(minHeight: 120, alignment: .topLeading)
+      if isLoadingCases {
+        SurfaceCard(cornerRadius: 28) {
+          ProgressView("Cargando casos...")
+            .padding(20)
+        }
+      } else if casesViewModel.errorMessage != nil {
+        SurfaceCard(cornerRadius: 28) {
+          Text("No se pudo cargar la información de tus casos.")
+            .padding(20)
+        }
+      } else if let activeCase = casesViewModel.latestActiveCase {
+        HomeCaseProgressCard(caseId: activeCase.id)
+      } else {
+        SurfaceCard(cornerRadius: 28) {
+          VStack(alignment: .leading, spacing: 12) {
+            Text("Tu caso en curso")
+              .font(.title2.bold())
+
+            Text("Todavía no tienes un caso en curso")
+              .font(.subheadline)
+          }
+          .frame(maxWidth: .infinity, alignment: .leading)
           .padding(20)
+        }
       }
     } events: {
       EventsCarousel(viewModel: eventsViewModel)
@@ -94,6 +121,11 @@ struct HomePageExterna: View {
     .task {
       await eventsViewModel.loadEvents()
     }
+    // loads the user's cases
+    .task {
+      await casesViewModel.loadCases()
+      isLoadingCases = false
+    }
   }
 
   // opens an external address using the system URL action
@@ -105,7 +137,7 @@ struct HomePageExterna: View {
 
 #Preview {
   NavigationStack {
-    HomePageExterna()
+    HomePageExterna(userId: "preview-user")
   }
   .environmentObject(AuthSession())
 }
