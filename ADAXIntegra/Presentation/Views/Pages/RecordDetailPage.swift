@@ -13,6 +13,7 @@ struct RecordDetailPage: View {
   @StateObject private var recordDetailsViewModel = RecordDetailsViewModel()
   @StateObject private var statusViewModel: RecordStatusViewModel
   @State private var showStatusSheet = false
+  @State private var showRegisterCase = false
 
   init(externalID: String, recordId: String, initialStatus: RecordStatus) {
     self.externalID = externalID
@@ -95,6 +96,12 @@ struct RecordDetailPage: View {
 
         ScrollView {
           LazyVStack(spacing: 16) {
+            PrimaryButton(
+              title: "Registrar nuevo caso",
+              isDisabled: false
+            ) {
+              showRegisterCase = true
+            }
             ForEach(recordDetailsViewModel.recordDetails) { recordDetail in
               NavigationLink {
                 CaseDetailsPage(caseId: recordDetail.id)
@@ -134,6 +141,13 @@ struct RecordDetailPage: View {
         viewModel: statusViewModel,
         externalName: recordDetailsViewModel.userFirstName
       )
+    }
+    .sheet(isPresented: $showRegisterCase) {
+      RegisterCasePage(externalID: externalID) {
+        Task {
+          await recordDetailsViewModel.loadRecordDetails(for: externalID)
+        }
+      }
     }
     .task {
       await recordDetailsViewModel.loadRecordDetails(for: externalID)
