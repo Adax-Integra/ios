@@ -21,16 +21,16 @@ final class RegisterCaseViewModel: ObservableObject {
   @Published var errorMessage = ""
 
   private let externalID: String
-  private let createCaseUseCase: CreateCaseUseCaseProtocol
+  private let createCaseUseCase: CreateExternalCaseUseCaseProtocol
 
   init(
     externalID: String,
-    createCaseUseCase: CreateCaseUseCaseProtocol? = nil
+    createCaseUseCase: CreateExternalCaseUseCaseProtocol? = nil
   ) {
     self.externalID = externalID
     self.createCaseUseCase =
       createCaseUseCase
-      ?? CreateCaseUseCase(dataRepository: RemoteCaseRepository())
+      ?? CreateExternalCaseUseCase(dataRepository: RemoteCaseRepository())
   }
 
   // both fields must contain text before saving
@@ -67,7 +67,7 @@ final class RegisterCaseViewModel: ObservableObject {
       hasExternalSupport: hasExternalSupport
     )
 
-    let caseId = await RemoteCaseRepository().createCaseForExternalUser(
+    let caseId = await createCaseUseCase.createCase(
       newCase,
       userId: externalID
     )
