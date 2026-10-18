@@ -8,11 +8,11 @@
 import Foundation
 
 struct RemoteCaseViolenceRepository: CaseViolenceRepository {
-  // catalgo of violences types
+  // catalog of violence types
 
   func listViolenceTypes() async throws -> [ViolenceType] {
     let response = try await APIProtocol.get(
-      "/violences-types",
+      "/violence-types",
       as: APIResponse<[ViolenceType]>.self
     )
     return response.data
