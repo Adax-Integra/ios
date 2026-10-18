@@ -38,13 +38,14 @@ struct Toast: View {
   }
 }
 
-//Presents a "Toast" anchored to the bottom of the view and hides it
-// automatically after "duration"
+//Presents a "Toast" anchored to the bottom of the view
+//(or to the top with "edge") and hides it automatically after "duration"
 extension View {
   func toast(
     isPresented: Binding<Bool>,
     message: String,
     duration: Duration = .seconds(4),
+    edge: VerticalEdge = .bottom,
     actionTitle: String? = nil,
     action: (() -> Void)? = nil
   ) -> some View {
@@ -53,6 +54,7 @@ extension View {
         isPresented: isPresented,
         message: message,
         duration: duration,
+        edge: edge,
         actionTitle: actionTitle,
         action: action
       )
@@ -65,12 +67,13 @@ private struct ToastModifier: ViewModifier {
   @Binding var isPresented: Bool
   let message: String
   let duration: Duration
+  let edge: VerticalEdge
   let actionTitle: String?
   let action: (() -> Void)?
 
   func body(content: Content) -> some View {
     content
-      .overlay(alignment: .bottom) {
+      .overlay(alignment: edge == .top ? .top : .bottom) {
         if isPresented {
           Toast(
             message: message,
@@ -83,8 +86,8 @@ private struct ToastModifier: ViewModifier {
               }
           )
           .padding(.horizontal)
-          .padding(.bottom, 16)
-          .transition(.move(edge: .bottom).combined(with: .opacity))
+          .padding(edge == .top ? .top : .bottom, 16)
+          .transition(.move(edge: edge == .top ? .top : .bottom).combined(with: .opacity))
         }
       }
       .animation(.snappy, value: isPresented)

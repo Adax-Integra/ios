@@ -8,7 +8,6 @@ import SwiftUI
 
 // Detail of one event, opened from the events list
 struct EventDetailPage: View {
-  @Environment(\.dismiss) private var dismiss
   let event: EventListItem
 
   var body: some View {
@@ -16,8 +15,6 @@ struct EventDetailPage: View {
       Color("Background").ignoresSafeArea()
 
       VStack(alignment: .leading, spacing: 0) {
-        BackButton { dismiss() }
-          .padding(.horizontal, 20)
 
         ScrollView {
           VStack(alignment: .leading, spacing: 16) {
@@ -42,8 +39,6 @@ struct EventDetailPage: View {
           .padding(.vertical, 16)
         }
       }
-      .navigationBarBackButtonHidden(true)
-      .toolbar(.hidden, for: .navigationBar)
     }
   }
 }

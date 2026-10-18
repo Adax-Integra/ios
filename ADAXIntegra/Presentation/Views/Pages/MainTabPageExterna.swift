@@ -18,18 +18,21 @@ struct MainTabPageExterna: View {
         case .home:
           // E-01: the events title opens a list, so the home needs a NavigationStack
           NavigationStack {
-            HomePageExterna()
+            HomePageExterna(userId: userId)
               .toolbar(.hidden, for: .navigationBar)
           }
         case .cases:
-          CasesPage(
-            viewModel: CasesViewModel(
-              repository: RemoteCaseRepository(),
+          NavigationStack {
+            CasesPage(
+              viewModel: CasesViewModel(
+                repository: RemoteCaseRepository(),
+                userId: userId
+              ),
+              // R-02: lets CasesPage open "Nuevo caso" for this user
               userId: userId
-            ),
-            // R-02: lets CasesPage open "Nuevo caso" for this user
-            userId: userId
-          )
+            )
+            .toolbar(.hidden, for: .navigationBar)
+          }
         case .profile: ProfilePage()
         }
       }

@@ -13,30 +13,9 @@ struct ExternalProfileFormModel: Equatable {
   var email: String = ""
   var countryCode: String? = "+52"
   var phone: String = ""
-  var addressLine1: String = ""
-  var addressLine2: String = ""
-  var neighborhood: String = ""
-  var zipCode: String = ""
   var country: String?
   var state: String?
-  var city: String = ""
-}
-
-// Error message of each field, nil when the field is valid
-struct ExternalProfileFormErrors {
-  var email: String?
-  var phone: String?
-  var addressLine1: String?
-  var neighborhood: String?
-  var zipCode: String?
-  var state: String?
-  var city: String?
-  var reason: String?
-
-  var isEmpty: Bool {
-    [email, phone, addressLine1, neighborhood, zipCode, state, city, reason]
-      .allSatisfy { $0 == nil }
-  }
+  var municipality: String = ""
 }
 
 // One row of the confirmation sheet: what a field had and what it will have

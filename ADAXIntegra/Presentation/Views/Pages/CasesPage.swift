@@ -12,15 +12,24 @@ struct CasesPage: View {
   // closes and the undo toast can be shown on this list
   @StateObject private var newCaseViewModel: NewCaseViewModel
   @State private var isShowingNewCase = false
+  @State private var didOpenNewCase = false
+  @State private var submissionTask: Task<Void, Never>?
+  private let openNewCaseOnAppear: Bool
+  private let onCaseSubmitted: (() -> Void)?
 
-  init(viewModel: CasesViewModel, userId: String) {
+  init(
+    viewModel: CasesViewModel, userId: String, openNewCaseOnAppear: Bool = false,
+    onCaseSubmitted: (() -> Void)? = nil
+  ) {
     _viewModel = StateObject(wrappedValue: viewModel)
     _newCaseViewModel = StateObject(wrappedValue: NewCaseViewModel(userId: userId))
+    self.openNewCaseOnAppear = openNewCaseOnAppear
+    self.onCaseSubmitted = onCaseSubmitted
   }
 
   var body: some View {
     CasesScreenTemplate {
-      CasesListHeader(searchText: $viewModel.searchText, count: viewModel.filteredCases.count)
+      CasesListHeader(searchText: $viewModel.searchText, count: viewModel.totalCount)
 
       // R-02: entry point to register a new case.
       // Disabled during the undo window so a second case cannot replace the pending one
@@ -32,7 +41,10 @@ struct CasesPage: View {
         isShowingNewCase = true
       }
     } content: {
-      CasesList(cases: viewModel.filteredCases)
+      CasesList(cases: viewModel.filteredCases, onLoadMore: viewModel.loadMore)
+    }
+    .refreshable {
+      await viewModel.loadCases()
     }
     // R-02: undo window shown on the list after "Nuevo caso" closes
     .toast(
@@ -42,18 +54,26 @@ struct CasesPage: View {
     ) {
       newCaseViewModel.onUndo()
     }
+
     // When the undo window closes, sends the case (if not undone) and refreshes the list
     .onChange(of: newCaseViewModel.isShowingUndoToast) { _, isShowing in
       if !isShowing {
-        Task {
+        submissionTask = Task {
           await newCaseViewModel.sendPendingCase()
           await viewModel.loadCases()
         }
       }
     }
-    // If the user switches tabs during the undo window, the confirmed case is still sent
+    // Waits for case submission before notifying the home screen
     .onDisappear {
-      Task { await newCaseViewModel.sendPendingCase() }
+      Task {
+        if let submissionTask = submissionTask {
+          await submissionTask.value
+        } else {
+          await newCaseViewModel.sendPendingCase()
+        }
+        onCaseSubmitted?()
+      }
     }
     .alert("Algo salió mal", isPresented: $newCaseViewModel.showAlert) {
       Button("Entendido", role: .cancel) {}
@@ -61,6 +81,12 @@ struct CasesPage: View {
       Text(newCaseViewModel.messageAlert)
     }
     .task { await viewModel.loadCases() }
+    .onAppear {
+      if openNewCaseOnAppear && !didOpenNewCase {
+        didOpenNewCase = true
+        isShowingNewCase = true
+      }
+    }
     .fullScreenCover(isPresented: $isShowingNewCase) {
       NewCasePage(viewModel: newCaseViewModel)
     }

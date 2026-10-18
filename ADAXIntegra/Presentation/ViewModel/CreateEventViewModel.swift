@@ -26,7 +26,7 @@ final class CreateEventViewModel: ObservableObject {
   @Published var image: DocumentFile?
   // Catalog for the phone code dropdown
   @Published var countries: [Country] = []
-  @Published var eventCreated = false
+  @Published var eventSaved = false
   // True when the event was created but its picture could not be uploaded
   @Published var imageUploadFailed = false
   // Separate from a loading state: saving only changes the button, it does not dim the screen
@@ -35,22 +35,38 @@ final class CreateEventViewModel: ObservableObject {
   // Turned on by the "Guardar evento" tap, so empty fields are not marked before the user tries to save
   @Published var showErrors = false
 
+  // nil when creating, the id of the event when editing
+  private let eventId: String?
   private let createEventUseCase: CreateEventUseCaseProtocol
+  private let updateEventUseCase: UpdateEventUseCaseProtocol
   private let uploadEventImageUseCase: UploadEventImageUseCaseProtocol
   private let countryRepository: CountryRepository
 
   private static let isoFormatter = ISO8601DateFormatter()
 
   init(
+    event: EventListItem? = nil,
     createEventUseCase: CreateEventUseCaseProtocol? = nil,
+    updateEventUseCase: UpdateEventUseCaseProtocol? = nil,
     uploadEventImageUseCase: UploadEventImageUseCaseProtocol? = nil,
     countryRepository: CountryRepository? = nil
   ) {
+    self.eventId = event?.id
     self.createEventUseCase =
       createEventUseCase ?? CreateEventUseCase(dataRepository: RemoteEventRepository())
+    self.updateEventUseCase =
+      updateEventUseCase ?? UpdateEventUseCase(dataRepository: RemoteEventRepository())
     self.uploadEventImageUseCase =
       uploadEventImageUseCase ?? UploadEventImageUseCase(dataRepository: RemoteEventRepository())
     self.countryRepository = countryRepository ?? RemoteCountryRepository()
+
+    if let event {
+      fill(with: event)
+    }
+  }
+
+  var isEditing: Bool {
+    eventId != nil
   }
 
   // If the catalog fails, the dropdown keeps "+52"
@@ -93,6 +109,10 @@ final class CreateEventViewModel: ObservableObject {
     if endsAt <= startsAt {
       return "La fecha y hora de fin deben ser posteriores al inicio."
     }
+    // An event that already ended would not appear in the list after saving
+    if endsAt <= Date() {
+      return "La fecha y hora de fin ya pasaron."
+    }
     return nil
   }
 
@@ -131,7 +151,7 @@ final class CreateEventViewModel: ObservableObject {
     image = file
   }
 
-  func createEvent() async {
+  func saveEvent() async {
     // The button is always enabled, so the first tap reveals the missing fields
     showErrors = true
     guard isFormValid, let newEvent = makeEvent() else { return }
@@ -139,7 +159,13 @@ final class CreateEventViewModel: ObservableObject {
     errorMessage = nil
 
     do {
-      let event = try await createEventUseCase.createEvent(newEvent)
+      // Editing sends the whole event with PUT, so fields left empty are cleared in the backend
+      let event: Event
+      if let eventId {
+        event = try await updateEventUseCase.updateEvent(eventId: eventId, event: newEvent)
+      } else {
+        event = try await createEventUseCase.createEvent(newEvent)
+      }
 
       // The event already exists, so a failed picture is only a warning
       if let image {
@@ -150,12 +176,32 @@ final class CreateEventViewModel: ObservableObject {
           imageUploadFailed = true
         }
       }
-      eventCreated = true
+      eventSaved = true
     } catch {
       handle(error)
     }
 
     isSaving = false
+  }
+
+  // The same date fills the day and the hour pickers, each one only uses its part
+  private func fill(with event: EventListItem) {
+    title = event.title
+    startDate = event.startDate
+    startTime = event.startDate
+    endDate = event.endDate
+    endTime = event.endDate
+    modality = event.modality ?? "Presencial"
+    location = event.location ?? ""
+    link = event.link ?? ""
+    description = event.description ?? ""
+    notes = event.notes ?? ""
+
+    // The backend keeps the code and the number together, like "+524421234567"
+    if let savedPhone = event.phone, savedPhone.count > 10 {
+      countryCode = String(savedPhone.dropLast(10))
+      phone = String(savedPhone.suffix(10))
+    }
   }
 
   private func requiredError(_ value: String) -> String? {
@@ -214,10 +260,16 @@ final class CreateEventViewModel: ObservableObject {
       errorMessage = "Revisa los datos del evento e intenta de nuevo."
     case 401:
       errorMessage = "Tu sesión expiró. Vuelve a iniciar sesión."
+    // Only happens when editing: the event was disabled or deleted while it was open
+    case 404:
+      errorMessage = "Este evento ya no existe o fue deshabilitado."
     case 429:
       errorMessage = "Hiciste demasiados intentos. Intenta más tarde."
     default:
-      errorMessage = "No se pudo crear el evento. Intenta de nuevo."
+      errorMessage =
+        isEditing
+        ? "No se pudo actualizar el evento. Intenta de nuevo."
+        : "No se pudo crear el evento. Intenta de nuevo."
     }
   }
 }

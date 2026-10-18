@@ -9,9 +9,21 @@ import SwiftUI
 
 struct CasesList: View {
   let cases: [Case]
+  var onLoadMore: () -> Void = {}
+
   var body: some View {
     LazyVStack(spacing: 12) {
-      ForEach(cases) { CaseCard(caseItem: $0) }
+      ForEach(cases) { item in
+        NavigationLink {
+          CaseProgressPage(caseId: item.id)
+        } label: {
+          CaseCard(caseItem: item)
+        }
+        .buttonStyle(.plain)
+        .onAppear {
+          if item.id == cases.last?.id { onLoadMore() }
+        }
+      }
     }
   }
 }
