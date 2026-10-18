@@ -154,3 +154,4 @@ final class ChangeLogViewModel: ObservableObject {
         return String(result.prefix(40))
       }
 }
+ 
