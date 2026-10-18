@@ -29,7 +29,7 @@ struct CollaboratorDetail: Decodable, Identifiable, Equatable {
   // "yyyy-MM-dd", the ViewModel formats it for the screen
   let joinedAt: String
   // False when the account was deleted
-  let isActive: Bool
+  var isActive: Bool
 
   // The API uses snake_case and the decoder has no key strategy
   enum CodingKeys: String, CodingKey {

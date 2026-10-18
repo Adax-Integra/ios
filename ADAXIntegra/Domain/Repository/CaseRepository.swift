@@ -14,4 +14,7 @@ protocol CaseRepository {
   // V-11: case detail view and close-case action
   func getCaseDetail(caseId: String) async throws -> CaseDetail
   func closeCase(caseId: String) async throws -> Bool
+  // R-10: accounts that can be assigned and the assignment itself
+  func listAssignableCollaborators() async throws -> [AssignableCollaborator]
+  func assignCollaborators(caseId: String, userIds: [String]) async throws -> Bool
 }

@@ -18,6 +18,8 @@ struct CaseDetailsPage: View {
   @StateObject private var helpsViewModel: CaseHelpsViewModel
 
   @State private var showCloseModal = false
+  // R-10: the case detail does not send who is assigned, so the saved ones are kept here
+  @State private var assignedCollaboratorIds: Set<String> = []
   @Environment(\.dismiss) private var dismiss
 
   init(caseId: String) {
@@ -85,6 +87,35 @@ struct CaseDetailsPage: View {
             isLoading: helpsViewModel.isLoading,
             errorMessage: helpsViewModel.errorMessage
           )
+
+          // R-10: the assignment lives on its own page so this one stays lighter
+          NavigationLink {
+            AssignCollaboratorPage(
+              caseId: caseId,
+              caseNumber: viewModel.caseDetail?.caseNumber ?? "—",
+              assignedIds: assignedCollaboratorIds,
+              onAssigned: { ids in
+                assignedCollaboratorIds.formUnion(ids)
+              }
+            )
+          } label: {
+            HStack(spacing: 8) {
+              Icon(color: Color("PrimaryAdax"), systemName: "person.badge.plus")
+
+              Text("Asignar colaboradora")
+                .font(.headline)
+                .foregroundColor(Color("PrimaryAdax"))
+            }
+            .frame(maxWidth: .infinity, maxHeight: 23)
+            .padding()
+            .background(
+              RoundedRectangle(cornerRadius: 12, style: .continuous)
+                .stroke(Color("PrimaryAdax"), lineWidth: 2)
+            )
+          }
+          .buttonStyle(.plain)
+          .disabled(!isCaseOpen)
+          .opacity(isCaseOpen ? 1.0 : 0.6)
         },
         bottomActions: {
           VStack(spacing: 0) {
