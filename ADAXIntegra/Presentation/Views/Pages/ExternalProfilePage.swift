@@ -11,9 +11,19 @@ import SwiftUI
 struct ExternalProfilePage: View {
   @StateObject private var viewModel: ExternalProfileViewModel
   @Environment(\.dismiss) private var dismiss
+  private let userId: String
+  @State private var showReview = false
+  @State private var statusOverride: VerificationStatus?
+  @EnvironmentObject private var session: AuthSession
 
   init(userId: String) {
+    self.userId = userId
     _viewModel = StateObject(wrappedValue: ExternalProfileViewModel(userId: userId))
+  }
+
+  // Shows the override right after a decision, otherwise what the backend sent
+  private var verification: VerificationStatus {
+    statusOverride ?? viewModel.profile?.verification ?? .noVerificado
   }
 
   var body: some View {
@@ -38,8 +48,16 @@ struct ExternalProfilePage: View {
             contactSection
             addressSection
 
-            PrimaryButton(customHeight: 20, title: "Editar datos", isDisabled: false) {
-              viewModel.startEditing()
+            if verification == .enRevision {
+              PrimaryButton(customHeight: 20, title: "Revisar verificación", isDisabled: false) {
+                showReview = true
+              }
+            }
+
+            if session.roles.contains("admin") {
+              PrimaryButton(customHeight: 20, title: "Editar datos", isDisabled: false) {
+                viewModel.startEditing()
+              }
             }
           }
         }
@@ -50,6 +68,11 @@ struct ExternalProfilePage: View {
     .task { await viewModel.load() }
     .navigationDestination(isPresented: $viewModel.isEditing) {
       EditExternalProfilePage(viewModel: viewModel)
+    }
+    .navigationDestination(isPresented: $showReview) {
+      VerificationReviewPage(userId: userId) { newStatus in
+        statusOverride = newStatus
+      }
     }
     .toast(isPresented: $viewModel.isShowingSuccessToast, message: "Datos actualizados", edge: .top)
     // The edit page shows its own alert, so this one only runs on the detail
@@ -86,6 +109,9 @@ struct ExternalProfilePage: View {
           Label(viewModel.display(viewModel.saved.email), systemImage: "envelope")
             .font(.system(size: 13))
             .foregroundColor(Color("InsideTextAndIcons"))
+
+          VerificationBadge(status: verification)
+            .padding(.top, 2)
         }
 
         Spacer(minLength: 0)
