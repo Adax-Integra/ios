@@ -55,12 +55,12 @@ struct ProfilePage: View {
         fullName: viewModel.fullName,
         memberSince: viewModel.memberSince
       ) {
-          if isExternal {
-              VerificationBadge(
-                status: viewModel.profile?.verification ?? .noVerificado
-              )
-              .padding(.top, 2)
-          }
+        if isExternal {
+          VerificationBadge(
+            status: viewModel.profile?.verification ?? .noVerificado
+          )
+          .padding(.top, 2)
+        }
       }
 
       Text("Información Personal")

@@ -35,21 +35,21 @@ struct CasesPageInterna: View {
           .foregroundStyle(.secondary)
           .padding()
       } else {
-          ForEach(viewModel.cases) { item in
-            NavigationLink {
-              CaseDetailsPage(caseId: item.id)
-            } label: {
-              CaseCardInterna(
-                name: item.displayName,
-                urgency: item.urgency,
-                state: item.stateText,
-                updateAt: item.updatedDate,
-                categories: item.violenceTypes,
-                caseId: item.id
-              )
-            }
-            .buttonStyle(.plain)
+        ForEach(viewModel.cases) { item in
+          NavigationLink {
+            CaseDetailsPage(caseId: item.id)
+          } label: {
+            CaseCardInterna(
+              name: item.displayName,
+              urgency: item.urgency,
+              state: item.stateText,
+              updateAt: item.updatedDate,
+              categories: item.violenceTypes,
+              caseId: item.id
+            )
           }
+          .buttonStyle(.plain)
+        }
       }
     }
     .navigationBarBackButtonHidden(true)

@@ -15,7 +15,6 @@ struct CaseCardInterna: View {
   let categories: [String]
   var caseId: String = ""
 
-
   var body: some View {
     VStack(alignment: .leading, spacing: 10) {
       CaseHeader(name: name, urgency: urgency)

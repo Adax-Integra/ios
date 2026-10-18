@@ -13,8 +13,18 @@ struct HomePageExterna: View {
   @EnvironmentObject private var session: AuthSession
   @StateObject private var profileViewModel = ProfileViewModel()
   @StateObject private var eventsViewModel = EventsViewModel(scope: .month)
+  @StateObject private var casesViewModel: CasesViewModel
+  @State private var isLoadingCases = true
   @State private var showUpload = false
 
+  init(userId: String) {
+    _casesViewModel = StateObject(
+      wrappedValue: CasesViewModel(
+        repository: RemoteCaseRepository(),
+        userId: userId
+      )
+    )
+  }
   var body: some View {
     HomeTemplate {
       HomeHeader()
@@ -30,24 +40,40 @@ struct HomePageExterna: View {
         Text("No estás sola, estamos aquí para acompañarte")
           .font(.subheadline)
           .foregroundColor(Color("PrimaryAdax"))
-          
         if let profile = profileViewModel.profile,
-           profile.verification != .verificado {
-            VerificationBanner(status: profile.verification) {
-                showUpload = true
-            }
-            .padding(.top, 4)
+          profile.verification != .verificado
+        {
+          VerificationBanner(status: profile.verification) {
+            showUpload = true
+          }
+          .padding(.top, 4)
         }
       }
     } caseProgress: {
-      // space reserved for the case progress component
-      SurfaceCard(cornerRadius: 28) {
-        Text("Tu caso en curso")
-          .font(.headline)
-          .foregroundColor(Color("OnBackground"))
-          .frame(maxWidth: .infinity, alignment: .topLeading)
-          .frame(minHeight: 120, alignment: .topLeading)
+      if isLoadingCases {
+        SurfaceCard(cornerRadius: 28) {
+          ProgressView("Cargando casos...")
+            .padding(20)
+        }
+      } else if casesViewModel.errorMessage != nil {
+        SurfaceCard(cornerRadius: 28) {
+          Text("No se pudo cargar la información de tus casos.")
+            .padding(20)
+        }
+      } else if let activeCase = casesViewModel.latestActiveCase {
+        HomeCaseProgressCard(caseId: activeCase.id)
+      } else {
+        SurfaceCard(cornerRadius: 28) {
+          VStack(alignment: .leading, spacing: 12) {
+            Text("Tu caso en curso")
+              .font(.title2.bold())
+
+            Text("Todavía no tienes un caso en curso")
+              .font(.subheadline)
+          }
+          .frame(maxWidth: .infinity, alignment: .leading)
           .padding(20)
+        }
       }
     } events: {
       EventsCarousel(viewModel: eventsViewModel)
@@ -103,14 +129,20 @@ struct HomePageExterna: View {
     .task {
       await eventsViewModel.loadEvents()
     }
-    
+    // loads the user's cases
+    .task {
+      await casesViewModel.loadCases()
+      isLoadingCases = false
+    }
     .navigationDestination(isPresented: $showUpload) {
-        IdentityDocumentsPage(userId: session.userId)
+      IdentityDocumentsPage(userId: session.userId)
     }
     .onChange(of: showUpload) { _, isShowing in
-        if !isShowing {
-            Task { await profileViewModel.loadProfile(for: session.userId) }
+      if !isShowing {
+        Task {
+          await profileViewModel.loadProfile(for: session.userId)
         }
+      }
     }
   }
 
@@ -123,7 +155,7 @@ struct HomePageExterna: View {
 
 #Preview {
   NavigationStack {
-    HomePageExterna()
+    HomePageExterna(userId: "preview-user")
   }
   .environmentObject(AuthSession())
 }

@@ -14,10 +14,15 @@ struct CasesList: View {
   var body: some View {
     LazyVStack(spacing: 12) {
       ForEach(cases) { item in
-        CaseCard(caseItem: item)
-          .onAppear {
-            if item.id == cases.last?.id { onLoadMore() }
-          }
+        NavigationLink {
+          CaseProgressPage(caseId: item.id)
+        } label: {
+          CaseCard(caseItem: item)
+        }
+        .buttonStyle(.plain)
+        .onAppear {
+          if item.id == cases.last?.id { onLoadMore() }
+        }
       }
     }
   }

@@ -29,7 +29,7 @@ struct ProfileHeader<Accessory: View>: View {
           Text(memberSince)
             .font(.system(size: 13))
             .foregroundColor(Color("InsideTextAndIcons"))
-            
+
           accessory()
         }
 
@@ -41,15 +41,15 @@ struct ProfileHeader<Accessory: View>: View {
 }
 
 extension ProfileHeader where Accessory == EmptyView {
-    init(initials: String, fullName: String, memberSince: String) {
-        self.init(
-            initials: initials,
-            fullName: fullName,
-            memberSince: memberSince
-        ) {
-            EmptyView()
-        }
+  init(initials: String, fullName: String, memberSince: String) {
+    self.init(
+      initials: initials,
+      fullName: fullName,
+      memberSince: memberSince
+    ) {
+      EmptyView()
     }
+  }
 }
 
 #Preview {

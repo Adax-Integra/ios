@@ -39,6 +39,19 @@ final class CasesViewModel: ObservableObject {
 
   var totalCount: Int { matchingCases.count }
 
+  // returns the most recently updated active case for the home screen
+  var latestActiveCase: Case? {
+    cases
+      .filter {
+        let state = $0.state?.lowercased()
+        return state == "open" || state == "in_progress"
+      }
+      .sorted {
+        ($0.updatedAtDate ?? .distantPast) > ($1.updatedAtDate ?? .distantPast)
+      }
+      .first
+  }
+
   func loadMore() {
     guard visibleCount < matchingCases.count else { return }
     visibleCount += Self.pageSize
