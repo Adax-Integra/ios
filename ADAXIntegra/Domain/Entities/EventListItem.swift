@@ -143,4 +143,102 @@ extension EventListItem {
     else { return nil }
     return notes
   }
+
+  // Multi-day events show a range instead of only the start date
+  var isMultiDay: Bool {
+    guard let startDate, let endDate else { return false }
+    return !Calendar.current.isDate(startDate, inSameDayAs: endDate)
+  }
+
+  private static let shortDayFormatter: DateFormatter = {
+    let formatter = DateFormatter()
+    formatter.locale = EventListItem.displayLocale
+    formatter.dateFormat = "EEE d MMM"
+    return formatter
+  }()
+
+  private static let dayFormatter: DateFormatter = {
+    let formatter = DateFormatter()
+    formatter.locale = EventListItem.displayLocale
+    formatter.dateFormat = "d"
+    return formatter
+  }()
+
+  private static let dayMonthFormatter: DateFormatter = {
+    let formatter = DateFormatter()
+    formatter.locale = EventListItem.displayLocale
+    formatter.dateFormat = "d MMM"
+    return formatter
+  }()
+
+  private static let yearFormatter: DateFormatter = {
+    let formatter = DateFormatter()
+    formatter.locale = EventListItem.displayLocale
+    formatter.dateFormat = "yyyy"
+    return formatter
+  }()
+
+  // Detail: "Jue 15 oct, 12:00 AM – Dom 18 oct, 4:30 PM"
+  var scheduleString: String {
+    guard isMultiDay, let startDate, let endDate else {
+      return "\(detailDateString) · \(timeRangeString)"
+    }
+    let start = "\(EventListItem.shortDay(startDate)), \(EventListItem.hour(startDate))"
+    let end = "\(EventListItem.shortDay(endDate)), \(EventListItem.hour(endDate))"
+    return "\(start) – \(end)"
+  }
+
+  // List card pill: the start time, or "15–18 oct" / "30 oct–2 nov"
+  var listTimeString: String {
+    guard isMultiDay, let startDate, let endDate else { return timeString }
+    let end = EventListItem.dayMonthFormatter.string(from: endDate)
+    if Calendar.current.isDate(startDate, equalTo: endDate, toGranularity: .month) {
+      return "\(EventListItem.dayFormatter.string(from: startDate))–\(end)"
+    }
+    return "\(EventListItem.dayMonthFormatter.string(from: startDate))–\(end)"
+  }
+
+  // Carousel card: "15 – 18 oct 2026", "30 oct – 2 nov 2026" or "30 dic 2026 – 2 ene 2027"
+  var carouselDateString: String {
+    guard isMultiDay, let startDate, let endDate else { return longDateString }
+    let calendar = Calendar.current
+    let end =
+      "\(EventListItem.dayMonthFormatter.string(from: endDate)) \(EventListItem.yearFormatter.string(from: endDate))"
+    if calendar.isDate(startDate, equalTo: endDate, toGranularity: .month) {
+      return "\(EventListItem.dayFormatter.string(from: startDate)) – \(end)"
+    }
+    if calendar.isDate(startDate, equalTo: endDate, toGranularity: .year) {
+      return "\(EventListItem.dayMonthFormatter.string(from: startDate)) – \(end)"
+    }
+    let start =
+      "\(EventListItem.dayMonthFormatter.string(from: startDate)) \(EventListItem.yearFormatter.string(from: startDate))"
+    return "\(start) – \(end)"
+  }
+
+  private static func shortDay(_ date: Date) -> String {
+    let text = shortDayFormatter.string(from: date)
+    return text.prefix(1).uppercased() + text.dropFirst()
+  }
+
+  private static func hour(_ date: Date) -> String {
+    "\(hourFormatter.string(from: date)) \(periodFormatter.string(from: date))"
+  }
+
+  // Badge over the image: "15" / "15–18" and "OCT" / "OCT–NOV"
+  var badgeDayString: String {
+    guard isMultiDay, let startDate, let endDate else { return dayString }
+    let start = EventListItem.dayFormatter.string(from: startDate)
+    let end = EventListItem.dayFormatter.string(from: endDate)
+    return "\(start)–\(end)"
+  }
+
+  var badgeMonthString: String {
+    guard isMultiDay, let startDate, let endDate,
+      !Calendar.current.isDate(startDate, equalTo: endDate, toGranularity: .month)
+    else { return monthString }
+    let start = startDate.formatted(
+      .dateTime.month(.abbreviated).locale(EventListItem.displayLocale))
+    let end = endDate.formatted(.dateTime.month(.abbreviated).locale(EventListItem.displayLocale))
+    return "\(start)–\(end)".uppercased()
+  }
 }

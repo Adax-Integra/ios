@@ -15,6 +15,7 @@ struct HomePageExterna: View {
   @StateObject private var eventsViewModel = EventsViewModel(scope: .month)
   @StateObject private var casesViewModel: CasesViewModel
   @State private var isLoadingCases = true
+  @State private var showUpload = false
 
   init(userId: String) {
     _casesViewModel = StateObject(
@@ -24,12 +25,11 @@ struct HomePageExterna: View {
       )
     )
   }
-
   var body: some View {
     HomeTemplate {
       HomeHeader()
     } welcome: {
-      VStack(alignment: .leading, spacing: 8) {
+      VStack(alignment: .leading, spacing: 12) {
         Text(
           profileViewModel.profile.map { "¡Hola, \($0.name)!" }
             ?? "¡Hola!"
@@ -40,6 +40,14 @@ struct HomePageExterna: View {
         Text("No estás sola, estamos aquí para acompañarte")
           .font(.subheadline)
           .foregroundColor(Color("PrimaryAdax"))
+        if let profile = profileViewModel.profile,
+          profile.verification != .verificado
+        {
+          VerificationBanner(status: profile.verification) {
+            showUpload = true
+          }
+          .padding(.top, 4)
+        }
       }
     } caseProgress: {
       if isLoadingCases {
@@ -125,6 +133,16 @@ struct HomePageExterna: View {
     .task {
       await casesViewModel.loadCases()
       isLoadingCases = false
+    }
+    .navigationDestination(isPresented: $showUpload) {
+      IdentityDocumentsPage(userId: session.userId)
+    }
+    .onChange(of: showUpload) { _, isShowing in
+      if !isShowing {
+        Task {
+          await profileViewModel.loadProfile(for: session.userId)
+        }
+      }
     }
   }
 
