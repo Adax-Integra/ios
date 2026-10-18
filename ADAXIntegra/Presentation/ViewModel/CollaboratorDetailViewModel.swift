@@ -71,7 +71,8 @@ final class CollaboratorDetailViewModel: ObservableObject {
   init(
     userId: String,
     getCollaboratorDetailUseCase: GetCollaboratorDetailUseCaseProtocol? = nil,
-    getAssignedCasesUseCase: GetCollaboratorAssignedCasesUseCaseProtocol? = nil
+    getAssignedCasesUseCase: GetCollaboratorAssignedCasesUseCaseProtocol? = nil,
+    updateStatusUseCase: UpdateCollaboratorStatusUseCaseProtocol? = nil
   ) {
     self.userId = userId
     let repository = RemoteCollaboratorDetailRepository()
@@ -80,7 +81,8 @@ final class CollaboratorDetailViewModel: ObservableObject {
     self.getAssignedCasesUseCase =
       getAssignedCasesUseCase ?? GetCollaboratorAssignedCasesUseCase(dataRepository: repository)
     // G-04: uses the same repository as the collaborator detail
-    self.updateStatusUseCase = UpdateCollaboratorStatusUseCase(dataRepository: repository)
+    self.updateStatusUseCase =
+      updateStatusUseCase ?? UpdateCollaboratorStatusUseCase(dataRepository: repository)
   }
 
   // Values for the views
@@ -208,11 +210,11 @@ final class CollaboratorDetailViewModel: ObservableObject {
     isUpdatingStatus = true
 
     do {
-      // Send the PATCH to the backend
-      _ = try await updateStatusUseCase.updateStatus(userId: userId, isActive: newStatus)
+      // Send the PATCH to the backend, it answers with the saved status
+      let result = try await updateStatusUseCase.updateStatus(userId: userId, isActive: newStatus)
 
-      // Load the data again so the screen shows the new status
-      await load(force: true)
+      // Update only the status on screen, no need to load the whole detail again
+      self.detail?.isActive = result.isActive
 
       // Success message at the bottom of the screen
       if newStatus {
