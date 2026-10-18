@@ -31,6 +31,12 @@ struct CuentasExternasPage: View {
       }
     }
     .navigationBarBackButtonHidden(true)
+    // Hides the keyboard of the search bar when tapping outside of it
+    .onTapGesture {
+      UIApplication.shared.sendAction(
+        #selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil
+      )
+    }
     // Same as Expedientes: waits a little so the backend is not called on every letter.
     // It also runs when the screen appears and when coming back from G-07
     .task(id: viewModel.searchText) {
@@ -49,6 +55,8 @@ struct CuentasExternasPage: View {
   private var filtersSection: some View {
     VStack(alignment: .leading, spacing: 12) {
       SearchBarInterna(placeholder: "Buscar por nombre o correo...", text: $viewModel.searchText)
+        .autocorrectionDisabled(true)
+        .textInputAutocapitalization(.never)
 
       HStack(spacing: 12) {
         //same as the urgency filter in "Todos los casos": a menu with one option selected
