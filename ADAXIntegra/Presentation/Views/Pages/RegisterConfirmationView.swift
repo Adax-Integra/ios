@@ -8,52 +8,65 @@
 import SwiftUI
 
 struct RegisterConfirmationView: View {
-    var recordNumber: String?
-    var onDone: () -> Void
-    
-    var body: some View {
+  var recordNumber: String?
+  var onDone: () -> Void
+  var onRegisterCase: (() -> Void)? = nil
+
+  var body: some View {
+    ZStack {
+      Color("Background").ignoresSafeArea()
+
+      VStack(spacing: 20) {
+        Spacer()
+
         ZStack {
-            Color("Background").ignoresSafeArea()
-            
-            VStack(spacing: 20) {
-                Spacer()
-                
-                ZStack {
-                    Circle()
-                        .fill(Color("PrimaryAdax"))
-                        .frame(width: 140, height: 140)
-                    Image(systemName: "checkmark")
-                        .font(.system(size: 57, weight: .bold))
-                        .foregroundStyle(.white)
-                }
-                
-                Text("¡Usuaria registrada correctamente!")
-                    .font(.system(size: 24, weight: .bold))
-                    .foregroundStyle(Color("OnBackground"))
-                
-                Text("El expediente se creó correctamente. Se envió una contraseña temporal al correo de la externa")
-                    .font(.system(size: 15))
-                    .foregroundStyle(Color("InsideTextAndIcons"))
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, 24)
-                
-                if let recordNumber {
-                    Text("Folio del expediente: \(recordNumber)")
-                        .font(.system(size: 13, weight: .medium))
-                        .foregroundStyle(Color("InsideTextAndIcons"))
-                }
-                
-                Spacer()
-                
-                PrimaryButton(title: "Listo", isDisabled: false, action: onDone)
-                    .frame(maxWidth: .infinity, minHeight: 52, maxHeight: 52)
-                    .padding(.horizontal, 20)
-                    .padding(.bottom, 24)
-            }
+          Circle()
+            .fill(Color("PrimaryAdax"))
+            .frame(width: 140, height: 140)
+          Image(systemName: "checkmark")
+            .font(.system(size: 57, weight: .bold))
+            .foregroundStyle(.white)
         }
+
+        Text("¡Usuaria registrada correctamente!")
+          .font(.system(size: 24, weight: .bold))
+          .foregroundStyle(Color("OnBackground"))
+
+        Text(
+          "El expediente se creó correctamente. Se envió una contraseña temporal al correo de la externa"
+        )
+        .font(.system(size: 15))
+        .foregroundStyle(Color("InsideTextAndIcons"))
+        .multilineTextAlignment(.center)
+        .padding(.horizontal, 24)
+
+        if let recordNumber {
+          Text("Folio del expediente: \(recordNumber)")
+            .font(.system(size: 13, weight: .medium))
+            .foregroundStyle(Color("InsideTextAndIcons"))
+        }
+
+        Spacer()
+
+        if let onRegisterCase {
+          PrimaryButton(
+            title: "Registrar nuevo caso",
+            isDisabled: false,
+            action: onRegisterCase
+          )
+          .frame(maxWidth: .infinity, minHeight: 52, maxHeight: 52)
+          .padding(.horizontal, 20)
+        }
+
+        PrimaryButton(title: "Listo", isDisabled: false, action: onDone)
+          .frame(maxWidth: .infinity, minHeight: 52, maxHeight: 52)
+          .padding(.horizontal, 20)
+          .padding(.bottom, 24)
+      }
     }
+  }
 }
 
 #Preview {
-    RegisterConfirmationView(recordNumber: "EXP-2026-0001", onDone: {})
+  RegisterConfirmationView(recordNumber: "EXP-2026-0001", onDone: {})
 }
