@@ -52,4 +52,22 @@ struct RemoteCaseRepository: CaseRepository {
     )
     return response.success
   }
+
+  // R-10 implementation, active internal and admin accounts sorted by name
+  func listAssignableCollaborators() async throws -> [AssignableCollaborator] {
+    let response = try await APIProtocol.get(
+      "/cases/collaborators", as: APIResponse<[AssignableCollaborator]>.self
+    )
+    return response.data
+  }
+
+  // R-10 implementation, assigns one or more internal or admin users to the case in one call
+  func assignCollaborators(caseId: String, userIds: [String]) async throws -> Bool {
+    let response = try await APIProtocol.post(
+      "/cases/\(caseId)/assignments",
+      body: AssignCaseCollaboratorsRequest(userIds: userIds),
+      as: CaseAssignmentResult.self
+    )
+    return response.success
+  }
 }
