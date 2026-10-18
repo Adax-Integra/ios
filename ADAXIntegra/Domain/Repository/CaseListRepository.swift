@@ -14,4 +14,12 @@ protocol CaseListRepository {
     search: String,
     urgency: String
   ) async throws -> CaseListResult
+
+  // V-12: cases assigned to the logged-in collaborator, open and closed
+  func listAssignedCases(
+    page: Int,
+    limit: Int,
+    search: String,
+    urgency: String
+  ) async throws -> CaseListResult
 }
