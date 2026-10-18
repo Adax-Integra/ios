@@ -9,7 +9,7 @@ import SwiftUI
 
 enum RecordStatus: String, CaseIterable {
   case sinEmpezar = "SIN_EMPEZAR"
-  case enRevision = "EN_REVISON"
+  case enRevision = "EN_REVISION"
   case enSeguimiento = "EN_SEGUIMIENTO"
   case completado = "COMPLETADO"
 

@@ -13,8 +13,13 @@ import UIKit
 struct CollaboratorDetailPage: View {
   @StateObject private var viewModel: CollaboratorDetailViewModel
   @Environment(\.dismiss) private var dismiss
+  // G-18: shows or hides the edit screen
   @State private var showEdit = false
   private let userId: String
+  // G-04: shows or hides the confirmation dialog
+  @State private var showStatusDialog = false
+  // G-04: used to log out when the session expires (401)
+  @EnvironmentObject private var session: AuthSession
 
   init(userId: String) {
     self.userId = userId
@@ -43,14 +48,48 @@ struct CollaboratorDetailPage: View {
           await viewModel.loadCases(force: true)
         }
       }
+
+      // G-04: dark background and confirmation dialog
+      if showStatusDialog, let detail = viewModel.detail {
+        Color.black.opacity(0.4)
+          .ignoresSafeArea()
+          .onTapGesture {
+            // It cannot be closed while saving
+            if !viewModel.isUpdatingStatus {
+              showStatusDialog = false
+            }
+          }
+
+        ChangeStatusDialog(
+          collaboratorName: detail.fullName,
+          isActive: detail.isActive,
+          isLoading: viewModel.isUpdatingStatus,
+          onConfirm: {
+            Task {
+              await viewModel.changeStatus()
+              showStatusDialog = false
+            }
+          },
+          onCancel: { showStatusDialog = false }
+        )
+      }
     }
     .toolbar(.hidden, for: .navigationBar)
     .task { await viewModel.load() }
     .toast(isPresented: $viewModel.isShowingCopiedToast, message: "Copiado al portapapeles")
+    // G-18: open the edit screen
     .navigationDestination(isPresented: $showEdit) {
       EditCollaboratorProfilePage(userId: userId) {
         // Reload the detail when the edit screen saved changes
         Task { await viewModel.load(force: true) }
+      }
+    }
+    // G-04: success or error message
+    .toast(isPresented: $viewModel.isShowingStatusToast, message: viewModel.statusToastMessage)
+    // G-04: if the session expired (401), log out and go back to the login
+    .onChange(of: viewModel.shouldGoToLogin) { _, goToLogin in
+      if goToLogin {
+        Task { await session.logout() }
       }
     }
   }
@@ -111,8 +150,18 @@ struct CollaboratorDetailPage: View {
         description: viewModel.statusDescription
       )
 
+      // G-18: opens the edit screen
       SecondaryButton(customHeight: 20, title: "Editar información", isDisabled: false) {
         showEdit = true
+      }
+
+      // G-04: opens the confirmation dialog to turn the account on or off
+      SecondaryButton(
+        customHeight: 20,
+        title: "Cambiar estatus",
+        isDisabled: false
+      ) {
+        showStatusDialog = true
       }
     }
   }
@@ -245,4 +294,5 @@ struct CollaboratorDetailPage: View {
   NavigationStack {
     CollaboratorDetailPage(userId: "#############")
   }
+  .environmentObject(AuthSession())
 }

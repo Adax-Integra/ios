@@ -26,4 +26,15 @@ struct RemoteCollaboratorDetailRepository: CollaboratorDetailRepository {
 
     return response.data
   }
+
+  // G-04: PATCH /internal-users/{userId}/status
+  func updateStatus(userId: String, isActive: Bool) async throws -> CollaboratorStatusResult {
+    let response = try await APIProtocol.patch(
+      "/internal-users/\(userId)/status",
+      body: UpdateCollaboratorStatusRequest(isActive: isActive),
+      as: APIResponse<CollaboratorStatusResult>.self
+    )
+
+    return response.data
+  }
 }
