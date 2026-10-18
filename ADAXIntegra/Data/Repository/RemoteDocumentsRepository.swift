@@ -17,6 +17,15 @@ struct RemoteDocumentsRepository: DocumentsRepository {
     )
     return response.data
   }
+    
+  // B-02 / V-13: GET /internal-users/external-users/:userId/documents
+  func getStaffDocuments(for userId: String) async throws -> SavedDocuments {
+    let response = try await APIProtocol.get(
+      "/internal-users/external-users/\(userId)/documents",
+      as: APIResponse<SavedDocuments>.self
+    )
+    return response.data
+  }
 
   // R-06: PATCH /external-users/:userId/documents, the document not sent stays the same
   func uploadDocument(
