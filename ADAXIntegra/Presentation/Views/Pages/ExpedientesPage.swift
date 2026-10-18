@@ -41,7 +41,7 @@ struct ExpedientesPage: View {
           )
         }
 
-        if session.roles.contains("admin") {
+          if session.roles.contains("admin") || session.roles.contains("internal") {
           NavigationLink {
             CuentasExternasPage()
           } label: {
