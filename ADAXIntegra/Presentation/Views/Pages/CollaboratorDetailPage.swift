@@ -13,15 +13,18 @@ import UIKit
 struct CollaboratorDetailPage: View {
   @StateObject private var viewModel: CollaboratorDetailViewModel
   @Environment(\.dismiss) private var dismiss
+  @State private var showEdit = false
+  private let userId: String
 
   init(userId: String) {
+    self.userId = userId
     _viewModel = StateObject(wrappedValue: CollaboratorDetailViewModel(userId: userId))
   }
 
   var body: some View {
     ZStack {
       Color("Background").ignoresSafeArea()
-      
+
       ScrollView(showsIndicators: false) {
         VStack(alignment: .leading, spacing: 16) {
           PageHeader(
@@ -29,7 +32,7 @@ struct CollaboratorDetailPage: View {
             backAction: { dismiss() },
             subtitle: "Gestión de colaboradoras"
           )
-          
+
           content
         }
         .padding(20)
@@ -44,6 +47,12 @@ struct CollaboratorDetailPage: View {
     .toolbar(.hidden, for: .navigationBar)
     .task { await viewModel.load() }
     .toast(isPresented: $viewModel.isShowingCopiedToast, message: "Copiado al portapapeles")
+    .navigationDestination(isPresented: $showEdit) {
+      EditCollaboratorProfilePage(userId: userId) {
+        // Reload the detail when the edit screen saved changes
+        Task { await viewModel.load(force: true) }
+      }
+    }
   }
 
   @ViewBuilder
@@ -102,7 +111,9 @@ struct CollaboratorDetailPage: View {
         description: viewModel.statusDescription
       )
 
-      SecondaryButton(customHeight: 20, title: "Editar información", isDisabled: false) {}
+      SecondaryButton(customHeight: 20, title: "Editar información", isDisabled: false) {
+        showEdit = true
+      }
     }
   }
 
@@ -114,13 +125,13 @@ struct CollaboratorDetailPage: View {
         .foregroundColor(Color("OnBackground"))
 
       activeChip
-      
+
       SearchBar(text: $viewModel.searchText)
         .overlay(
           RoundedRectangle(cornerRadius: 12, style: .continuous)
             .stroke(Color("InsideTextAndIcons").opacity(0.5), lineWidth: 1)
         )
-      
+
       casesList
     }
     .onAppear {
@@ -147,17 +158,17 @@ struct CollaboratorDetailPage: View {
     .animation(.snappy, value: viewModel.onlyActiveCases)
   }
 
-    @ViewBuilder
-      private var casesList: some View {
-        if let message = viewModel.casesErrorMessage {
-          errorCard(message) {
-            Task { await viewModel.loadCases(force: true) }
-          }
-        } else if !viewModel.hasLoadedCases {
-          ProgressView()
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 24)
-        } else if viewModel.filteredCases.isEmpty {
+  @ViewBuilder
+  private var casesList: some View {
+    if let message = viewModel.casesErrorMessage {
+      errorCard(message) {
+        Task { await viewModel.loadCases(force: true) }
+      }
+    } else if !viewModel.hasLoadedCases {
+      ProgressView()
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 24)
+    } else if viewModel.filteredCases.isEmpty {
       messageCard(
         systemImage: "folder",
         title: viewModel.cases.isEmpty ? "Sin casos asignados" : "Sin resultados",
