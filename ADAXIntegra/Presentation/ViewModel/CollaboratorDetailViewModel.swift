@@ -35,8 +35,16 @@ final class CollaboratorDetailViewModel: ObservableObject {
   @Published var onlyActiveCases = true
   @Published var isShowingCopiedToast = false
 
+  // G-04: state for changing the account status
+  @Published private(set) var isUpdatingStatus = false
+  @Published var isShowingStatusToast = false
+  @Published private(set) var statusToastMessage = ""
+  @Published private(set) var shouldGoToLogin = false
+
   private let getCollaboratorDetailUseCase: GetCollaboratorDetailUseCaseProtocol
   private let getAssignedCasesUseCase: GetCollaboratorAssignedCasesUseCaseProtocol
+  // G-04: use case to turn the account on or off
+  private let updateStatusUseCase: UpdateCollaboratorStatusUseCaseProtocol
   private let userId: String
 
   private static let apiDateFormatter: DateFormatter = {
@@ -71,27 +79,29 @@ final class CollaboratorDetailViewModel: ObservableObject {
       getCollaboratorDetailUseCase ?? GetCollaboratorDetailUseCase(dataRepository: repository)
     self.getAssignedCasesUseCase =
       getAssignedCasesUseCase ?? GetCollaboratorAssignedCasesUseCase(dataRepository: repository)
+    // G-04: uses the same repository as the collaborator detail
+    self.updateStatusUseCase = UpdateCollaboratorStatusUseCase(dataRepository: repository)
   }
 
   // Values for the views
-    func updatedAtText(for item: CollaboratorAssignedCase) -> String {
-      guard let date = date(from: item.updatedAt) else { return "Sin datos" }
-      return Self.fullDateFormatter.string(from: date)
-    }
+  func updatedAtText(for item: CollaboratorAssignedCase) -> String {
+    guard let date = date(from: item.updatedAt) else { return "Sin datos" }
+    return Self.fullDateFormatter.string(from: date)
+  }
 
-    //  "Open" or "Closed"
-    func stateText(for item: CollaboratorAssignedCase) -> String {
-      switch item.state {
-      case "Open": return "Abierto"
-      case "Closed": return "Cerrado"
-      default: return "Sin estado"
-      }
+  //  "Open" or "Closed"
+  func stateText(for item: CollaboratorAssignedCase) -> String {
+    switch item.state {
+    case "Open": return "Abierto"
+    case "Closed": return "Cerrado"
+    default: return "Sin estado"
     }
+  }
 
-    // Violence types joined in one line, or a message when the case has none
-    func violenceText(for item: CollaboratorAssignedCase) -> String {
-      item.violenceTypes.isEmpty ? "Sin registrar" : item.violenceTypes.joined(separator: ", ")
-    }
+  // Violence types joined in one line, or a message when the case has none
+  func violenceText(for item: CollaboratorAssignedCase) -> String {
+    item.violenceTypes.isEmpty ? "Sin registrar" : item.violenceTypes.joined(separator: ", ")
+  }
 
   // Only the "internal" role for all collaborators
   var roleText: String {
@@ -151,9 +161,9 @@ final class CollaboratorDetailViewModel: ObservableObject {
 
   // Actions
 
-    func load(force: Bool = false) async {
-      // Si force es true, ignoramos si detail ya tiene datos
-      guard force || detail == nil else { return }
+  func load(force: Bool = false) async {
+    // Si force es true, ignoramos si detail ya tiene datos
+    guard force || detail == nil else { return }
     isLoading = true
     errorMessage = nil
     defer { isLoading = false }
@@ -165,26 +175,90 @@ final class CollaboratorDetailViewModel: ObservableObject {
     }
   }
 
-    func loadCases(force: Bool = false) async {
-        guard !isLoadingCases else { return }
-        guard force || !hasLoadedCases else { return }
+  func loadCases(force: Bool = false) async {
+    guard !isLoadingCases else { return }
+    guard force || !hasLoadedCases else { return }
 
-        isLoadingCases = true
-        casesErrorMessage = nil
-        defer { isLoadingCases = false }
+    isLoadingCases = true
+    casesErrorMessage = nil
+    defer { isLoadingCases = false }
 
-        do {
-          let result = try await getAssignedCasesUseCase.getAssignedCases(for: userId)
-          cases = result.cases
-          hasLoadedCases = true
-        } catch {
-          casesErrorMessage = message(for: error, subject: "los casos asignados")
-        }
-      }
+    do {
+      let result = try await getAssignedCasesUseCase.getAssignedCases(for: userId)
+      cases = result.cases
+      hasLoadedCases = true
+    } catch {
+      casesErrorMessage = message(for: error, subject: "los casos asignados")
+    }
+  }
 
   // The view writes in the portapepeles and the ViewModel only shows the confirmation
   func didCopy() {
     isShowingCopiedToast = true
+  }
+
+  // G-04: turns the account on or off, called when "Confirmar" is tapped
+  func changeStatus() async {
+    // Stop if the collaborator data has not loaded yet
+    guard let detail else { return }
+
+    // If the account is active we turn it off, and the other way around
+    let newStatus = !detail.isActive
+
+    isUpdatingStatus = true
+
+    do {
+      // Send the PATCH to the backend
+      _ = try await updateStatusUseCase.updateStatus(userId: userId, isActive: newStatus)
+
+      // Load the data again so the screen shows the new status
+      await load(force: true)
+
+      // Success message at the bottom of the screen
+      if newStatus {
+        statusToastMessage = "La cuenta se activó correctamente."
+      } else {
+        statusToastMessage = "La cuenta se desactivó correctamente."
+      }
+      isShowingStatusToast = true
+    } catch {
+      await handleStatusError(error)
+    }
+
+    isUpdatingStatus = false
+  }
+
+  // G-04: picks the error message to show, based on what the backend answered
+  private func handleStatusError(_ error: Error) async {
+    // The server did not answer (no internet or server down)
+    guard case APIError.server(let statusCode, _) = error else {
+      statusToastMessage = "No se pudo conectar con el servidor. Revisa tu conexión a internet."
+      isShowingStatusToast = true
+      return
+    }
+
+    switch statusCode {
+    case 400:
+      statusToastMessage = "No se pudo procesar el cambio. Intenta de nuevo."
+    case 401:
+      // The session expired, the page sends the user back to the login
+      shouldGoToLogin = true
+      return
+    case 403:
+      statusToastMessage = "No tienes permiso para cambiar el estatus de esta cuenta."
+    case 404:
+      statusToastMessage = "No encontramos la cuenta de esta colaboradora."
+    case 409:
+      statusToastMessage = "La cuenta ya tenía ese estatus."
+      // Load again to show the real status
+      await load(force: true)
+    case 429:
+      statusToastMessage = "Hiciste demasiados intentos. Espera un momento e intenta de nuevo."
+    default:
+      statusToastMessage = "Ocurrió un error en el servidor. Intenta más tarde."
+    }
+
+    isShowingStatusToast = true
   }
 
   // Private
