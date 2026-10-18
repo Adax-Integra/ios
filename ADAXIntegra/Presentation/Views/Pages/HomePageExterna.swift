@@ -16,6 +16,7 @@ struct HomePageExterna: View {
   @StateObject private var casesViewModel: CasesViewModel
   @State private var isLoadingCases = true
   @State private var showUpload = false
+  @State private var showNewCase = false
 
   init(userId: String) {
     _casesViewModel = StateObject(
@@ -25,6 +26,7 @@ struct HomePageExterna: View {
       )
     )
   }
+
   var body: some View {
     HomeTemplate {
       HomeHeader()
@@ -60,8 +62,8 @@ struct HomePageExterna: View {
           Text("No se pudo cargar la información de tus casos.")
             .padding(20)
         }
-      } else if let activeCase = casesViewModel.latestActiveCase {
-        HomeCaseProgressCard(caseId: activeCase.id)
+      } else if let latestCase = casesViewModel.latestCase {
+        HomeCaseProgressCard(caseId: latestCase.id)
       } else {
         SurfaceCard(cornerRadius: 28) {
           VStack(alignment: .leading, spacing: 12) {
@@ -70,6 +72,19 @@ struct HomePageExterna: View {
 
             Text("Todavía no tienes un caso en curso")
               .font(.subheadline)
+              .foregroundColor(.secondary)
+
+            Button {
+              showNewCase = true
+            } label: {
+              Text("+ Nuevo caso")
+                .font(.headline)
+                .foregroundColor(.white)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 16)
+                .background(Color("PrimaryAdax"))
+                .cornerRadius(16)
+            }
           }
           .frame(maxWidth: .infinity, alignment: .leading)
           .padding(20)
@@ -137,10 +152,29 @@ struct HomePageExterna: View {
     .navigationDestination(isPresented: $showUpload) {
       IdentityDocumentsPage(userId: session.userId)
     }
+    .navigationDestination(isPresented: $showNewCase) {
+      if let userId = session.userId {
+        CasesPage(
+          viewModel: CasesViewModel(
+            repository: RemoteCaseRepository(),
+            userId: userId
+          ),
+          userId: userId,
+          openNewCaseOnAppear: true
+        )
+      }
+    }
     .onChange(of: showUpload) { _, isShowing in
       if !isShowing {
         Task {
           await profileViewModel.loadProfile(for: session.userId)
+        }
+      }
+    }
+    .onChange(of: showNewCase) { _, isShowing in
+      if !isShowing {
+        Task {
+          await casesViewModel.loadCases()
         }
       }
     }
