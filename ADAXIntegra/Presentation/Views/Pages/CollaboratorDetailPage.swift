@@ -13,6 +13,10 @@ import UIKit
 struct CollaboratorDetailPage: View {
   @StateObject private var viewModel: CollaboratorDetailViewModel
   @Environment(\.dismiss) private var dismiss
+  // G-04: shows or hides the confirmation dialog
+  @State private var showStatusDialog = false
+  // G-04: used to log out when the session expires (401)
+  @EnvironmentObject private var session: AuthSession
 
   init(userId: String) {
     _viewModel = StateObject(wrappedValue: CollaboratorDetailViewModel(userId: userId))
@@ -21,7 +25,7 @@ struct CollaboratorDetailPage: View {
   var body: some View {
     ZStack {
       Color("Background").ignoresSafeArea()
-      
+
       ScrollView(showsIndicators: false) {
         VStack(alignment: .leading, spacing: 16) {
           PageHeader(
@@ -29,7 +33,7 @@ struct CollaboratorDetailPage: View {
             backAction: { dismiss() },
             subtitle: "Gestión de colaboradoras"
           )
-          
+
           content
         }
         .padding(20)
@@ -40,10 +44,43 @@ struct CollaboratorDetailPage: View {
           await viewModel.loadCases(force: true)
         }
       }
+
+      // G-04: dark background and confirmation dialog
+      if showStatusDialog, let detail = viewModel.detail {
+        Color.black.opacity(0.4)
+          .ignoresSafeArea()
+          .onTapGesture {
+            // It cannot be closed while saving
+            if !viewModel.isUpdatingStatus {
+              showStatusDialog = false
+            }
+          }
+
+        ChangeStatusDialog(
+          collaboratorName: detail.fullName,
+          isActive: detail.isActive,
+          isLoading: viewModel.isUpdatingStatus,
+          onConfirm: {
+            Task {
+              await viewModel.changeStatus()
+              showStatusDialog = false
+            }
+          },
+          onCancel: { showStatusDialog = false }
+        )
+      }
     }
     .toolbar(.hidden, for: .navigationBar)
     .task { await viewModel.load() }
     .toast(isPresented: $viewModel.isShowingCopiedToast, message: "Copiado al portapapeles")
+    // G-04: success or error message
+    .toast(isPresented: $viewModel.isShowingStatusToast, message: viewModel.statusToastMessage)
+    // G-04: if the session expired (401), log out and go back to the login
+    .onChange(of: viewModel.shouldGoToLogin) { _, goToLogin in
+      if goToLogin {
+        Task { await session.logout() }
+      }
+    }
   }
 
   @ViewBuilder
@@ -103,6 +140,17 @@ struct CollaboratorDetailPage: View {
       )
 
       SecondaryButton(customHeight: 20, title: "Editar información", isDisabled: false) {}
+
+      // G-04: only "internal" accounts can change their status
+      if detail.role == "internal" {
+        SecondaryButton(
+          customHeight: 20,
+          title: "Cambiar estatus",
+          isDisabled: false
+        ) {
+          showStatusDialog = true
+        }
+      }
     }
   }
 
@@ -114,13 +162,13 @@ struct CollaboratorDetailPage: View {
         .foregroundColor(Color("OnBackground"))
 
       activeChip
-      
+
       SearchBar(text: $viewModel.searchText)
         .overlay(
           RoundedRectangle(cornerRadius: 12, style: .continuous)
             .stroke(Color("InsideTextAndIcons").opacity(0.5), lineWidth: 1)
         )
-      
+
       casesList
     }
     .onAppear {
@@ -147,17 +195,17 @@ struct CollaboratorDetailPage: View {
     .animation(.snappy, value: viewModel.onlyActiveCases)
   }
 
-    @ViewBuilder
-      private var casesList: some View {
-        if let message = viewModel.casesErrorMessage {
-          errorCard(message) {
-            Task { await viewModel.loadCases(force: true) }
-          }
-        } else if !viewModel.hasLoadedCases {
-          ProgressView()
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 24)
-        } else if viewModel.filteredCases.isEmpty {
+  @ViewBuilder
+  private var casesList: some View {
+    if let message = viewModel.casesErrorMessage {
+      errorCard(message) {
+        Task { await viewModel.loadCases(force: true) }
+      }
+    } else if !viewModel.hasLoadedCases {
+      ProgressView()
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 24)
+    } else if viewModel.filteredCases.isEmpty {
       messageCard(
         systemImage: "folder",
         title: viewModel.cases.isEmpty ? "Sin casos asignados" : "Sin resultados",
@@ -234,4 +282,5 @@ struct CollaboratorDetailPage: View {
   NavigationStack {
     CollaboratorDetailPage(userId: "#############")
   }
+  .environmentObject(AuthSession())
 }
