@@ -170,7 +170,8 @@ final class CollaboratorDetailViewModel: ObservableObject {
         guard force || !hasLoadedCases else { return }
 
         isLoadingCases = true
-        defer { isLoadingCases = false } // Es buena práctica asegurar que el candado se libere
+        casesErrorMessage = nil
+        defer { isLoadingCases = false }
 
         do {
           let result = try await getAssignedCasesUseCase.getAssignedCases(for: userId)

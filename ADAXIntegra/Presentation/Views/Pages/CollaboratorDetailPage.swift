@@ -147,17 +147,17 @@ struct CollaboratorDetailPage: View {
     .animation(.snappy, value: viewModel.onlyActiveCases)
   }
 
-  @ViewBuilder
-  private var casesList: some View {
-    if let message = viewModel.casesErrorMessage {
-      errorCard(message) {
-        Task { await viewModel.loadCases() }
-      }
-    } else if !viewModel.hasLoadedCases {
-      ProgressView()
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 24)
-    } else if viewModel.filteredCases.isEmpty {
+    @ViewBuilder
+      private var casesList: some View {
+        if let message = viewModel.casesErrorMessage {
+          errorCard(message) {
+            Task { await viewModel.loadCases(force: true) }
+          }
+        } else if !viewModel.hasLoadedCases {
+          ProgressView()
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 24)
+        } else if viewModel.filteredCases.isEmpty {
       messageCard(
         systemImage: "folder",
         title: viewModel.cases.isEmpty ? "Sin casos asignados" : "Sin resultados",
