@@ -13,12 +13,16 @@ import UIKit
 struct CollaboratorDetailPage: View {
   @StateObject private var viewModel: CollaboratorDetailViewModel
   @Environment(\.dismiss) private var dismiss
+  // G-18: shows or hides the edit screen
+  @State private var showEdit = false
+  private let userId: String
   // G-04: shows or hides the confirmation dialog
   @State private var showStatusDialog = false
   // G-04: used to log out when the session expires (401)
   @EnvironmentObject private var session: AuthSession
 
   init(userId: String) {
+    self.userId = userId
     _viewModel = StateObject(wrappedValue: CollaboratorDetailViewModel(userId: userId))
   }
 
@@ -73,6 +77,13 @@ struct CollaboratorDetailPage: View {
     .toolbar(.hidden, for: .navigationBar)
     .task { await viewModel.load() }
     .toast(isPresented: $viewModel.isShowingCopiedToast, message: "Copiado al portapapeles")
+    // G-18: open the edit screen
+    .navigationDestination(isPresented: $showEdit) {
+      EditCollaboratorProfilePage(userId: userId) {
+        // Reload the detail when the edit screen saved changes
+        Task { await viewModel.load(force: true) }
+      }
+    }
     // G-04: success or error message
     .toast(isPresented: $viewModel.isShowingStatusToast, message: viewModel.statusToastMessage)
     // G-04: if the session expired (401), log out and go back to the login
@@ -139,7 +150,10 @@ struct CollaboratorDetailPage: View {
         description: viewModel.statusDescription
       )
 
-      SecondaryButton(customHeight: 20, title: "Editar información", isDisabled: false) {}
+      // G-18: opens the edit screen
+      SecondaryButton(customHeight: 20, title: "Editar información", isDisabled: false) {
+        showEdit = true
+      }
 
       // G-04: opens the confirmation dialog to turn the account on or off
       SecondaryButton(
