@@ -74,16 +74,12 @@ struct HomePageExterna: View {
               .font(.subheadline)
               .foregroundColor(.secondary)
 
-            Button {
+            IconTextPrimaryButton(
+              systemName: "plus",
+              title: "Nuevo caso",
+              isDisabled: false
+            ) {
               showNewCase = true
-            } label: {
-              Text("+ Nuevo caso")
-                .font(.headline)
-                .foregroundColor(.white)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 16)
-                .background(Color("PrimaryAdax"))
-                .cornerRadius(16)
             }
           }
           .frame(maxWidth: .infinity, alignment: .leading)
@@ -160,7 +156,12 @@ struct HomePageExterna: View {
             userId: userId
           ),
           userId: userId,
-          openNewCaseOnAppear: true
+          openNewCaseOnAppear: true,
+          onCaseSubmitted: {
+            Task {
+              await casesViewModel.loadCases()
+            }
+          }
         )
       }
     }
@@ -168,13 +169,6 @@ struct HomePageExterna: View {
       if !isShowing {
         Task {
           await profileViewModel.loadProfile(for: session.userId)
-        }
-      }
-    }
-    .onChange(of: showNewCase) { _, isShowing in
-      if !isShowing {
-        Task {
-          await casesViewModel.loadCases()
         }
       }
     }
