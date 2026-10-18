@@ -41,6 +41,17 @@ struct ExpedientesPage: View {
           )
         }
 
+        // V-12: cases assigned to the logged-in collaborator
+        NavigationLink {
+          MyCasesPage()
+        } label: {
+          MenuRow(
+            icon: "person",
+            title: "Mis Casos",
+            subtitle: "Casos que yo llevo"
+          )
+        }
+
         if session.roles.contains("admin") {
           NavigationLink {
             CuentasExternasPage()
