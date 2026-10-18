@@ -18,7 +18,7 @@ struct ChangeStatusDialog: View {
   let onConfirm: () -> Void
   let onCancel: () -> Void
 
-  // an active account will be turned off, and the other way around
+  // An active account will be turned off, and the other way around
   private var title: String {
     if isActive {
       return "¿Desactivar cuenta?"
@@ -68,20 +68,16 @@ struct ChangeStatusDialog: View {
       }
       .multilineTextAlignment(.center)
 
-      HStack(spacing: 12) {
-        PrimaryButton(
-          customHeight: 20,
-          title: confirmTitle,
-          isDisabled: isLoading,
-          action: onConfirm
-        )
-
-        SecondaryButton(
-          title: "Cancelar",
-          isDisabled: isLoading,
-          action: onCancel
-        )
-      }
+      // Same confirm or cancel buttons used in the other dialogs of the app
+      ConfirmationActions(
+        prompt: "",
+        onConfirm: onConfirm,
+        onDismiss: onCancel,
+        confirmTitle: confirmTitle,
+        dismissTitle: "Cancelar",
+        showsPrompt: false,
+        isDisabled: isLoading
+      )
     }
     .padding(.horizontal, 20)
     .padding(.vertical, 28)
