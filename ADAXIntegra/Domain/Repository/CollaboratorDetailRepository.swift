@@ -11,4 +11,7 @@ import Foundation
 protocol CollaboratorDetailRepository {
   func fetchDetail(userId: String) async throws -> CollaboratorDetail
   func fetchAssignedCases(userId: String) async throws -> CollaboratorAssignedCases
+
+  // G-04: activates or deactivates the account
+  func updateStatus(userId: String, isActive: Bool) async throws -> CollaboratorStatusResult
 }
