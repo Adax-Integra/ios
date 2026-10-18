@@ -141,15 +141,13 @@ struct CollaboratorDetailPage: View {
 
       SecondaryButton(customHeight: 20, title: "Editar información", isDisabled: false) {}
 
-      // G-04: only "internal" accounts can change their status
-      if detail.role == "internal" {
-        SecondaryButton(
-          customHeight: 20,
-          title: "Cambiar estatus",
-          isDisabled: false
-        ) {
-          showStatusDialog = true
-        }
+      // G-04: opens the confirmation dialog to turn the account on or off
+      SecondaryButton(
+        customHeight: 20,
+        title: "Cambiar estatus",
+        isDisabled: false
+      ) {
+        showStatusDialog = true
       }
     }
   }
