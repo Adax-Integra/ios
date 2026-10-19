@@ -50,6 +50,19 @@ struct CaseDetailsPage: View {
     return parts.isEmpty ? "—" : parts.joined(separator: " ")
   }
 
+  // Date and time of the case already formatted by the Date utils
+  private var lastModifiedText: String {
+    let parts = [viewModel.caseDetail?.updatedDateString, viewModel.caseDetail?.updatedTimeString]
+      .compactMap { $0 }
+    return parts.isEmpty ? "—" : parts.joined(separator: " a las ")
+  }
+
+  private var createdAtText: String {
+    let parts = [viewModel.caseDetail?.createdDateString, viewModel.caseDetail?.createdTimeString]
+      .compactMap { $0 }
+    return parts.isEmpty ? "—" : parts.joined(separator: " a las ")
+  }
+
   // R-12: once there are collaborators the same page is used to change them
   private var collaboratorsButtonTitle: String {
     let count = assignedCollaboratorIds.count
@@ -92,18 +105,14 @@ struct CaseDetailsPage: View {
       CaseDetailsTemplate(
         caseNumber: viewModel.caseDetail?.caseNumber ?? "—",
         status: statusText,
-        onBack: {
-          dismiss()
-        },
         content: {
           RecordCaseSummary(
             userName: userFullName,
             recordId: viewModel.caseDetail?.record.recordNumber
               ?? viewModel.caseDetail?.recordId
               ?? "—",
-            lastModified: viewModel.caseDetail?.updatedAt ?? "—",
-            createdAt: viewModel.caseDetail?.createdAt ?? "—",
-            onEditTapped: { print("Edit tapped") }
+            lastModified: lastModifiedText,
+            createdAt: createdAtText
           )
 
           CaseInfoCard(
@@ -267,7 +276,7 @@ struct CaseDetailsPage: View {
     )
   }
 }
-// we use a real case ID to see in the preview
+// we use a fake case ID to see in the preview
 #Preview {
-  CaseDetailsPage(caseId: "8c097b2f-5418-45ba-ab5f-9fc866fbe778")
+  CaseDetailsPage(caseId: "##################")
 }
