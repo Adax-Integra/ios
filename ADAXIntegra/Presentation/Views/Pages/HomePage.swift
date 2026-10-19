@@ -91,6 +91,7 @@ struct HomePage: View {
           NavigationLink {
             RecordDetailPage(
               externalID: item.userId,
+              externalName: item.name,
               recordId: item.id,
               initialStatus: RecordStatus(rawValue: item.status ?? "") ?? .sinEmpezar
             )

@@ -10,13 +10,16 @@ import SwiftUI
 
 struct RecordDetailPage: View {
   let externalID: String
+  // Comes from the record card, so the title works even when the record has no cases
+  let externalName: String
   @StateObject private var recordDetailsViewModel = RecordDetailsViewModel()
   @StateObject private var statusViewModel: RecordStatusViewModel
   @State private var showStatusSheet = false
   @State private var showRegisterCase = false
 
-  init(externalID: String, recordId: String, initialStatus: RecordStatus) {
+  init(externalID: String, externalName: String, recordId: String, initialStatus: RecordStatus) {
     self.externalID = externalID
+    self.externalName = externalName
     _statusViewModel = StateObject(
       wrappedValue: RecordStatusViewModel(
         recordId: recordId,
@@ -39,7 +42,7 @@ struct RecordDetailPage: View {
               .lineLimit(1)
               .minimumScaleFactor(0.7)
 
-            Text(recordDetailsViewModel.userFirstName)
+            Text(externalName.firstName)
               .font(.system(size: 28, weight: .bold))
               .foregroundColor(Color("OnBackground"))
               .lineLimit(1)
@@ -139,7 +142,7 @@ struct RecordDetailPage: View {
     .sheet(isPresented: $showStatusSheet) {
       RecordStatusSheet(
         viewModel: statusViewModel,
-        externalName: recordDetailsViewModel.userFirstName
+        externalName: externalName.firstName
       )
     }
     .sheet(isPresented: $showRegisterCase) {
@@ -158,6 +161,7 @@ struct RecordDetailPage: View {
 #Preview {
   RecordDetailPage(
     externalID: "preview-external-id",
+    externalName: "Mariana Corona",
     recordId: "preview-record-id",
     initialStatus: .enRevision
   )

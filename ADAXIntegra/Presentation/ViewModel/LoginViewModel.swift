@@ -88,6 +88,13 @@ class LoginViewModel: ObservableObject {
       return
     }
 
+    // No answer from the server (no internet or timeout)
+    guard case APIError.server = error else {
+      self.error = "No se pudo conectar. Revisa tu conexión a internet."
+      return
+    }
+
+    // Any answer from the backend that is an error
     self.error = "No se pudo iniciar sesión."
   }
 }
