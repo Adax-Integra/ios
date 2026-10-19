@@ -19,4 +19,6 @@ protocol CaseRepository {
   // R-10: accounts that can be assigned and the assignment itself
   func listAssignableCollaborators() async throws -> [AssignableCollaborator]
   func assignCollaborators(caseId: String, userIds: [String]) async throws -> Bool
+  // R-12: replaces the collaborators of the case, returns the ids that stay assigned
+  func updateCollaborators(caseId: String, userIds: [String]) async throws -> [String]
 }
