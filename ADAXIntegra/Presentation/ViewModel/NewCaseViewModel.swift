@@ -23,6 +23,9 @@ final class NewCaseViewModel: ObservableObject {
   @Published var isShowingExternalSupportInfo = false
   @Published var messageAlert = ""
   @Published var showAlert = false
+  // R-02: error toast shown on the list when the record already has 3 active cases
+  @Published var showToast = false
+  @Published var toastMessage = ""
   // Turned on by the "Crear caso" tap, so empty fields
   // are not marked as errors before the user tries to create a case
   @Published var showErrors = false
@@ -89,10 +92,16 @@ final class NewCaseViewModel: ObservableObject {
     guard let newCase = pendingCase else { return }
     pendingCase = nil
 
-    if await createCaseUseCase.createCase(newCase, userId: userId) != nil {
+    // The form keeps its content on errors so the user can retry without rewriting
+    do {
+      _ = try await createCaseUseCase.createCase(newCase, userId: userId)
       resetForm()
-    } else {
-      // The form keeps its content so the user can retry without rewriting
+    } catch APIError.server(let statusCode, _) where statusCode == 409 {
+      // The backend allows up to 3 open cases per record
+      toastMessage = "No puedes tener más de 3 casos activos"
+      showToast = true
+    } catch {
+      debugPrint(error)
       messageAlert = "No pudimos registrar tu caso. Revisa tu conexión e intenta de nuevo."
       showAlert = true
     }

@@ -15,21 +15,14 @@ struct RemoteCaseRepository: CaseRepository {
     return response.data
   }
 
-  func createCase(_ newCase: NewCase, userId: String) async -> String? {
-    do {
-      let response = try await APIProtocol.post(
-        "/external-users/\(userId)/cases",
-        body: CreateCaseRequest(from: newCase),
-        as: APIResponse<CreatedCaseModel>.self
-      )
-
-      return response.data.caseId
-    } catch {
-      // Any failure (no connection, 4xx, 5xx, bad JSON) is reported as nil.
-      // The ViewModel decides what to show the user
-      debugPrint(error.localizedDescription)
-      return nil
-    }
+  // R-02: errors are thrown so the ViewModel decides what to show the user
+  func createCase(_ newCase: NewCase, userId: String) async throws -> String {
+    let response = try await APIProtocol.post(
+      "/external-users/\(userId)/cases",
+      body: CreateCaseRequest(from: newCase),
+      as: APIResponse<CreatedCaseModel>.self
+    )
+    return response.data.caseId
   }
 
   // R-11: creates a case for an external user from an internal account
