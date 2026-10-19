@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-// Organism with one account that can be assigned to a case (R-10)
+// Organism with one account that can be assigned to a case (R-10) or removed from it (R-12)
 struct AssignableCollaboratorCard: View {
   let item: AssignableCollaborator
   let isSelected: Bool
@@ -22,10 +22,11 @@ struct AssignableCollaboratorCard: View {
           .font(.system(size: 16, weight: .semibold))
           .foregroundColor(Color("OnBackground"))
 
+        // A saved collaborator that was unselected is removed when the changes are saved
         if isAssigned {
-          Text("Ya asignada")
+          Text(isSelected ? "Ya asignada" : "Se quitará del caso")
             .font(.system(size: 13))
-            .foregroundColor(Color("InsideTextAndIcons"))
+            .foregroundColor(isSelected ? Color("InsideTextAndIcons") : Color("Error"))
         }
       }
 
@@ -60,6 +61,11 @@ struct AssignableCollaboratorCard: View {
     AssignableCollaboratorCard(
       item: AssignableCollaborator(id: "2", name: "Mariana", lastName: "Ríos Pérez"),
       isSelected: false
+    )
+    AssignableCollaboratorCard(
+      item: AssignableCollaborator(id: "3", name: "Lucía", lastName: "Martínez"),
+      isSelected: false,
+      isAssigned: true
     )
   }
   .padding()

@@ -80,4 +80,14 @@ struct RemoteCaseRepository: CaseRepository {
     )
     return response.success
   }
+
+  // R-12 implementation, sends the final list of collaborators, an empty list removes everyone inside it
+  func updateCollaborators(caseId: String, userIds: [String]) async throws -> [String] {
+    let response = try await APIProtocol.put(
+      "/cases/\(caseId)/assignments",
+      body: AssignCaseCollaboratorsRequest(userIds: userIds),
+      as: APIResponse<UpdatedCaseCollaborators>.self
+    )
+    return response.data.userIds
+  }
 }

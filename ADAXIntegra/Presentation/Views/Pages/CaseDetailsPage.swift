@@ -21,7 +21,7 @@ struct CaseDetailsPage: View {
   @StateObject private var violenceViewModel: CaseViolenceViewModel
 
   @State private var showCloseModal = false
-  // R-10: the case detail does not send who is assigned, so the saved ones are kept here
+  // R-12: collaborators of the case, they come from the case detail and change after saving
   @State private var assignedCollaboratorIds: Set<String> = []
   @Environment(\.dismiss) private var dismiss
 
@@ -44,6 +44,12 @@ struct CaseDetailsPage: View {
     let parts = [viewModel.caseDetail?.user.name, viewModel.caseDetail?.user.lastName]
       .compactMap { $0 }
     return parts.isEmpty ? "—" : parts.joined(separator: " ")
+  }
+
+  // R-12: once there are collaborators the same page is used to change them
+  private var collaboratorsButtonTitle: String {
+    let count = assignedCollaboratorIds.count
+    return count == 0 ? "Asignar colaboradora" : "Colaboradoras asignadas (\(count))"
   }
 
   // a closed case can not be edited
@@ -140,15 +146,15 @@ struct CaseDetailsPage: View {
               caseId: caseId,
               caseNumber: viewModel.caseDetail?.caseNumber ?? "—",
               assignedIds: assignedCollaboratorIds,
-              onAssigned: { ids in
-                assignedCollaboratorIds.formUnion(ids)
+              onSaved: { ids in
+                assignedCollaboratorIds = ids
               }
             )
           } label: {
             HStack(spacing: 8) {
               Icon(color: Color("PrimaryAdax"), systemName: "person.badge.plus")
 
-              Text("Asignar colaboradora")
+              Text(collaboratorsButtonTitle)
                 .font(.headline)
                 .foregroundColor(Color("PrimaryAdax"))
             }
@@ -197,6 +203,7 @@ struct CaseDetailsPage: View {
     }
     .task {
       await viewModel.loadCase()
+      assignedCollaboratorIds = Set(viewModel.caseDetail?.assignedUserIds ?? [])
       await violenceViewModel.load(
         assignedIds: viewModel.caseDetail?.violenceTypes.compactMap(\.violenceId) ?? []
       )
