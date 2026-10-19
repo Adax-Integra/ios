@@ -85,7 +85,7 @@ struct RegistrationForm: View {
         )
 
         if !name.isEmpty && !isValidNameText(name) {
-            FieldErrorLabel("Solo se permiten letras, acentos y ñ.")
+          FieldErrorLabel("Solo se permiten letras, acentos y ñ.")
         }
       }
 
@@ -98,11 +98,11 @@ struct RegistrationForm: View {
         )
 
         if !lastName.isEmpty && !isValidNameText(lastName) {
-            FieldErrorLabel("Solo se permiten letras, acentos y espacios.")
+          FieldErrorLabel("Solo se permiten letras, acentos y espacios.")
         }
 
         if fullName.count > 100 {
-            FieldErrorLabel("El nombre completo debe tener máximo 100 caracteres.")
+          FieldErrorLabel("El nombre completo debe tener máximo 100 caracteres.")
         }
       }
 
@@ -116,7 +116,7 @@ struct RegistrationForm: View {
         )
 
         if !email.isEmpty && !isEmailValid {
-            FieldErrorLabel("Ingresa un correo electrónico válido, sin acentos ni ñ.")
+          FieldErrorLabel("Ingresa un correo electrónico válido, sin acentos ni ñ.")
         }
       }
 
@@ -131,7 +131,7 @@ struct RegistrationForm: View {
         if !phoneNumber.isEmpty
           && (phoneNumber.count != 10 || !phoneNumber.allSatisfy({ $0.isASCII && $0.isNumber }))
         {
-            FieldErrorLabel("El teléfono debe contener 10 dígitos.")
+          FieldErrorLabel("El teléfono debe contener 10 dígitos.")
         }
       }
 
@@ -153,48 +153,48 @@ struct RegistrationForm: View {
         // shows missing password requirements
         if !password.isEmpty {
           if password.count < 8 || password.count > 24 {
-              FieldErrorLabel("La contraseña debe tener entre 8 y 24 caracteres.")
+            FieldErrorLabel("La contraseña debe tener entre 8 y 24 caracteres.")
 
           }
 
           if password.rangeOfCharacter(from: .uppercaseLetters) == nil {
-              FieldErrorLabel("Falta una letra mayúscula.")
+            FieldErrorLabel("Falta una letra mayúscula.")
           }
 
           if password.rangeOfCharacter(from: .lowercaseLetters) == nil {
-              FieldErrorLabel("Falta una letra minúscula.")
+            FieldErrorLabel("Falta una letra minúscula.")
           }
 
           if password.rangeOfCharacter(from: .decimalDigits) == nil {
-              FieldErrorLabel("Falta un número.")
+            FieldErrorLabel("Falta un número.")
 
           }
 
           if password.rangeOfCharacter(from: .punctuationCharacters.union(.symbols)) == nil {
-              FieldErrorLabel("Falta un carácter especial.")
+            FieldErrorLabel("Falta un carácter especial.")
 
           }
 
           if !password.unicodeScalars.allSatisfy({ $0.isASCII && $0.value >= 33 && $0.value <= 126 }
           ) {
-              FieldErrorLabel("No se permiten espacios, acentos, ñ ni emojis")
+            FieldErrorLabel("No se permiten espacios, acentos, ñ ni emojis")
 
           }
         }
       }
 
       // confirm password field
-        VStack(alignment: .leading, spacing: 6) {
-            PasswordTextField(
-                title: "Confirmar contraseña",
-                placeholder: "Confirma tu contraseña",
-                text: $confirmPassword
-            )
-            
-            if !confirmPassword.isEmpty && password != confirmPassword {
-                FieldErrorLabel("Las contraseñas no coinciden.")
-            }
+      VStack(alignment: .leading, spacing: 6) {
+        PasswordTextField(
+          title: "Confirmar contraseña",
+          placeholder: "Confirma tu contraseña",
+          text: $confirmPassword
+        )
+
+        if !confirmPassword.isEmpty && password != confirmPassword {
+          FieldErrorLabel("Las contraseñas no coinciden.")
         }
+      }
 
       PrimaryButton(
         customWidth: .infinity,
