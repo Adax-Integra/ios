@@ -31,12 +31,17 @@ enum AdminTab: CaseIterable {
 
 struct CustomTabBarAdmin: View {
   @Binding var selectedTab: AdminTab
+  var onReselect: () -> Void = {}
 
   var body: some View {
     HStack {
       ForEach(AdminTab.allCases, id: \.self) { tab in
         Button {
-          selectedTab = tab
+          if selectedTab == tab {
+            onReselect()
+          } else {
+            selectedTab = tab
+          }
         } label: {
           VStack(spacing: 4) {
             Image(systemName: tab.icon)

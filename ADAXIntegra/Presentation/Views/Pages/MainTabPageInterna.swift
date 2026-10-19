@@ -9,6 +9,7 @@ import SwiftUI
 
 struct MainTabPageInterna: View {
   @State private var selectedTab: InternaTab = .home
+  @State private var contentResetCount = 0
   let userId: String
 
   var body: some View {
@@ -20,9 +21,13 @@ struct MainTabPageInterna: View {
         case .profile: ProfilePage()
         }
       }
+      .id(contentResetCount)
       .frame(maxHeight: .infinity)
 
-      CustomTabBarInterna(selectedTab: $selectedTab)
+      CustomTabBarInterna(
+        selectedTab: $selectedTab,
+        onReselect: { withAnimation { contentResetCount += 1 } }
+      )
     }
     .ignoresSafeArea(edges: .bottom)
   }
