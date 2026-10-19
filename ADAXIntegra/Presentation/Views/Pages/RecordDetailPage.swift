@@ -100,7 +100,8 @@ struct RecordDetailPage: View {
 
         ScrollView {
           LazyVStack(spacing: 16) {
-            PrimaryButton(
+            IconTextPrimaryButton(
+              systemName: "plus",
               title: "Registrar nuevo caso",
               isDisabled: false
             ) {
@@ -160,7 +161,7 @@ struct RecordDetailPage: View {
     .toast(
       isPresented: $showSuccessToast,
       message: "Caso registrado correctamente",
-      edge: .top
+      edge: .bottom
     )
   }
 }
