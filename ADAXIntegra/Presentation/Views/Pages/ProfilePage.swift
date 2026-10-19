@@ -45,30 +45,29 @@ struct ProfilePage: View {
       }
       .toolbar(.hidden, for: .navigationBar)
       .task { await viewModel.loadProfile(for: session.userId) }
-      .alert("Cerrar sesión", isPresented: $showLogoutConfirmation) {
-        Button("Cerrar sesión") {
-          Task { await session.logout() }
-        }
-        Button("Cancelar", role: .cancel) {}
-      } message: {
-        Text("¿Quieres cerrar tu sesión?")
+      .confirmDialog(
+        isPresented: $showLogoutConfirmation,
+        title: "Cerrar sesión",
+        message: "¿Quieres cerrar tu sesión?",
+        confirmTitle: "Cerrar sesión"
+      ) {
+        Task { await session.logout() }
       }
-      .alert("Desactivar cuenta", isPresented: $showDeactivateConfirmation) {
-        Button("Desactivar", role: .destructive) {
-          isDeactivating = true
-          Task {
-            let success = await session.deactivateAccount()
-            if !success {
-              isDeactivating = false
-              showDeactivateError = true
-            }
+      .confirmDialog(
+        isPresented: $showDeactivateConfirmation,
+        title: "Desactivar cuenta",
+        message:
+          "Tu cuenta quedará inactiva y no podrás volver a iniciar sesión. Esta acción no se puede deshacer.",
+        confirmTitle: "Desactivar"
+      ) {
+        isDeactivating = true
+        Task {
+          let success = await session.deactivateAccount()
+          if !success {
+            isDeactivating = false
+            showDeactivateError = true
           }
         }
-        Button("Cancelar", role: .cancel) {}
-      } message: {
-        Text(
-          "Tu cuenta quedará inactiva y no podrás volver a iniciar sesión. Esta acción no se puede deshacer."
-        )
       }
       .alert("No se pudo desactivar la cuenta", isPresented: $showDeactivateError) {
         Button("Entendido", role: .cancel) {}
@@ -108,6 +107,16 @@ struct ProfilePage: View {
         )
       }
 
+      NavigationLink {
+        ChangePasswordPage()
+      } label: {
+        MenuRow(
+          icon: "lock",
+          title: "Seguridad",
+          subtitle: "Cambio de contraseña"
+        )
+      }
+
       // R-06: only external users upload identity documents
       if isExternal {
         NavigationLink {
@@ -119,16 +128,6 @@ struct ProfilePage: View {
             subtitle: "INE y comprobante de domicilio"
           )
         }
-      }
-
-      NavigationLink {
-        ChangePasswordPage()
-      } label: {
-        MenuRow(
-          icon: "lock",
-          title: "Seguridad",
-          subtitle: "Cambio de contraseña"
-        )
       }
 
       if canDeactivate {

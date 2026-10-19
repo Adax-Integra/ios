@@ -9,7 +9,7 @@
 import SwiftUI
 
 struct CaseInfoCard: View {
-  
+
   var hasLawyer: Bool
 
   var body: some View {
@@ -19,7 +19,7 @@ struct CaseInfoCard: View {
         .foregroundColor(.primary)
 
       VStack(alignment: .leading, spacing: 12) {
-        
+
         LawyerStatusRow(hasLawyer: hasLawyer)
       }
     }
@@ -35,7 +35,7 @@ struct CaseInfoCard: View {
     Color(UIColor.systemGray6).ignoresSafeArea()
 
     CaseInfoCard(
-     
+
       hasLawyer: true
     )
     .padding()
