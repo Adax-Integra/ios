@@ -31,8 +31,12 @@ struct EditCollaboratorProfilePage: View {
         }
         .padding(20)
       }
+      // hides the keyboard when the user scrolls
+      .scrollDismissesKeyboard(.interactively)
     }
     .navigationTitle("Editar datos")
+    // closes the keyboard when tapping outside the fields
+    .dismissKeyboardOnTap()
     .task { await viewModel.load() }
     .overlay {
       if viewModel.isSaving {
