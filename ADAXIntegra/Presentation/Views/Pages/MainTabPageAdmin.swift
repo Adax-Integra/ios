@@ -9,6 +9,7 @@ import SwiftUI
 
 struct MainTabPageAdmin: View {
   @State private var selectedTab: AdminTab = .home
+  @State private var contentResetCount = 0
   let userId: String
 
   var body: some View {
@@ -21,9 +22,13 @@ struct MainTabPageAdmin: View {
         case .admin: AdminPage()
         }
       }
+      .id(contentResetCount)
       .frame(maxHeight: .infinity)
 
-      CustomTabBarAdmin(selectedTab: $selectedTab)
+      CustomTabBarAdmin(
+        selectedTab: $selectedTab,
+        onReselect: { withAnimation { contentResetCount += 1 } }
+      )
     }
     .ignoresSafeArea(edges: .bottom)
   }

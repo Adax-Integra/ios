@@ -29,12 +29,17 @@ enum InternaTab: CaseIterable {
 
 struct CustomTabBarInterna: View {
   @Binding var selectedTab: InternaTab
+  var onReselect: () -> Void = {}
 
   var body: some View {
     HStack {
       ForEach(InternaTab.allCases, id: \.self) { tab in
         Button {
-          selectedTab = tab
+          if selectedTab == tab {
+            onReselect()
+          } else {
+            selectedTab = tab
+          }
         } label: {
           VStack(spacing: 4) {
             Image(systemName: tab.icon)

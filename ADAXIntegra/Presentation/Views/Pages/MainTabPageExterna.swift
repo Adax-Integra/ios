@@ -9,6 +9,7 @@ import SwiftUI
 
 struct MainTabPageExterna: View {
   @State private var selectedTab: AppTab = .home
+  @State private var contentResetCount = 0
   let userId: String
 
   var body: some View {
@@ -36,9 +37,13 @@ struct MainTabPageExterna: View {
         case .profile: ProfilePage()
         }
       }
+      .id(contentResetCount)
       .frame(maxHeight: .infinity)
 
-      CustomTabBar(selectedTab: $selectedTab)
+      CustomTabBar(
+        selectedTab: $selectedTab,
+        onReselect: { withAnimation { contentResetCount += 1 } }
+      )
     }
     .ignoresSafeArea(edges: .bottom)
   }
