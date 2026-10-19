@@ -12,7 +12,7 @@ struct RegisterExternalPage: View {
   @State private var showDateSheet = false
   @State private var sheetDate = Date()
   @State private var showRegisterCase = false
-  @State private var showSuccessToast = false
+  @State private var showCaseSuccess = false
 
   var onBack: () -> Void = {}
 
@@ -30,15 +30,15 @@ struct RegisterExternalPage: View {
         if let userId = viewModel.result?.userId {
           NavigationStack {
             RegisterCasePage(externalID: userId) {
-              showSuccessToast = true
+              showCaseSuccess = true
             }
           }
         }
       }
-      .toast(
-        isPresented: $showSuccessToast,
-        message: "Caso registrado correctamente",
-        edge: .top
+      .successScreen(
+        isPresented: $showCaseSuccess,
+        title: "¡Caso registrado!",
+        message: "El caso se registró correctamente en el expediente."
       )
     } else {
       formContent
