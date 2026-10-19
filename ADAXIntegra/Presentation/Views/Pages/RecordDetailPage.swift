@@ -16,7 +16,7 @@ struct RecordDetailPage: View {
   @StateObject private var statusViewModel: RecordStatusViewModel
   @State private var showStatusSheet = false
   @State private var showRegisterCase = false
-  @State private var showSuccessToast = false
+  @State private var showCaseSuccess = false
 
   init(externalID: String, externalName: String, recordId: String, initialStatus: RecordStatus) {
     self.externalID = externalID
@@ -153,17 +153,17 @@ struct RecordDetailPage: View {
           Task {
             await recordDetailsViewModel.loadRecordDetails(for: externalID)
           }
-          showSuccessToast = true
+          showCaseSuccess = true
         }
       }
     }
     .task {
       await recordDetailsViewModel.loadRecordDetails(for: externalID)
     }
-    .toast(
-      isPresented: $showSuccessToast,
-      message: "Caso registrado correctamente",
-      edge: .bottom
+    .successScreen(
+      isPresented: $showCaseSuccess,
+      title: "¡Caso registrado!",
+      message: "El caso se registró correctamente en el expediente."
     )
   }
 }
