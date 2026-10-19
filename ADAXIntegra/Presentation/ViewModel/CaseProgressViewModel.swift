@@ -36,6 +36,24 @@ final class CaseProgressViewModel: ObservableObject {
   var caseNumberText: String {
     caseDetail?.caseNumber ?? caseId
   }
+    // nil when the case has no description, so the card is not shown
+    var descriptionText: String? {
+      let text = caseDetail?.writtenDescription?
+        .trimmingCharacters(in: .whitespacesAndNewlines)
+      return (text?.isEmpty == false) ? text : nil
+    }
+
+    // Help types chosen by the user  or the written text as fallback
+    var helpText: String? {
+      let types = (caseDetail?.helps ?? [])
+        .compactMap { $0.description?.trimmingCharacters(in: .whitespacesAndNewlines) }
+        .filter { !$0.isEmpty }
+      if !types.isEmpty { return types.joined(separator: ", ") }
+
+      let written = caseDetail?.writtenHelpsWanted?
+        .trimmingCharacters(in: .whitespacesAndNewlines)
+      return (written?.isEmpty == false) ? written : nil
+    }
 
   func loadCase() async {
     guard !isLoading else { return }
