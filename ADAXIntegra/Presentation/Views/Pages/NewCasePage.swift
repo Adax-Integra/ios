@@ -64,34 +64,20 @@ struct NewCasePage: View {
     )
   }
 
+  // R-02: uses the shared ConfirmDialog so it matches every other confirmation
   private var confirmationDialog: some View {
-    ZStack {
-      Color.black.opacity(0.4)
-        .ignoresSafeArea()
-        .onTapGesture { viewModel.isShowingConfirmation = false }
-
-      SurfaceCard {
-        VStack(spacing: 8) {
-          Text("Registrar caso nuevo")
-            .font(.system(size: 20, weight: .bold))
-            .foregroundColor(Color("OnBackground"))
-
-          ConfirmationActions(
-            prompt: "¿Estás de acuerdo que todos los datos son correctos?",
-            onConfirm: {
-              viewModel.onConfirm()
-              dismiss()
-            },
-            onDismiss: { viewModel.isShowingConfirmation = false },
-            confirmTitle: "Confirmar",
-            dismissTitle: "Cancelar"
-          )
-        }
-        .padding(24)
-      }
-      .padding(.horizontal, 24)
-      .transition(.scale(scale: 0.95).combined(with: .opacity))
-    }
+    ConfirmDialog(
+      title: "Registrar caso nuevo",
+      message: "¿Estás de acuerdo que todos los datos son correctos?",
+      confirmTitle: "Confirmar",
+      cancelTitle: "Cancelar",
+      onConfirm: {
+        viewModel.isShowingConfirmation = false
+        viewModel.onConfirm()
+        dismiss()
+      },
+      onCancel: { viewModel.isShowingConfirmation = false }
+    )
   }
 }
 
