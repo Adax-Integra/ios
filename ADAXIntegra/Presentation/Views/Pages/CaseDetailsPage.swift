@@ -17,6 +17,9 @@ struct CaseDetailsPage: View {
   // help types that the internal assigns to the case
   @StateObject private var helpsViewModel: CaseHelpsViewModel
 
+  // R-13: etapa (case step) del caso
+  @StateObject private var stepViewModel: CaseStepViewModel
+
   @State private var showCloseModal = false
   // R-10: the case detail does not send who is assigned, so the saved ones are kept here
   @State private var assignedCollaboratorIds: Set<String> = []
@@ -26,6 +29,7 @@ struct CaseDetailsPage: View {
     self.caseId = caseId
     _viewModel = StateObject(wrappedValue: CaseDetailViewModel(caseId: caseId))
     _helpsViewModel = StateObject(wrappedValue: CaseHelpsViewModel(caseId: caseId))
+    _stepViewModel = StateObject(wrappedValue: CaseStepViewModel(caseId: caseId))
   }
   //Assigns the backend status string ("Open", "Closed") to the  display text that is in Español (Abierto, Cerrado)
   private var statusText: String {
@@ -46,6 +50,24 @@ struct CaseDetailsPage: View {
   private var isCaseOpen: Bool {
     viewModel.caseDetail?.state == "Open"
   }
+
+  private var currentStepNumber: Int? {
+    let steps = viewModel.caseDetail?.steps ?? []
+
+    if let inProgress = steps.first(where: { ($0.status ?? "").lowercased() == "en progreso" }) {
+      return inProgress.stepNumber
+    }
+
+    return
+      steps
+      .filter { ($0.status ?? "").lowercased() == "completado" }
+      .compactMap(\.stepNumber)
+      .max()
+  }
+
+  private var hasPendingChanges: Bool { helpsViewModel.hasChanges || stepViewModel.hasChanges }
+
+  private var isSaving: Bool { helpsViewModel.isSaving || stepViewModel.isSaving }
 
   var body: some View {
 
@@ -88,6 +110,12 @@ struct CaseDetailsPage: View {
             errorMessage: helpsViewModel.errorMessage
           )
 
+          CaseStepSelector(
+            selectedStep: stepViewModel.selectedStep,
+            isEnabled: isCaseOpen && !stepViewModel.isSaving,
+            onSelect: { stepViewModel.select($0) }
+          )
+
           // R-10: the assignment lives on its own page so this one stays lighter
           NavigationLink {
             AssignCollaboratorPage(
@@ -123,9 +151,12 @@ struct CaseDetailsPage: View {
               customWidth: 329,
               customHeight: 23,
               title: helpsViewModel.isSaving ? "Guardando..." : "Guardar",
-              isDisabled: !isCaseOpen || !helpsViewModel.hasChanges || helpsViewModel.isSaving,
+              isDisabled: !isCaseOpen || !hasPendingChanges || isSaving,
               action: {
-                Task { await helpsViewModel.save() }
+                Task {
+                  if helpsViewModel.hasChanges { await helpsViewModel.save() }
+                  if stepViewModel.hasChanges { await stepViewModel.save() }
+                }
               }
             )
             .padding(.horizontal, 16)
@@ -165,6 +196,7 @@ struct CaseDetailsPage: View {
     }
     .task {
       await viewModel.loadCase()
+      stepViewModel.setInitial(stepNumber: currentStepNumber)
       await helpsViewModel.load(
         assignedIds: viewModel.caseDetail?.helps.compactMap(\.helpId) ?? []
       )
@@ -176,6 +208,10 @@ struct CaseDetailsPage: View {
     .toast(
       isPresented: $helpsViewModel.showToast,
       message: helpsViewModel.toastMessage
+    )
+    .toast(
+      isPresented: $stepViewModel.showToast,
+      message: stepViewModel.toastMessage
     )
   }
 }
