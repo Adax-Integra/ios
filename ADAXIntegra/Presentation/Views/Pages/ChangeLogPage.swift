@@ -28,21 +28,24 @@ struct ChangeLogPage: View {
     // Native iOS back button and centered title
     .navigationTitle("Bitácora de cambios")
     .navigationBarTitleDisplayMode(.inline)
+    // closes the keyboard when tapping outside the fields
+    .dismissKeyboardOnTap()
     // Loads the first page when the screen appears
     .task { await viewModel.refresh() }
     .sheet(isPresented: $isShowingFilter) {
-        ChangeLogFilterSheet(
-            initialStart: viewModel.startDate,
-            initialEnd: viewModel.endDate,
-            onApply: { start, end in
-                Task { await viewModel.applyFilter(start: start, end: end) }
-            },
-            onClear: {
-                Task { await viewModel.clearFilter() }
-            }
-        )
-        .presentationDetents([.height(440)])
-        .presentationDragIndicator(.visible)}
+      ChangeLogFilterSheet(
+        initialStart: viewModel.startDate,
+        initialEnd: viewModel.endDate,
+        onApply: { start, end in
+          Task { await viewModel.applyFilter(start: start, end: end) }
+        },
+        onClear: {
+          Task { await viewModel.clearFilter() }
+        }
+      )
+      .presentationDetents([.height(440)])
+      .presentationDragIndicator(.visible)
+    }
   }
 
   private var searchAndFilter: some View {
@@ -130,6 +133,8 @@ struct ChangeLogPage: View {
       }
       .padding(.bottom, 24)
     }
+    // hides the keyboard when the user scrolls
+    .scrollDismissesKeyboard(.interactively)
     .refreshable { await viewModel.refresh() }
   }
 
