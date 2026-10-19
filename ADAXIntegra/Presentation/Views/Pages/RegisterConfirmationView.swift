@@ -22,15 +22,18 @@ struct RegisterConfirmationView: View {
         ZStack {
           Circle()
             .fill(Color("PrimaryAdax"))
-            .frame(width: 140, height: 140)
+            .frame(width: 120, height: 120)
           Image(systemName: "checkmark")
-            .font(.system(size: 57, weight: .bold))
+            .font(.system(size: 54, weight: .bold))
             .foregroundStyle(.white)
         }
 
-        Text("¡Usuaria registrada correctamente!")
-          .font(.system(size: 24, weight: .bold))
+        // Same title style as SuccessPage
+        Text("¡Usuaria registrada correctamente!".uppercased())
+          .font(.system(size: 22, weight: .bold))
           .foregroundStyle(Color("OnBackground"))
+          .multilineTextAlignment(.center)
+          .padding(.horizontal, 20)
 
         Text(
           "El expediente se creó correctamente. Se envió una contraseña temporal al correo de la externa"
@@ -58,7 +61,7 @@ struct RegisterConfirmationView: View {
           .padding(.horizontal, 20)
         }
 
-        SecondaryButton(title: "Listo", isDisabled: false, action: onDone)
+        SecondaryButton(title: "Continuar", isDisabled: false, action: onDone)
           .frame(maxWidth: .infinity, minHeight: 52, maxHeight: 52)
           .padding(.horizontal, 20)
           .padding(.bottom, 24)
