@@ -30,10 +30,12 @@ struct EventsListPage: View {
 
       ScrollView {
         VStack(alignment: .leading, spacing: 16) {
-          // Same subtitle style as PageHeader, the native bar only has the title
-          Text("Gestiona los eventos de la asociación")
-            .font(.subheadline)
-            .foregroundColor(Color("OnBackground").opacity(0.7))
+          // Same subtitle style as PageHeader, only internal users and admins manage events
+          if canDisableEvents {
+            Text("Gestiona los eventos de la asociación")
+              .font(.subheadline)
+              .foregroundColor(Color("OnBackground").opacity(0.7))
+          }
 
           content
         }
