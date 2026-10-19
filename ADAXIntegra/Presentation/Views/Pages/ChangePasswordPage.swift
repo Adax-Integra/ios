@@ -17,10 +17,6 @@ struct ChangePasswordPage: View {
       Color("Background").ignoresSafeArea()
 
       VStack(alignment: .leading, spacing: 16) {
-        Text("Seguridad")
-          .font(.subheadline)
-          .foregroundColor(Color("OnBackground").opacity(0.7))
-
         ScrollView {
           VStack(alignment: .leading, spacing: 16) {
             Text("Para proteger tu expediente, confirma primero tu contraseña actual.")

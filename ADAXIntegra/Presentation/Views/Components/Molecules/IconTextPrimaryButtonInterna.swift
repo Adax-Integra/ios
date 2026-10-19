@@ -24,6 +24,8 @@ struct IconTextPrimaryButton: View {
         Text(title)
           .font(.headline)
           .foregroundColor(.white)
+          .lineLimit(1)
+          .minimumScaleFactor(0.8)
       }
       .frame(maxWidth: customWidth, maxHeight: customHeight)
       .padding()

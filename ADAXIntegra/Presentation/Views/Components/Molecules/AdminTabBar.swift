@@ -8,7 +8,7 @@
 import SwiftUI
 
 enum AdminTab: CaseIterable {
-  case home, expedientes, profile, admin
+  case home, expedientes, admin, profile
 
   var icon: String {
     switch self {
