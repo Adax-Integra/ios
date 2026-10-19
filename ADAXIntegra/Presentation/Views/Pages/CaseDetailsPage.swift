@@ -20,8 +20,11 @@ struct CaseDetailsPage: View {
   // R-13: etapa (case step) del caso
   @StateObject private var stepViewModel: CaseStepViewModel
 
+  // violence types that the internal assigns to the case, they decide the urgency
+  @StateObject private var violenceViewModel: CaseViolenceViewModel
+
   @State private var showCloseModal = false
-  // R-10: the case detail does not send who is assigned, so the saved ones are kept here
+  // R-12: collaborators of the case, they come from the case detail and change after saving
   @State private var assignedCollaboratorIds: Set<String> = []
   @Environment(\.dismiss) private var dismiss
 
@@ -30,6 +33,7 @@ struct CaseDetailsPage: View {
     _viewModel = StateObject(wrappedValue: CaseDetailViewModel(caseId: caseId))
     _helpsViewModel = StateObject(wrappedValue: CaseHelpsViewModel(caseId: caseId))
     _stepViewModel = StateObject(wrappedValue: CaseStepViewModel(caseId: caseId))
+    _violenceViewModel = StateObject(wrappedValue: CaseViolenceViewModel(caseId: caseId))
   }
   //Assigns the backend status string ("Open", "Closed") to the  display text that is in Español (Abierto, Cerrado)
   private var statusText: String {
@@ -44,6 +48,12 @@ struct CaseDetailsPage: View {
     let parts = [viewModel.caseDetail?.user.name, viewModel.caseDetail?.user.lastName]
       .compactMap { $0 }
     return parts.isEmpty ? "—" : parts.joined(separator: " ")
+  }
+
+  // R-12: once there are collaborators the same page is used to change them
+  private var collaboratorsButtonTitle: String {
+    let count = assignedCollaboratorIds.count
+    return count == 0 ? "Asignar colaboradora" : "Colaboradoras asignadas (\(count))"
   }
 
   // a closed case can not be edited
@@ -68,6 +78,16 @@ struct CaseDetailsPage: View {
   private var hasPendingChanges: Bool { helpsViewModel.hasChanges || stepViewModel.hasChanges }
 
   private var isSaving: Bool { helpsViewModel.isSaving || stepViewModel.isSaving }
+
+  // same colors as the case cards
+  private var urgencyColor: Color {
+    switch violenceViewModel.urgency {
+    case "Alta": return Color("UrgencyHigh")
+    case "Media": return Color("UrgencyMedium")
+    case "Baja": return Color("UrgencyLow")
+    default: return Color("InsideTextAndIcons")
+    }
+  }
 
   var body: some View {
 
@@ -97,17 +117,49 @@ struct CaseDetailsPage: View {
           CaseDescriptionCard(
             description: viewModel.caseDetail?.writtenDescription ?? ""
           )
+
+          EditableChecklistCard(
+            title: "Tipos de violencia asignados",
+            subtitle: "Urgencia: \(violenceViewModel.urgency)",
+            subtitleColor: urgencyColor,
+            options: violenceViewModel.violenceTypes.map {
+              ChecklistOption(id: $0.violenceId, title: $0.title)
+            },
+            isSelected: { violenceViewModel.isSelected(id: $0) },
+            onToggle: { violenceViewModel.toggle(id: $0) },
+            isEditing: violenceViewModel.isEditing,
+            canEdit: isCaseOpen,
+            hasChanges: violenceViewModel.hasChanges,
+            isSaving: violenceViewModel.isSaving,
+            isLoading: violenceViewModel.isLoading,
+            errorMessage: violenceViewModel.errorMessage,
+            emptyMessage: "No hay tipos de violencia disponibles",
+            onEdit: { violenceViewModel.startEditing() },
+            onCancel: { violenceViewModel.cancelEditing() },
+            onSave: { Task { await violenceViewModel.save() } }
+          )
+
           CaseHelpWanted(
             helpwanted: viewModel.caseDetail?.writtenHelpsWanted ?? ""
           )
 
-          CaseHelpTypesSection(
-            helpTypes: helpsViewModel.helpTypes,
-            isSelected: { helpsViewModel.isSelected($0) },
-            onToggle: { helpsViewModel.toggle($0) },
-            isEnabled: isCaseOpen,
+          EditableChecklistCard(
+            title: "Tipos de ayuda asignados",
+            options: helpsViewModel.helpTypes.map {
+              ChecklistOption(id: $0.helpId, title: $0.title)
+            },
+            isSelected: { helpsViewModel.isSelected(id: $0) },
+            onToggle: { helpsViewModel.toggle(id: $0) },
+            isEditing: helpsViewModel.isEditing,
+            canEdit: isCaseOpen,
+            hasChanges: helpsViewModel.hasChanges,
+            isSaving: helpsViewModel.isSaving,
             isLoading: helpsViewModel.isLoading,
-            errorMessage: helpsViewModel.errorMessage
+            errorMessage: helpsViewModel.errorMessage,
+            emptyMessage: "No hay tipos de ayuda disponibles",
+            onEdit: { helpsViewModel.startEditing() },
+            onCancel: { helpsViewModel.cancelEditing() },
+            onSave: { Task { await helpsViewModel.save() } }
           )
 
           CaseStepSelector(
@@ -122,15 +174,15 @@ struct CaseDetailsPage: View {
               caseId: caseId,
               caseNumber: viewModel.caseDetail?.caseNumber ?? "—",
               assignedIds: assignedCollaboratorIds,
-              onAssigned: { ids in
-                assignedCollaboratorIds.formUnion(ids)
+              onSaved: { ids in
+                assignedCollaboratorIds = ids
               }
             )
           } label: {
             HStack(spacing: 8) {
               Icon(color: Color("PrimaryAdax"), systemName: "person.badge.plus")
 
-              Text("Asignar colaboradora")
+              Text(collaboratorsButtonTitle)
                 .font(.headline)
                 .foregroundColor(Color("PrimaryAdax"))
             }
@@ -197,6 +249,10 @@ struct CaseDetailsPage: View {
     .task {
       await viewModel.loadCase()
       stepViewModel.setInitial(stepNumber: currentStepNumber)
+      assignedCollaboratorIds = Set(viewModel.caseDetail?.assignedUserIds ?? [])
+      await violenceViewModel.load(
+        assignedIds: viewModel.caseDetail?.violenceTypes.compactMap(\.violenceId) ?? []
+      )
       await helpsViewModel.load(
         assignedIds: viewModel.caseDetail?.helps.compactMap(\.helpId) ?? []
       )
@@ -204,6 +260,10 @@ struct CaseDetailsPage: View {
     .toast(
       isPresented: $viewModel.showToast,
       message: viewModel.toastMessage
+    )
+    .toast(
+      isPresented: $violenceViewModel.showToast,
+      message: violenceViewModel.toastMessage
     )
     .toast(
       isPresented: $helpsViewModel.showToast,

@@ -8,9 +8,9 @@
 import Foundation
 
 protocol VerificationReviewRepository {
-    func review(
-        userId: String,
-        status: String,
-        reason: String?
-    ) async throws -> VerificationReviewResult
+  func review(
+    userId: String,
+    status: String,
+    reason: String?
+  ) async throws -> VerificationReviewResult
 }

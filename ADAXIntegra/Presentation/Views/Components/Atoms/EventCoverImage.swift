@@ -29,6 +29,8 @@ struct EventCoverImage: View {
         }
       }
       .clipped()
+      // clipped() only hides the overflow, so a tall picture would still take the taps of the card above
+      .contentShape(Rectangle())
       .accessibilityHidden(true)
   }
 

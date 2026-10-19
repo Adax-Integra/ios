@@ -46,7 +46,7 @@ struct VerificationReviewPage: View {
     .task { await viewModel.load() }
     .onChange(of: viewModel.didFinish) { _, finished in
       if finished {
-          onDecision(viewModel.decidedStatus ?? .enRevision)
+        onDecision(viewModel.decidedStatus ?? .enRevision)
         dismiss()
       }
     }

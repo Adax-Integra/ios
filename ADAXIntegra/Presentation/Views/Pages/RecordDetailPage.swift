@@ -10,12 +10,17 @@ import SwiftUI
 
 struct RecordDetailPage: View {
   let externalID: String
+  // Comes from the record card, so the title works even when the record has no cases
+  let externalName: String
   @StateObject private var recordDetailsViewModel = RecordDetailsViewModel()
   @StateObject private var statusViewModel: RecordStatusViewModel
   @State private var showStatusSheet = false
+  @State private var showRegisterCase = false
+  @State private var showSuccessToast = false
 
-  init(externalID: String, recordId: String, initialStatus: RecordStatus) {
+  init(externalID: String, externalName: String, recordId: String, initialStatus: RecordStatus) {
     self.externalID = externalID
+    self.externalName = externalName
     _statusViewModel = StateObject(
       wrappedValue: RecordStatusViewModel(
         recordId: recordId,
@@ -38,7 +43,7 @@ struct RecordDetailPage: View {
               .lineLimit(1)
               .minimumScaleFactor(0.7)
 
-            Text(recordDetailsViewModel.userFirstName)
+            Text(externalName.firstName)
               .font(.system(size: 28, weight: .bold))
               .foregroundColor(Color("OnBackground"))
               .lineLimit(1)
@@ -95,6 +100,13 @@ struct RecordDetailPage: View {
 
         ScrollView {
           LazyVStack(spacing: 16) {
+            IconTextPrimaryButton(
+              systemName: "plus",
+              title: "Registrar nuevo caso",
+              isDisabled: false
+            ) {
+              showRegisterCase = true
+            }
             ForEach(recordDetailsViewModel.recordDetails) { recordDetail in
               NavigationLink {
                 CaseDetailsPage(caseId: recordDetail.id)
@@ -132,18 +144,34 @@ struct RecordDetailPage: View {
     .sheet(isPresented: $showStatusSheet) {
       RecordStatusSheet(
         viewModel: statusViewModel,
-        externalName: recordDetailsViewModel.userFirstName
+        externalName: externalName.firstName
       )
+    }
+    .sheet(isPresented: $showRegisterCase) {
+      NavigationStack {
+        RegisterCasePage(externalID: externalID) {
+          Task {
+            await recordDetailsViewModel.loadRecordDetails(for: externalID)
+          }
+          showSuccessToast = true
+        }
+      }
     }
     .task {
       await recordDetailsViewModel.loadRecordDetails(for: externalID)
     }
+    .toast(
+      isPresented: $showSuccessToast,
+      message: "Caso registrado correctamente",
+      edge: .bottom
+    )
   }
 }
 
 #Preview {
   RecordDetailPage(
     externalID: "preview-external-id",
+    externalName: "Mariana Corona",
     recordId: "preview-record-id",
     initialStatus: .enRevision
   )

@@ -20,10 +20,10 @@ struct ExternalUserProfile: Identifiable, Decodable {
     case profile
     case address
   }
-    
+
   var verification: VerificationStatus {
-      VerificationStatus(rawValue: verificationStatus ?? "") ?? .noVerificado
-        
+    VerificationStatus(rawValue: verificationStatus ?? "") ?? .noVerificado
+
   }
 
   // Nested to avoid clashing with the Profile entity of pre-submission

@@ -43,4 +43,11 @@ class RemoteAuthRepository: AuthRepository {
       as: APIResponse<LogoutResult>.self
     )
   }
+
+  func deactivateAccount(userId: String) async throws {
+    _ = try await APIProtocol.patch(
+      "/profile/\(userId)/deactivate",
+      as: APIResponse<DeactivateAccountResult>.self
+    )
+  }
 }

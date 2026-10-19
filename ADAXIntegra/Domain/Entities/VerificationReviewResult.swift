@@ -8,11 +8,11 @@
 import Foundation
 
 struct VerificationReviewResult: Decodable {
-    let userId: String
-    let verificationStatus: String
-    
-    enum CodingKeys: String, CodingKey {
-        case userId = "user_id"
-        case verificationStatus = "verification_status"
-    }
+  let userId: String
+  let verificationStatus: String
+
+  enum CodingKeys: String, CodingKey {
+    case userId = "user_id"
+    case verificationStatus = "verification_status"
+  }
 }

@@ -4,8 +4,6 @@
 //
 //  Created by Eduardo Hernández Alonso on 17/10/26.
 //
-//  ViewModel for US R-10, assign an internal user to a case
-//
 
 import Combine
 import Foundation
@@ -16,30 +14,30 @@ final class AssignCollaboratorViewModel: ObservableObject {
   @Published var searchText = ""
   @Published private(set) var selectedIds: Set<String> = []
   @Published private(set) var isLoading = false
-  @Published private(set) var isAssigning = false
+  @Published private(set) var isSaving = false
   @Published private(set) var errorMessage: String?
-  // Shown above the button when the backend rejects the assignment
-  @Published private(set) var assignError: String?
+  // Shown above the button when the backend rejects the changes
+  @Published private(set) var saveError: String?
 
   private let caseId: String
-  // Collaborators already saved in the case, there is no endpoint to remove them so they stay selected
-  private let assignedIds: Set<String>
+  // Collaborators saved in the case
+  private(set) var assignedIds: Set<String>
   private let listAssignableCollaboratorsUseCase: ListAssignableCollaboratorsUseCaseProtocol
-  private let assignCaseCollaboratorUseCase: AssignCaseCollaboratorUseCaseProtocol
+  private let updateCaseCollaboratorsUseCase: UpdateCaseCollaboratorsUseCaseProtocol
 
   init(
     caseId: String,
     assignedIds: Set<String> = [],
     listAssignableCollaboratorsUseCase: ListAssignableCollaboratorsUseCaseProtocol? = nil,
-    assignCaseCollaboratorUseCase: AssignCaseCollaboratorUseCaseProtocol? = nil
+    updateCaseCollaboratorsUseCase: UpdateCaseCollaboratorsUseCaseProtocol? = nil
   ) {
     self.caseId = caseId
     self.assignedIds = assignedIds
     self.selectedIds = assignedIds
     self.listAssignableCollaboratorsUseCase =
       listAssignableCollaboratorsUseCase ?? ListAssignableCollaboratorsUseCase()
-    self.assignCaseCollaboratorUseCase =
-      assignCaseCollaboratorUseCase ?? AssignCaseCollaboratorUseCase()
+    self.updateCaseCollaboratorsUseCase =
+      updateCaseCollaboratorsUseCase ?? UpdateCaseCollaboratorsUseCase()
   }
 
   // Search by name, an empty search shows everyone
@@ -49,10 +47,15 @@ final class AssignCollaboratorViewModel: ObservableObject {
     return collaborators.filter { $0.fullName.localizedCaseInsensitiveContains(query) }
   }
 
-  // Selected collaborators that are not saved yet, only these are sent so the activity log
-  var newIds: Set<String> { selectedIds.subtracting(assignedIds) }
+  // Selected collaborators that are not saved yet
+  var addedIds: Set<String> { selectedIds.subtracting(assignedIds) }
 
-  var canAssign: Bool { !newIds.isEmpty && !isAssigning }
+  // Saved collaborators that were unselected, the backend removes them from the case
+  var removedIds: Set<String> { assignedIds.subtracting(selectedIds) }
+
+  var changesCount: Int { addedIds.count + removedIds.count }
+
+  var canSave: Bool { changesCount > 0 && !isSaving }
 
   // The backend already leaves out deactivated accounts and sorts by name
   func load() async {
@@ -75,9 +78,8 @@ final class AssignCollaboratorViewModel: ObservableObject {
     assignedIds.contains(item.id)
   }
 
-  // Several collaborators can be selected, tapping one again unselects her
+  // Several collaborators can be selected, tapping one again unselects her even if she is saved
   func toggle(_ item: AssignableCollaborator) {
-    guard !isAssigned(item) else { return }
     if selectedIds.contains(item.id) {
       selectedIds.remove(item.id)
     } else {
@@ -85,23 +87,33 @@ final class AssignCollaboratorViewModel: ObservableObject {
     }
   }
 
-  // The new selected collaborators are sent in one call, returns true when the backend saved them
-  func assign() async -> Bool {
-    guard canAssign else { return false }
-    isAssigning = true
-    assignError = nil
-    defer { isAssigning = false }
+  // Sends the final list in one call, returns true when the backend saved it
+  func save() async -> Bool {
+    guard canSave else { return false }
+    isSaving = true
+    saveError = nil
+    defer { isSaving = false }
 
     do {
-      // Kept in the list order so the request is always the same for the same selection
-      return try await assignCaseCollaboratorUseCase.execute(
+      let savedIds = try await updateCaseCollaboratorsUseCase.execute(
         caseId: caseId,
-        userIds: collaborators.map(\.id).filter { newIds.contains($0) }
+        userIds: finalIds
       )
+      // What the backend saved becomes the new starting point
+      assignedIds = Set(savedIds)
+      selectedIds = assignedIds
+      return true
     } catch {
       handle(error)
       return false
     }
+  }
+
+  // Kept in the list order so the request is always the same for the same selection.
+  private var finalIds: [String] {
+    let listed = collaborators.map(\.id).filter { selectedIds.contains($0) }
+    let notListed = selectedIds.subtracting(listed).sorted()
+    return listed + notListed
   }
 
   private func handleLoadError(_ error: Error) {
@@ -120,10 +132,9 @@ final class AssignCollaboratorViewModel: ObservableObject {
     }
   }
 
-  // The backend messages come in English, so each code gets its spanish message
   private func handle(_ error: Error) {
     guard case let APIError.server(statusCode, data) = error else {
-      assignError = "No se pudo conectar con el servidor. Intenta de nuevo."
+      saveError = "No se pudo conectar con el servidor. Intenta de nuevo."
       return
     }
 
@@ -131,19 +142,21 @@ final class AssignCollaboratorViewModel: ObservableObject {
 
     switch (statusCode, body?.code) {
     case (_, "CASE_CLOSED"):
-      assignError = "El caso está cerrado, no se puede asignar."
+      saveError = "El caso está cerrado, no se pueden cambiar las colaboradoras."
     case (_, "COLLABORATOR_INACTIVE"):
-      assignError = "Una de las colaboradoras seleccionadas está desactivada, no se asignó a nadie."
+      saveError =
+        "Una de las colaboradoras seleccionadas está desactivada, no se guardaron los cambios."
     case (_, "COLLABORATOR_NOT_FOUND"):
-      assignError = "No se encontró a una de las colaboradoras seleccionadas, no se asignó a nadie."
+      saveError =
+        "No se encontró a una de las colaboradoras seleccionadas, no se guardaron los cambios."
     case (_, "CASE_NOT_FOUND"):
-      assignError = "No se encontró el caso."
+      saveError = "No se encontró el caso."
     case (401, _):
-      assignError = "Tu sesión expiró. Vuelve a iniciar sesión."
+      saveError = "Tu sesión expiró. Vuelve a iniciar sesión."
     case (403, _):
-      assignError = "No tienes permiso para asignar colaboradoras."
+      saveError = "No tienes permiso para cambiar las colaboradoras del caso."
     default:
-      assignError = "No se pudo asignar a las colaboradoras. Intenta de nuevo."
+      saveError = "No se pudieron guardar los cambios. Intenta de nuevo."
     }
   }
 }

@@ -10,7 +10,6 @@ import SwiftUI
 // G-07: the admin reviews the data of an external user before editing it
 struct ExternalProfilePage: View {
   @StateObject private var viewModel: ExternalProfileViewModel
-  @Environment(\.dismiss) private var dismiss
   private let userId: String
   @State private var showReview = false
   @State private var statusOverride: VerificationStatus?
@@ -32,11 +31,9 @@ struct ExternalProfilePage: View {
 
       ScrollView(showsIndicators: false) {
         VStack(alignment: .leading, spacing: 16) {
-          PageHeader(
-            title: "Datos de la externa",
-            backAction: { dismiss() },
-            subtitle: "Gestión de usuarios"
-          )
+          Text("Gestión de usuarios")
+            .font(.subheadline)
+            .foregroundColor(Color("OnBackground").opacity(0.7))
 
           if viewModel.isLoading && viewModel.profile == nil {
             ProgressView()
@@ -53,7 +50,7 @@ struct ExternalProfilePage: View {
                 showReview = true
               }
             }
-            
+
             if session.roles.contains("admin") {
               PrimaryButton(customHeight: 20, title: "Editar datos", isDisabled: false) {
                 viewModel.startEditing()
@@ -64,7 +61,7 @@ struct ExternalProfilePage: View {
         .padding(20)
       }
     }
-    .toolbar(.hidden, for: .navigationBar)
+    .navigationTitle("Datos de la externa")
     .task { await viewModel.load() }
     .navigationDestination(isPresented: $viewModel.isEditing) {
       EditExternalProfilePage(viewModel: viewModel)
@@ -109,7 +106,7 @@ struct ExternalProfilePage: View {
           Label(viewModel.display(viewModel.saved.email), systemImage: "envelope")
             .font(.system(size: 13))
             .foregroundColor(Color("InsideTextAndIcons"))
-            
+
           VerificationBadge(status: verification)
             .padding(.top, 2)
         }

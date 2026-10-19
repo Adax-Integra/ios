@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct NewPasswordPage: View {
-  @Environment(\.dismiss) private var dismiss
   @ObservedObject var viewModel: PasswordRecoveryViewModel
 
   var body: some View {
@@ -54,12 +53,6 @@ struct NewPasswordPage: View {
         Task { await viewModel.resetPassword() }
       }
     }
-
-    .overlay(alignment: .topLeading) {
-      BackButton { dismiss() }
-        .padding(16)
-    }
-    .navigationBarBackButtonHidden(true)
 
     // Error when changing the password
     .alert("Algo salió mal", isPresented: showGeneralError) {

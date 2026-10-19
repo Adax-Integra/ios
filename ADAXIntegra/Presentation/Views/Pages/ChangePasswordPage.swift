@@ -17,11 +17,9 @@ struct ChangePasswordPage: View {
       Color("Background").ignoresSafeArea()
 
       VStack(alignment: .leading, spacing: 16) {
-        PageHeader(
-          title: "Cambiar contraseña",
-          backAction: { dismiss() },
-          subtitle: "Seguridad"
-        )
+        Text("Seguridad")
+          .font(.subheadline)
+          .foregroundColor(Color("OnBackground").opacity(0.7))
 
         ScrollView {
           VStack(alignment: .leading, spacing: 16) {
@@ -106,7 +104,7 @@ struct ChangePasswordPage: View {
       }
       .padding()
     }
-    .navigationBarBackButtonHidden(true)
+    .navigationTitle("Cambiar contraseña")
     .alert("Cambiar contraseña", isPresented: $showConfirmation) {
       Button("Guardar") {
         Task { await viewModel.changePassword() }
@@ -147,5 +145,7 @@ struct ChangePasswordPage: View {
 }
 
 #Preview {
-  ChangePasswordPage()
+  NavigationStack {
+    ChangePasswordPage()
+  }
 }

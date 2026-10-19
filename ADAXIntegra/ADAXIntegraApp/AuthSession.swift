@@ -45,13 +45,7 @@ class AuthSession: ObservableObject {
   }
 
   func logout() async {
-    defer {
-      token = nil
-      userId = nil
-      roles = []
-      APIConfig.token = nil
-      UserDefaults.standard.removeObject(forKey: storageKey)
-    }
+    defer { clearSession() }
 
     do {
       try await authRepository.logout()
@@ -61,6 +55,26 @@ class AuthSession: ObservableObject {
     } catch {
       debugPrint(error.localizedDescription)
     }
+  }
+
+  func deactivateAccount() async -> Bool {
+    guard let userId else { return false }
+    do {
+      try await authRepository.deactivateAccount(userId: userId)
+      clearSession()
+      return true
+    } catch {
+      debugPrint(error)
+      return false
+    }
+  }
+
+  private func clearSession() {
+    token = nil
+    userId = nil
+    roles = []
+    APIConfig.token = nil
+    UserDefaults.standard.removeObject(forKey: storageKey)
   }
 
   private func persist() {

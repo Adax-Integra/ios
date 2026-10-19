@@ -9,12 +9,11 @@ import SwiftUI
 
 // V-12: "Mis Casos", the cases assigned to the logged-in collaborator
 struct MyCasesPage: View {
-  @Environment(\.dismiss) private var dismiss
   @StateObject private var viewModel = MyCasesViewModel()
 
   var body: some View {
     ListPageTemplate {
-      PageHeader(title: "Mis Casos", backAction: { dismiss() })
+      EmptyView()
     } toolbar: {
       CaseListToolbar(
         searchText: $viewModel.searchText,
@@ -41,11 +40,11 @@ struct MyCasesPage: View {
             CaseDetailsPage(caseId: item.id)
           } label: {
             CaseCardInterna(
+              caseNumber: item.displayCaseNumber,
               name: item.displayName,
               urgency: item.urgency,
-              state: item.stateText,
-              updateAt: item.updatedDate,
-              categories: item.violenceTypes,
+              violenceTypes: item.violenceTypes,
+              assignedTo: item.assignedNames,
               caseId: item.id
             )
           }
@@ -53,7 +52,7 @@ struct MyCasesPage: View {
         }
       }
     }
-    .navigationBarBackButtonHidden(true)
+    .navigationTitle("Mis Casos")
     .refreshable {
       await viewModel.loadCases()
     }
@@ -73,5 +72,7 @@ struct MyCasesPage: View {
 }
 
 #Preview {
-  MyCasesPage()
+  NavigationStack {
+    MyCasesPage()
+  }
 }

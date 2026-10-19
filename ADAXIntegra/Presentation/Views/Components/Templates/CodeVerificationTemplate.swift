@@ -20,7 +20,6 @@ struct CodeVerificationTemplate: View {
   var isResendLinkEnabled: Bool = true
   var isVerifyDisabled: Bool = false
   var verifyTitle: String = "Verificar"
-  let backAction: () -> Void
   let onResendTapped: () -> Void
   let onVerify: () -> Void
 
@@ -29,8 +28,6 @@ struct CodeVerificationTemplate: View {
       Color("Background").ignoresSafeArea()
 
       VStack(alignment: .leading, spacing: 20) {
-        PageHeader(title: "Verifica tu cuenta", backAction: backAction)
-
         VStack(alignment: .leading, spacing: 6) {
           Text(description)
             .font(.system(size: 15))
@@ -70,6 +67,7 @@ struct CodeVerificationTemplate: View {
       }
       .padding()
     }
+    .navigationTitle("Verifica tu cuenta")
     // Closes the keyboard when tapping outside the code boxes
     .onTapGesture {
       UIApplication.shared.sendAction(
@@ -82,15 +80,16 @@ struct CodeVerificationTemplate: View {
 #Preview {
   @Previewable @State var code = ""
 
-  CodeVerificationTemplate(
-    description:
-      "Enviamos un código de 6 dígitos a tu correo. Ingrésalo para completar tu registro.",
-    maskedEmail: "d••••••••@gmail.com",
-    code: $code,
-    secondsUntilResend: 39,
-    attempt: 1,
-    backAction: {},
-    onResendTapped: {},
-    onVerify: {}
-  )
+  NavigationStack {
+    CodeVerificationTemplate(
+      description:
+        "Enviamos un código de 6 dígitos a tu correo. Ingrésalo para completar tu registro.",
+      maskedEmail: "d••••••••@gmail.com",
+      code: $code,
+      secondsUntilResend: 39,
+      attempt: 1,
+      onResendTapped: {},
+      onVerify: {}
+    )
+  }
 }

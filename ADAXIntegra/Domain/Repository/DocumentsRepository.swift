@@ -1,4 +1,3 @@
-
 //
 //  DocumentsRepository.swift
 //  ADAXIntegra
@@ -19,7 +18,7 @@ protocol DocumentsRepository {
 
   // Saves the document of a signed URL on the phone and returns where it was saved
   func downloadDocument(from signedUrl: String, fileName: String) async throws -> URL
- 
+
   // B-02 / V-13: staff views the documents of an external user's record
   func getStaffDocuments(for userId: String) async throws -> SavedDocuments
 }

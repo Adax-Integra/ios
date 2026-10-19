@@ -17,7 +17,7 @@ struct RemoteDocumentsRepository: DocumentsRepository {
     )
     return response.data
   }
-    
+
   // B-02 / V-13: GET /internal-users/external-users/:userId/documents
   func getStaffDocuments(for userId: String) async throws -> SavedDocuments {
     let response = try await APIProtocol.get(

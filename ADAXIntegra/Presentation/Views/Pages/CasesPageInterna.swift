@@ -8,12 +8,11 @@
 import SwiftUI
 
 struct CasesPageInterna: View {
-  @Environment(\.dismiss) private var dismiss
   @StateObject private var viewModel = CasesViewModelInterna()
 
   var body: some View {
     ListPageTemplate {
-      PageHeader(title: "Casos", backAction: { dismiss() })
+      EmptyView()
     } toolbar: {
       CaseListToolbar(
         searchText: $viewModel.searchText,
@@ -31,7 +30,7 @@ struct CasesPageInterna: View {
           .foregroundStyle(.secondary)
           .padding()
       } else if viewModel.cases.isEmpty {
-        Text("No hay expedientes")
+        Text("No hay casos disponibles")
           .foregroundStyle(.secondary)
           .padding()
       } else {
@@ -40,11 +39,11 @@ struct CasesPageInterna: View {
             CaseDetailsPage(caseId: item.id)
           } label: {
             CaseCardInterna(
+              caseNumber: item.displayCaseNumber,
               name: item.displayName,
               urgency: item.urgency,
-              state: item.stateText,
-              updateAt: item.updatedDate,
-              categories: item.violenceTypes,
+              violenceTypes: item.violenceTypes,
+              assignedTo: item.assignedNames,
               caseId: item.id
             )
           }
@@ -52,7 +51,7 @@ struct CasesPageInterna: View {
         }
       }
     }
-    .navigationBarBackButtonHidden(true)
+    .navigationTitle("Casos")
     // pull down the list to reload
     .refreshable {
       await viewModel.loadCases()
@@ -74,5 +73,7 @@ struct CasesPageInterna: View {
 }
 
 #Preview {
-  CasesPageInterna()
+  NavigationStack {
+    CasesPageInterna()
+  }
 }
