@@ -31,10 +31,17 @@ struct AssignableCollaborator: Identifiable, Decodable {
   }
 }
 
+// R-10 and R-12 send the same body
 struct AssignCaseCollaboratorsRequest: Encodable {
   let userIds: [String]
 }
 
 struct CaseAssignmentResult: Decodable {
   let success: Bool
+}
+
+// R-12: the collaborators that stay assigned after the update
+struct UpdatedCaseCollaborators: Decodable {
+  let caseId: String
+  let userIds: [String]
 }
