@@ -41,6 +41,8 @@ struct CollaboratorDetailPage: View {
           .padding(20)
           .frame(width: geo.size.width, alignment: .leading)
         }
+        // hides the keyboard when the user scrolls
+        .scrollDismissesKeyboard(.interactively)
         .refreshable {
           await viewModel.load(force: true)
           if viewModel.selectedTab == .cases {
@@ -75,6 +77,8 @@ struct CollaboratorDetailPage: View {
       }
     }
     .navigationTitle("Detalle de colaboradora")
+    // closes the keyboard when tapping outside the fields
+    .dismissKeyboardOnTap()
     .task { await viewModel.load() }
     .toast(isPresented: $viewModel.isShowingCopiedToast, message: "Copiado al portapapeles")
     // G-18: open the edit screen
