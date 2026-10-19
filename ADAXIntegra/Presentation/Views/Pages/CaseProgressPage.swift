@@ -52,6 +52,16 @@ struct CaseProgressPage: View {
         }
 
         if viewModel.caseDetail != nil {
+          VStack(spacing: 16) {
+            if let description = viewModel.descriptionText {
+              CaseDescriptionCard(description: description)
+            }
+
+            if let help = viewModel.helpText {
+              CaseHelpWanted(helpwanted: help, title: "Ayuda requerida")
+            }
+          }
+
           if viewModel.steps.isEmpty {
             Text("Este caso todavía no tiene pasos registrados.")
               .foregroundStyle(.secondary)
