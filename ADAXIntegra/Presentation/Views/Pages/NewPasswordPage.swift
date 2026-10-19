@@ -70,18 +70,6 @@ struct NewPasswordPage: View {
     } message: {
       Text(viewModel.successMessage ?? "")
     }
-
-    // Hides the keyboard when tapping outside the box
-    .onTapGesture {
-      hideKeyboard()
-    }
-  }
-
-  // Closes the keyboard when something is selected
-  private func hideKeyboard() {
-    UIApplication.shared.sendAction(
-      #selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil
-    )
   }
 
   // Shows the general error whenever there is one
