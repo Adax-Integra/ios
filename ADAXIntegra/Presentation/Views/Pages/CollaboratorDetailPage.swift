@@ -30,24 +30,27 @@ struct CollaboratorDetailPage: View {
     ZStack {
       Color("Background").ignoresSafeArea()
 
-      ScrollView(showsIndicators: false) {
-        VStack(alignment: .leading, spacing: 16) {
-          PageHeader(
-            title: "Detalle de colaboradora",
-            backAction: { dismiss() },
-            subtitle: "Gestión de colaboradoras"
-          )
+        GeometryReader { geo in
+          ScrollView(showsIndicators: false) {
+            VStack(alignment: .leading, spacing: 16) {
+              PageHeader(
+                title: "Detalle de colaboradora",
+                backAction: { dismiss() },
+                subtitle: "Gestión de colaboradoras"
+              )
 
-          content
+              content
+            }
+            .padding(20)
+            .frame(width: geo.size.width, alignment: .leading)
+          }
+          .refreshable {
+            await viewModel.load(force: true)
+            if viewModel.selectedTab == .cases {
+              await viewModel.loadCases(force: true)
+            }
+          }
         }
-        .padding(20)
-      }
-      .refreshable {
-        await viewModel.load(force: true)
-        if viewModel.selectedTab == .cases {
-          await viewModel.loadCases(force: true)
-        }
-      }
 
       // G-04: dark background and confirmation dialog
       if showStatusDialog, let detail = viewModel.detail {
