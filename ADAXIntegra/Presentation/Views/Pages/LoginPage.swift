@@ -105,7 +105,9 @@ struct LoginPage: View {
     .background(Color("Background").ignoresSafeArea())
     // Muestra la pantalla de registro
     .fullScreenCover(isPresented: $showRegistration) {
-      RegistrationPage()
+      NavigationStack {
+        RegistrationPage()
+      }
     }
     // El flujo de recuperación se abre encima del login con su propia navegación
     .fullScreenCover(isPresented: $showForgotPassword) {
