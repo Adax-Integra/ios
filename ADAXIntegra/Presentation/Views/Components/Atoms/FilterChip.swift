@@ -15,7 +15,9 @@ struct FilterChip: View {
     HStack(spacing: 6) {
       Image(systemName: "line.3.horizontal.decrease")
       Text(title)
+        .lineLimit(1)
     }
+    .fixedSize()
     .font(.system(size: 13, weight: .semibold))
     .foregroundStyle(Color("OnBackground"))
     .padding(.horizontal, 14)
