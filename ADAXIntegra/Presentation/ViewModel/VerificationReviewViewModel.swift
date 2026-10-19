@@ -20,6 +20,7 @@ final class VerificationReviewViewModel: ObservableObject {
   @Published var errorMessage: String?
   @Published var downloadedFileURL: URL?
   @Published var isShowingShareSheet = false
+  @Published var isShowingPreview = false
 
   private var identityUrl: String?
   private var proofUrl: String?
@@ -55,21 +56,33 @@ final class VerificationReviewViewModel: ObservableObject {
     isLoading = false
   }
 
+  func previewIdentity() async {
+    await openFile(from: identityUrl, name: "comprobante_identidad", preview: true)
+  }
+
+  func previewProof() async {
+    await openFile(from: proofUrl, name: "comprobante_domicilio", preview: true)
+  }
+ 
   func downloadIdentity() async {
-    await download(from: identityUrl, name: "comprobante_identidad")
+    await openFile(from: identityUrl, name: "comprobante_identidad", preview: false)
   }
 
   func downloadProof() async {
-    await download(from: proofUrl, name: "comprobante_domicilio")
+    await openFile(from: proofUrl, name: "comprobante_domicilio", preview: false)
   }
 
-  private func download(from url: String?, name: String) async {
+  private func openFile(from url: String?, name: String, preview: Bool) async {
     guard let url else { return }
     do {
       downloadedFileURL = try await documentsRepository.downloadDocument(
         from: url, fileName: name
       )
-      isShowingShareSheet = true
+      if preview {
+        isShowingPreview = true
+      } else {
+        isShowingShareSheet = true
+      }
     } catch {
       errorMessage = "No se pudo abrir el documento."
     }
