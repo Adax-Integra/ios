@@ -48,11 +48,10 @@ struct AddCollaboratorPage: View {
       }
       // hides the keyboard when the user scrolls
       .scrollDismissesKeyboard(.interactively)
-      .onTapGesture {
-        hideKeyboard()
-      }
     }
     .navigationTitle("Agregar colaboradora")
+    // closes the keyboard when tapping outside the fields
+    .dismissKeyboardOnTap()
     // Error that does not belong to a single field (no connection, expired session...)
     .alert("No se pudo guardar", isPresented: showGeneralError) {
       Button("Aceptar", role: .cancel) {}
@@ -84,12 +83,6 @@ struct AddCollaboratorPage: View {
     Binding(
       get: { viewModel.successMessage != nil },
       set: { if !$0 { viewModel.successMessage = nil } }
-    )
-  }
-
-  private func hideKeyboard() {
-    UIApplication.shared.sendAction(
-      #selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil
     )
   }
 }
