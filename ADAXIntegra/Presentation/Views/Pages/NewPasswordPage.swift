@@ -61,15 +61,13 @@ struct NewPasswordPage: View {
       Text(viewModel.generalError ?? "")
     }
 
-    // After changing the password, "Aceptar" closes the flow and goes back to the login
-
-    .alert("Contraseña actualizada", isPresented: showSuccess) {
-      Button("Aceptar", role: .cancel) {
-        viewModel.finish()
-      }
-    } message: {
-      Text(viewModel.successMessage ?? "")
-    }
+    // After changing the password, "Continuar" closes the flow and goes back to the login
+    .successScreen(
+      isPresented: showSuccess,
+      title: "¡Contraseña actualizada!",
+      message: viewModel.successMessage ?? "",
+      onContinue: { viewModel.finish() }
+    )
 
     // Hides the keyboard when tapping outside the box
     .onTapGesture {
@@ -93,7 +91,7 @@ struct NewPasswordPage: View {
     )
   }
 
-  // Shows the alert while there is a success message
+  // Shows the success page while there is a success message
 
   private var showSuccess: Binding<Bool> {
     Binding(
