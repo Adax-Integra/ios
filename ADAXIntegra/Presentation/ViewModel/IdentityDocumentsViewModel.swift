@@ -17,9 +17,9 @@ final class IdentityDocumentsViewModel: ObservableObject {
   // Documents being sent, so their picker shows a spinner
   @Published private(set) var uploading: Set<DocumentKind> = []
   @Published var errorMessage: String?
-  // Confirms an upload with the "Toast"
-  @Published var toastMessage = ""
-  @Published var showToast = false
+  // Confirms an upload with the "SuccessPage"
+  @Published var successMessage = ""
+  @Published var isShowingSuccess = false
   // File written to disk so the share sheet can save it
   @Published var downloadedFileURL: URL?
   @Published var isShowingShareSheet = false
@@ -99,8 +99,9 @@ final class IdentityDocumentsViewModel: ObservableObject {
       uploaded.insert(kind)
       signedUrls[kind] =
         kind == .identity ? saved.identityDocumentUrl : saved.proofOfAddressUrl
-      toastMessage = "\(Self.title(for: kind)) \(isReplacing ? "actualizado" : "subido")"
-      showToast = true
+      successMessage =
+        "\(Self.title(for: kind)) se \(isReplacing ? "actualizó" : "subió") correctamente."
+      isShowingSuccess = true
     } catch {
       handle(error, fallback: "No se pudo subir el documento. Intenta de nuevo.")
     }
