@@ -16,6 +16,8 @@ final class CaseStepViewModel: ObservableObject {
   @Published private(set) var isSaving = false
   @Published var showToast = false
   @Published var toastMessage = ""
+  // shows the success page after saving, the toast is only for errors
+  @Published var isShowingSuccess = false
 
   private let repository: CaseRepository
   private let caseId: String
@@ -67,18 +69,20 @@ final class CaseStepViewModel: ObservableObject {
       if success {
         savedStep = step
         isEditing = false
-        toastMessage = "Etapa actualizada"
+        isShowingSuccess = true
       } else {
         toastMessage = "No se pudo actualizar la etapa"
+        showToast = true
       }
     } catch APIError.server(let statusCode, let data) {
       let body = String(data: data ?? Data(), encoding: .utf8) ?? ""
       debugPrint("Etapa falló. Status: \(statusCode). Respuesta: \(body)")
       toastMessage = "No se pudo actualizar la etapa"
+      showToast = true
     } catch {
       debugPrint(error)
       toastMessage = "No se pudo actualizar la etapa"
+      showToast = true
     }
-    showToast = true
   }
 }
