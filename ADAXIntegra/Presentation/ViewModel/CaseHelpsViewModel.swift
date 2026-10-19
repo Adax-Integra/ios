@@ -11,6 +11,7 @@ import Foundation
 final class CaseHelpsViewModel: ObservableObject {
   @Published var helpTypes: [HelpType] = []
   @Published var selectedIds: Set<String> = []
+  @Published var isEditing = false
   @Published var isLoading = false
   @Published var isSaving = false
   @Published var errorMessage: String?
@@ -52,17 +53,28 @@ final class CaseHelpsViewModel: ObservableObject {
     isLoading = false
   }
 
-  func isSelected(_ help: HelpType) -> Bool {
-    selectedIds.contains(help.helpId.lowercased())
+  func isSelected(id: String) -> Bool {
+    selectedIds.contains(id.lowercased())
   }
 
-  func toggle(_ help: HelpType) {
-    let id = help.helpId.lowercased()
+  func toggle(id: String) {
+    guard isEditing else { return }
+    let id = id.lowercased()
     if selectedIds.contains(id) {
       selectedIds.remove(id)
     } else {
       selectedIds.insert(id)
     }
+  }
+
+  func startEditing() {
+    isEditing = true
+  }
+
+  // cancel goes back to what is saved
+  func cancelEditing() {
+    selectedIds = savedIds
+    isEditing = false
   }
 
   func save() async {
@@ -77,6 +89,7 @@ final class CaseHelpsViewModel: ObservableObject {
       // what the backend saved becomes the new starting point
       savedIds = Set(result.helps.map { $0.helpId.lowercased() })
       selectedIds = savedIds
+      isEditing = false
       toastMessage = "Los tipos de ayuda se guardaron correctamente."
     } catch {
       toastMessage = "No se pudieron guardar los tipos de ayuda."

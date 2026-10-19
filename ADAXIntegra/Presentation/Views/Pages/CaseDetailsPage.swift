@@ -17,6 +17,9 @@ struct CaseDetailsPage: View {
   // help types that the internal assigns to the case
   @StateObject private var helpsViewModel: CaseHelpsViewModel
 
+  // violence types that the internal assigns to the case, they decide the urgency
+  @StateObject private var violenceViewModel: CaseViolenceViewModel
+
   @State private var showCloseModal = false
   // R-10: the case detail does not send who is assigned, so the saved ones are kept here
   @State private var assignedCollaboratorIds: Set<String> = []
@@ -26,6 +29,7 @@ struct CaseDetailsPage: View {
     self.caseId = caseId
     _viewModel = StateObject(wrappedValue: CaseDetailViewModel(caseId: caseId))
     _helpsViewModel = StateObject(wrappedValue: CaseHelpsViewModel(caseId: caseId))
+    _violenceViewModel = StateObject(wrappedValue: CaseViolenceViewModel(caseId: caseId))
   }
   //Assigns the backend status string ("Open", "Closed") to the  display text that is in Español (Abierto, Cerrado)
   private var statusText: String {
@@ -45,6 +49,16 @@ struct CaseDetailsPage: View {
   // a closed case can not be edited
   private var isCaseOpen: Bool {
     viewModel.caseDetail?.state == "Open"
+  }
+
+  // same colors as the case cards
+  private var urgencyColor: Color {
+    switch violenceViewModel.urgency {
+    case "Alta": return Color("UrgencyHigh")
+    case "Media": return Color("UrgencyMedium")
+    case "Baja": return Color("UrgencyLow")
+    default: return Color("InsideTextAndIcons")
+    }
   }
 
   var body: some View {
@@ -75,17 +89,49 @@ struct CaseDetailsPage: View {
           CaseDescriptionCard(
             description: viewModel.caseDetail?.writtenDescription ?? ""
           )
+
+          EditableChecklistCard(
+            title: "Tipos de violencia asignados",
+            subtitle: "Urgencia: \(violenceViewModel.urgency)",
+            subtitleColor: urgencyColor,
+            options: violenceViewModel.violenceTypes.map {
+              ChecklistOption(id: $0.violenceId, title: $0.title)
+            },
+            isSelected: { violenceViewModel.isSelected(id: $0) },
+            onToggle: { violenceViewModel.toggle(id: $0) },
+            isEditing: violenceViewModel.isEditing,
+            canEdit: isCaseOpen,
+            hasChanges: violenceViewModel.hasChanges,
+            isSaving: violenceViewModel.isSaving,
+            isLoading: violenceViewModel.isLoading,
+            errorMessage: violenceViewModel.errorMessage,
+            emptyMessage: "No hay tipos de violencia disponibles",
+            onEdit: { violenceViewModel.startEditing() },
+            onCancel: { violenceViewModel.cancelEditing() },
+            onSave: { Task { await violenceViewModel.save() } }
+          )
+
           CaseHelpWanted(
             helpwanted: viewModel.caseDetail?.writtenHelpsWanted ?? ""
           )
 
-          CaseHelpTypesSection(
-            helpTypes: helpsViewModel.helpTypes,
-            isSelected: { helpsViewModel.isSelected($0) },
-            onToggle: { helpsViewModel.toggle($0) },
-            isEnabled: isCaseOpen,
+          EditableChecklistCard(
+            title: "Tipos de ayuda asignados",
+            options: helpsViewModel.helpTypes.map {
+              ChecklistOption(id: $0.helpId, title: $0.title)
+            },
+            isSelected: { helpsViewModel.isSelected(id: $0) },
+            onToggle: { helpsViewModel.toggle(id: $0) },
+            isEditing: helpsViewModel.isEditing,
+            canEdit: isCaseOpen,
+            hasChanges: helpsViewModel.hasChanges,
+            isSaving: helpsViewModel.isSaving,
             isLoading: helpsViewModel.isLoading,
-            errorMessage: helpsViewModel.errorMessage
+            errorMessage: helpsViewModel.errorMessage,
+            emptyMessage: "No hay tipos de ayuda disponibles",
+            onEdit: { helpsViewModel.startEditing() },
+            onCancel: { helpsViewModel.cancelEditing() },
+            onSave: { Task { await helpsViewModel.save() } }
           )
 
           // R-10: the assignment lives on its own page so this one stays lighter
@@ -118,28 +164,14 @@ struct CaseDetailsPage: View {
           .opacity(isCaseOpen ? 1.0 : 0.6)
         },
         bottomActions: {
-          VStack(spacing: 0) {
-            PrimaryButton(
-              customWidth: 329,
-              customHeight: 23,
-              title: helpsViewModel.isSaving ? "Guardando..." : "Guardar",
-              isDisabled: !isCaseOpen || !helpsViewModel.hasChanges || helpsViewModel.isSaving,
-              action: {
-                Task { await helpsViewModel.save() }
-              }
-            )
-            .padding(.horizontal, 16)
-            .padding(.top, 16)
-
-            CloseCaseAction(
-              onCloseCaseTapped: {
-                withAnimation { showCloseModal = true }
-              },
-              onCancelTapped: {
-                dismiss()
-              }
-            )
-          }
+          CloseCaseAction(
+            onCloseCaseTapped: {
+              withAnimation { showCloseModal = true }
+            },
+            onCancelTapped: {
+              dismiss()
+            }
+          )
         }
       )
 
@@ -165,6 +197,9 @@ struct CaseDetailsPage: View {
     }
     .task {
       await viewModel.loadCase()
+      await violenceViewModel.load(
+        assignedIds: viewModel.caseDetail?.violenceTypes.compactMap(\.violenceId) ?? []
+      )
       await helpsViewModel.load(
         assignedIds: viewModel.caseDetail?.helps.compactMap(\.helpId) ?? []
       )
@@ -172,6 +207,10 @@ struct CaseDetailsPage: View {
     .toast(
       isPresented: $viewModel.showToast,
       message: viewModel.toastMessage
+    )
+    .toast(
+      isPresented: $violenceViewModel.showToast,
+      message: violenceViewModel.toastMessage
     )
     .toast(
       isPresented: $helpsViewModel.showToast,
