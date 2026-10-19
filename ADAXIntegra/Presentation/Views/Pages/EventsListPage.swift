@@ -65,17 +65,13 @@ struct EventsListPage: View {
     .task {
       await viewModel.loadEvents()
     }
-    // E-03: after "Entendido" the list is loaded again so the event disappears
-    .fullScreenCover(isPresented: $disableViewModel.isShowingSuccess) {
-      EventSuccessPage(
-        title: "Evento deshabilitado",
-        message: "El evento ya no aparece en el calendario.",
-        onFinish: {
-          disableViewModel.isShowingSuccess = false
-          Task { await viewModel.loadEvents() }
-        }
-      )
-    }
+    // E-03: after "Continuar" the list is loaded again so the event disappears
+    .successScreen(
+      isPresented: $disableViewModel.isShowingSuccess,
+      title: "¡Evento deshabilitado!",
+      message: "El evento ya no aparece en el calendario.",
+      onContinue: { Task { await viewModel.loadEvents() } }
+    )
     // E-02: after saving, the list is loaded again so the card shows the changes
     .navigationDestination(isPresented: $isEditingEvent) {
       if let eventToEdit {

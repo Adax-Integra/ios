@@ -27,7 +27,7 @@ class AuthSession: ObservableObject {
 
   private let authRepository: AuthRepository
 
-  // seconds (5 days)
+  // seconds
   private let sessionLifetime: TimeInterval = 167 * 60 * 60
 
   init(authRepository: AuthRepository = RemoteAuthRepository()) {
@@ -108,6 +108,5 @@ class AuthSession: ObservableObject {
     userId = stored.userId
     roles = stored.roles
     APIConfig.token = stored.token
-    UserDefaults.standard.removeObject(forKey: storageKey)
   }
 }
