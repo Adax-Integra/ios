@@ -4,7 +4,6 @@
 //
 //  Created by Oscar Alexander Vilchis Soto on 18/10/26.
 
-
 import Foundation
 
 // Wrapper of the "data" field returned by GET /internal-users/activity-log
@@ -61,4 +60,3 @@ extension ActivityLogItem {
     return "clock.arrow.circlepath"
   }
 }
-

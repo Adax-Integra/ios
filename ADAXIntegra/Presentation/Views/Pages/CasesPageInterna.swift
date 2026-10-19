@@ -38,13 +38,14 @@ struct CasesPageInterna: View {
           NavigationLink {
             CaseDetailsPage(caseId: item.id)
           } label: {
-            CaseCardInterna(
-              caseNumber: item.displayCaseNumber,
-              name: item.displayName,
-              urgency: item.urgency,
-              violenceTypes: item.violenceTypes,
-              assignedTo: item.assignedNames,
-              caseId: item.id
+            // same card as the record detail so the case lists look the same
+            RecordCaseDetail(
+              caseId: item.displayCaseNumber,
+              externalName: item.displayName,
+              urgencyType: item.urgencyType ?? .sinEvaluar,
+              violenceType: item.violenceTypes.joined(separator: ", "),
+              internalAssigned: item.assignedNames.joined(separator: ", "),
+              lastUpdated: item.updatedDate?.dateString ?? "—"
             )
           }
           .buttonStyle(.plain)
@@ -57,12 +58,6 @@ struct CasesPageInterna: View {
       await viewModel.loadCases()
     }
 
-    // hides keyboard for the search bar
-    .onTapGesture {
-      UIApplication.shared.sendAction(
-        #selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil
-      )
-    }
     // vuelve a cargar la pestaña cuando se cambia la busqueda o el filtro
     .task(id: "\(viewModel.searchText)|\(viewModel.urgencyFilter)") {
       try? await Task.sleep(for: .milliseconds(300))

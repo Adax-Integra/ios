@@ -32,9 +32,13 @@ struct ListPageTemplate<Header: View, Toolbar: View, Content: View>: View {
           }
           .padding()
         }
+        // hides the keyboard when the user scrolls
+        .scrollDismissesKeyboard(.interactively)
 
       }
     }
+    // closes the keyboard when tapping outside the fields
+    .dismissKeyboardOnTap()
   }
 }
 

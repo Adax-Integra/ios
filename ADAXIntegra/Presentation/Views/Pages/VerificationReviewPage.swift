@@ -35,6 +35,8 @@ struct VerificationReviewPage: View {
         }
         .padding(20)
       }
+      // hides the keyboard when the user scrolls
+      .scrollDismissesKeyboard(.interactively)
 
       if viewModel.isSubmitting {
         Color.black.opacity(0.15).ignoresSafeArea()
@@ -43,11 +45,18 @@ struct VerificationReviewPage: View {
     }
     .navigationTitle("Revisar verificación")
     .navigationBarTitleDisplayMode(.inline)
+    // closes the keyboard when tapping outside the fields
+    .dismissKeyboardOnTap()
     .task { await viewModel.load() }
     .onChange(of: viewModel.didFinish) { _, finished in
       if finished {
         onDecision(viewModel.decidedStatus ?? .enRevision)
         dismiss()
+      }
+    }
+    .sheet(isPresented: $viewModel.isShowingPreview) {
+      if let url = viewModel.downloadedFileURL {
+        QuickLookPreview(url: url)
       }
     }
     .sheet(isPresented: $viewModel.isShowingShareSheet) {
@@ -99,13 +108,15 @@ struct VerificationReviewPage: View {
           documentRow(
             title: "Comprobante de identidad",
             hasDocument: viewModel.hasIdentity,
-            action: { Task { await viewModel.downloadIdentity() } }
+            onView: { Task { await viewModel.previewIdentity() } },
+            onDownload: { Task { await viewModel.downloadIdentity() } }
           )
           Divider()
           documentRow(
             title: "Comprobante de domicilio",
             hasDocument: viewModel.hasProof,
-            action: { Task { await viewModel.downloadProof() } }
+            onView: { Task { await viewModel.previewProof() } },
+            onDownload: { Task { await viewModel.downloadProof() } }
           )
         }
       }
@@ -115,7 +126,10 @@ struct VerificationReviewPage: View {
   }
 
   private func documentRow(
-    title: String, hasDocument: Bool, action: @escaping () -> Void
+    title: String,
+    hasDocument: Bool,
+    onView: @escaping () -> Void,
+    onDownload: @escaping () -> Void
   ) -> some View {
     HStack(spacing: 12) {
       Image(systemName: "doc.text")
@@ -125,8 +139,15 @@ struct VerificationReviewPage: View {
         .foregroundColor(Color("OnBackground"))
       Spacer()
       if hasDocument {
-        Button(action: action) {
-          Label("Ver", systemImage: "arrow.down.circle")
+        Menu {
+          Button(action: onView) {
+            Label("Ver", systemImage: "eye")
+          }
+          Button(action: onDownload) {
+            Label("Descargar", systemImage: "arrow.down.circle")
+          }
+        } label: {
+          Label("Abrir", systemImage: "ellipsis.circle")
             .font(.system(size: 14, weight: .semibold))
             .foregroundColor(Color("PrimaryAdax"))
         }

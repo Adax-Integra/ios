@@ -74,10 +74,10 @@ struct CreateEventPage: View {
         .padding()
       }
       .scrollDismissesKeyboard(.interactively)
-      // dismisses the keyboard when tapping outside the fields
-      .onTapGesture { dismissKeyboard() }
     }
     .navigationTitle(viewModel.isEditing ? "Editar evento" : "Nuevo evento")
+    // dismisses the keyboard when tapping outside the fields
+    .dismissKeyboardOnTap()
     .task { await viewModel.loadCountries() }
     .alert("Atención", isPresented: showError) {
       Button("Aceptar", role: .cancel) {}
@@ -123,7 +123,7 @@ struct CreateEventPage: View {
     )
   }
 
-  // Closes the keyboard before saving or when tapping outside the fields
+  // Closes the keyboard before saving
   private func dismissKeyboard() {
     UIApplication.shared.sendAction(
       #selector(UIResponder.resignFirstResponder),

@@ -17,6 +17,9 @@ struct CaseDetailsPage: View {
   // help types that the internal assigns to the case
   @StateObject private var helpsViewModel: CaseHelpsViewModel
 
+  // R-13: etapa (case step) del caso
+  @StateObject private var stepViewModel: CaseStepViewModel
+
   // violence types that the internal assigns to the case, they decide the urgency
   @StateObject private var violenceViewModel: CaseViolenceViewModel
 
@@ -29,6 +32,7 @@ struct CaseDetailsPage: View {
     self.caseId = caseId
     _viewModel = StateObject(wrappedValue: CaseDetailViewModel(caseId: caseId))
     _helpsViewModel = StateObject(wrappedValue: CaseHelpsViewModel(caseId: caseId))
+    _stepViewModel = StateObject(wrappedValue: CaseStepViewModel(caseId: caseId))
     _violenceViewModel = StateObject(wrappedValue: CaseViolenceViewModel(caseId: caseId))
   }
   //Assigns the backend status string ("Open", "Closed") to the  display text that is in Español (Abierto, Cerrado)
@@ -46,6 +50,19 @@ struct CaseDetailsPage: View {
     return parts.isEmpty ? "—" : parts.joined(separator: " ")
   }
 
+  // Date and time of the case already formatted by the Date utils
+  private var lastModifiedText: String {
+    let parts = [viewModel.caseDetail?.updatedDateString, viewModel.caseDetail?.updatedTimeString]
+      .compactMap { $0 }
+    return parts.isEmpty ? "—" : parts.joined(separator: " a las ")
+  }
+
+  private var createdAtText: String {
+    let parts = [viewModel.caseDetail?.createdDateString, viewModel.caseDetail?.createdTimeString]
+      .compactMap { $0 }
+    return parts.isEmpty ? "—" : parts.joined(separator: " a las ")
+  }
+
   // R-12: once there are collaborators the same page is used to change them
   private var collaboratorsButtonTitle: String {
     let count = assignedCollaboratorIds.count
@@ -55,6 +72,20 @@ struct CaseDetailsPage: View {
   // a closed case can not be edited
   private var isCaseOpen: Bool {
     viewModel.caseDetail?.state == "Open"
+  }
+
+  private var currentStepNumber: Int? {
+    let steps = viewModel.caseDetail?.steps ?? []
+
+    if let inProgress = steps.first(where: { ($0.status ?? "").lowercased() == "en progreso" }) {
+      return inProgress.stepNumber
+    }
+
+    return
+      steps
+      .filter { ($0.status ?? "").lowercased() == "completado" }
+      .compactMap(\.stepNumber)
+      .max()
   }
 
   // same colors as the case cards
@@ -74,18 +105,14 @@ struct CaseDetailsPage: View {
       CaseDetailsTemplate(
         caseNumber: viewModel.caseDetail?.caseNumber ?? "—",
         status: statusText,
-        onBack: {
-          dismiss()
-        },
         content: {
           RecordCaseSummary(
             userName: userFullName,
             recordId: viewModel.caseDetail?.record.recordNumber
               ?? viewModel.caseDetail?.recordId
               ?? "—",
-            lastModified: viewModel.caseDetail?.updatedAt ?? "—",
-            createdAt: viewModel.caseDetail?.createdAt ?? "—",
-            onEditTapped: { print("Edit tapped") }
+            lastModified: lastModifiedText,
+            createdAt: createdAtText
           )
 
           CaseInfoCard(
@@ -138,6 +165,25 @@ struct CaseDetailsPage: View {
             onEdit: { helpsViewModel.startEditing() },
             onCancel: { helpsViewModel.cancelEditing() },
             onSave: { Task { await helpsViewModel.save() } }
+          )
+
+          EditableChecklistCard(
+            title: "Etapa del caso",
+            options: CaseStepOption.allCases.map {
+              ChecklistOption(id: String($0.rawValue), title: $0.title)
+            },
+            isSelected: { stepViewModel.isSelected(id: $0) },
+            onToggle: { stepViewModel.toggle(id: $0) },
+            isEditing: stepViewModel.isEditing,
+            canEdit: isCaseOpen,
+            hasChanges: stepViewModel.hasChanges,
+            isSaving: stepViewModel.isSaving,
+            isLoading: false,
+            errorMessage: nil,
+            emptyMessage: "No hay etapas disponibles",
+            onEdit: { stepViewModel.startEditing() },
+            onCancel: { stepViewModel.cancelEditing() },
+            onSave: { Task { await stepViewModel.save() } }
           )
 
           // R-10: the assignment lives on its own page so this one stays lighter
@@ -203,6 +249,7 @@ struct CaseDetailsPage: View {
     }
     .task {
       await viewModel.loadCase()
+      stepViewModel.setInitial(stepNumber: currentStepNumber)
       assignedCollaboratorIds = Set(viewModel.caseDetail?.assignedUserIds ?? [])
       await violenceViewModel.load(
         assignedIds: viewModel.caseDetail?.violenceTypes.compactMap(\.violenceId) ?? []
@@ -223,9 +270,13 @@ struct CaseDetailsPage: View {
       isPresented: $helpsViewModel.showToast,
       message: helpsViewModel.toastMessage
     )
+    .toast(
+      isPresented: $stepViewModel.showToast,
+      message: stepViewModel.toastMessage
+    )
   }
 }
-// we use a real case ID to see in the preview
+// we use a fake case ID to see in the preview
 #Preview {
-  CaseDetailsPage(caseId: "8c097b2f-5418-45ba-ab5f-9fc866fbe778")
+  CaseDetailsPage(caseId: "##################")
 }

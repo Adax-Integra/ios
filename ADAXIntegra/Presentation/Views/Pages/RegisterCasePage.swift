@@ -67,6 +67,8 @@ struct RegisterCasePage: View {
       .padding(.horizontal)
     }
     .navigationTitle("Registrar el caso")
+    // closes the keyboard when tapping outside the fields
+    .dismissKeyboardOnTap()
     .backToolbarButton(action: { dismiss() })
     .alert("Error", isPresented: $viewModel.showAlert) {
       Button("Entendido", role: .cancel) {}

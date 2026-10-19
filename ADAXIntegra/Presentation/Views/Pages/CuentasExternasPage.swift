@@ -26,14 +26,12 @@ struct CuentasExternasPage: View {
         }
         .padding()
       }
+      // hides the keyboard when the user scrolls
+      .scrollDismissesKeyboard(.interactively)
     }
     .navigationTitle("Cuentas de externas")
     // Hides the keyboard of the search bar when tapping outside of it
-    .onTapGesture {
-      UIApplication.shared.sendAction(
-        #selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil
-      )
-    }
+    .dismissKeyboardOnTap()
     // Same as Expedientes: waits a little so the backend is not called on every letter.
     // It also runs when the screen appears and when coming back from G-07
     .task(id: viewModel.searchText) {

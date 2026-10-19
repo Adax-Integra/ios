@@ -39,13 +39,14 @@ struct MyCasesPage: View {
           NavigationLink {
             CaseDetailsPage(caseId: item.id)
           } label: {
-            CaseCardInterna(
-              caseNumber: item.displayCaseNumber,
-              name: item.displayName,
-              urgency: item.urgency,
-              violenceTypes: item.violenceTypes,
-              assignedTo: item.assignedNames,
-              caseId: item.id
+            // same card as the record detail so the case lists look the same
+            RecordCaseDetail(
+              caseId: item.displayCaseNumber,
+              externalName: item.displayName,
+              urgencyType: item.urgencyType ?? .sinEvaluar,
+              violenceType: item.violenceTypes.joined(separator: ", "),
+              internalAssigned: item.assignedNames.joined(separator: ", "),
+              lastUpdated: item.updatedDate?.dateString ?? "—"
             )
           }
           .buttonStyle(.plain)
@@ -55,12 +56,6 @@ struct MyCasesPage: View {
     .navigationTitle("Mis Casos")
     .refreshable {
       await viewModel.loadCases()
-    }
-    // Hides the keyboard of the search bar
-    .onTapGesture {
-      UIApplication.shared.sendAction(
-        #selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil
-      )
     }
     // Reloads when the search or the filter changes, waiting a little while the user types
     .task(id: "\(viewModel.searchText)|\(viewModel.urgencyFilter)") {
