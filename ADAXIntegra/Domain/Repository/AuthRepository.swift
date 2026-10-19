@@ -15,4 +15,6 @@ protocol AuthRepository {
     async throws -> ChangePasswordResult
 
   func logout() async throws
+
+  func deactivateAccount(userId: String) async throws
 }
