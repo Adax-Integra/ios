@@ -48,6 +48,8 @@ struct AssignCollaboratorPage: View {
           .padding(.horizontal, 16)
           .padding(.vertical, 8)
       }
+      // hides the keyboard when the user scrolls
+      .scrollDismissesKeyboard(.interactively)
       .refreshable { await viewModel.load() }
 
       // Pinned to the bottom like the actions of the case detail
@@ -75,6 +77,8 @@ struct AssignCollaboratorPage: View {
     }
     .background(Color("Background").ignoresSafeArea())
     .navigationTitle("Colaboradoras del caso")
+    // closes the keyboard when tapping outside the fields
+    .dismissKeyboardOnTap()
     .navigationBarTitleDisplayMode(.inline)
     .toolbar(.visible, for: .navigationBar)
     .task { await viewModel.load() }
