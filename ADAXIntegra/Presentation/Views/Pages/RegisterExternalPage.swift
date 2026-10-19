@@ -12,6 +12,7 @@ struct RegisterExternalPage: View {
   @State private var showDateSheet = false
   @State private var sheetDate = Date()
   @State private var showRegisterCase = false
+  @State private var showSuccessToast = false
 
   var onBack: () -> Void = {}
 
@@ -27,10 +28,15 @@ struct RegisterExternalPage: View {
       .sheet(isPresented: $showRegisterCase) {
         if let userId = viewModel.result?.userId {
           RegisterCasePage(externalID: userId) {
-            onBack()
+            showSuccessToast = true
           }
         }
       }
+      .toast(
+        isPresented: $showSuccessToast,
+        message: "Caso registrado correctamente",
+        edge: .top
+      )
     } else {
       formContent
     }
