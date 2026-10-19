@@ -8,7 +8,7 @@
 import SwiftUI
 
 // Events section of the homes: title row + a 200 pt area.
-// The title and every card open the full events list (same page for every role).
+// The title  open sthe full events list (same page for every role).
 // `trailing` is an optional slot at the right of the title (the internal home
 // puts its "Agregar evento" link there).
 struct EventsCarousel<Trailing: View>: View {
@@ -79,14 +79,14 @@ struct EventsCarousel<Trailing: View>: View {
     } else {
       ScrollView(.horizontal, showsIndicators: false) {
         LazyHStack(spacing: 12) {
-          ForEach(viewModel.events) { event in
-            NavigationLink {
-              EventsListPage()
-            } label: {
-              EventCard(event: event)
+            ForEach(viewModel.events) { event in
+              NavigationLink {
+                EventDetailPage(event: event)
+              } label: {
+                EventCard(event: event)
+              }
+              .buttonStyle(.plain)
             }
-            .buttonStyle(.plain)
-          }
         }
         // Keeps the first card aligned with the rest of the page
         .padding(.horizontal, screenPadding)

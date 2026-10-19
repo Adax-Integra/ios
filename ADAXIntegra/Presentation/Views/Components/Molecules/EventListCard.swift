@@ -29,12 +29,12 @@ struct EventListCard: View {
 
             Spacer(minLength: 8)
 
-            Text(event.listTimeString)
-              .font(.caption.bold())
-              .foregroundColor(Color("PrimaryAdax"))
-              .padding(.horizontal, 10)
-              .padding(.vertical, 4)
-              .background(Color("PrimaryAdax").opacity(0.12), in: Capsule())
+              Text(event.timeString)
+                .font(.caption.bold())
+                .foregroundColor(Color("Error"))
+                .padding(.horizontal, 10)
+                .padding(.vertical, 4)
+                .background(Color("Error").opacity(0.12), in: Capsule())
           }
 
           if let description = event.description, !description.isEmpty {
