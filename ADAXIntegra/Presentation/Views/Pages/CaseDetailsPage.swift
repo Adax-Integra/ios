@@ -75,10 +75,6 @@ struct CaseDetailsPage: View {
       .max()
   }
 
-  private var hasPendingChanges: Bool { helpsViewModel.hasChanges || stepViewModel.hasChanges }
-
-  private var isSaving: Bool { helpsViewModel.isSaving || stepViewModel.isSaving }
-
   // same colors as the case cards
   private var urgencyColor: Color {
     switch violenceViewModel.urgency {
@@ -162,10 +158,23 @@ struct CaseDetailsPage: View {
             onSave: { Task { await helpsViewModel.save() } }
           )
 
-          CaseStepSelector(
-            selectedStep: stepViewModel.selectedStep,
-            isEnabled: isCaseOpen && !stepViewModel.isSaving,
-            onSelect: { stepViewModel.select($0) }
+          EditableChecklistCard(
+            title: "Etapa del caso",
+            options: CaseStepOption.allCases.map {
+              ChecklistOption(id: String($0.rawValue), title: $0.title)
+            },
+            isSelected: { stepViewModel.isSelected(id: $0) },
+            onToggle: { stepViewModel.toggle(id: $0) },
+            isEditing: stepViewModel.isEditing,
+            canEdit: isCaseOpen,
+            hasChanges: stepViewModel.hasChanges,
+            isSaving: stepViewModel.isSaving,
+            isLoading: false,
+            errorMessage: nil,
+            emptyMessage: "No hay etapas disponibles",
+            onEdit: { stepViewModel.startEditing() },
+            onCancel: { stepViewModel.cancelEditing() },
+            onSave: { Task { await stepViewModel.save() } }
           )
 
           // R-10: the assignment lives on its own page so this one stays lighter
@@ -198,31 +207,14 @@ struct CaseDetailsPage: View {
           .opacity(isCaseOpen ? 1.0 : 0.6)
         },
         bottomActions: {
-          VStack(spacing: 0) {
-            PrimaryButton(
-              customWidth: 329,
-              customHeight: 23,
-              title: helpsViewModel.isSaving ? "Guardando..." : "Guardar",
-              isDisabled: !isCaseOpen || !hasPendingChanges || isSaving,
-              action: {
-                Task {
-                  if helpsViewModel.hasChanges { await helpsViewModel.save() }
-                  if stepViewModel.hasChanges { await stepViewModel.save() }
-                }
-              }
-            )
-            .padding(.horizontal, 16)
-            .padding(.top, 16)
-
-            CloseCaseAction(
-              onCloseCaseTapped: {
-                withAnimation { showCloseModal = true }
-              },
-              onCancelTapped: {
-                dismiss()
-              }
-            )
-          }
+          CloseCaseAction(
+            onCloseCaseTapped: {
+              withAnimation { showCloseModal = true }
+            },
+            onCancelTapped: {
+              dismiss()
+            }
+          )
         }
       )
 

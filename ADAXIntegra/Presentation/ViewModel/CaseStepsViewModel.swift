@@ -12,6 +12,7 @@ import Foundation
 final class CaseStepViewModel: ObservableObject {
   @Published private(set) var selectedStep: CaseStepOption?
   @Published private var savedStep: CaseStepOption?
+  @Published private(set) var isEditing = false
   @Published private(set) var isSaving = false
   @Published var showToast = false
   @Published var toastMessage = ""
@@ -24,17 +25,35 @@ final class CaseStepViewModel: ObservableObject {
     self.repository = repository
   }
 
-  // Only changes if selected steps differs from previous step
+  // Hay cambios cuando eligió una etapa distinta a la guardada
   var hasChanges: Bool { selectedStep != nil && selectedStep != savedStep }
 
+  // Se llama una vez que el detalle del caso ya cargó
   func setInitial(stepNumber: Int?) {
     let step = stepNumber.flatMap { CaseStepOption(rawValue: $0) }
     savedStep = step
     selectedStep = step
+    isEditing = false
   }
 
-  func select(_ step: CaseStepOption) {
+  func isSelected(id: String) -> Bool {
+    selectedStep.map { String($0.rawValue) } == id
+  }
+
+  func toggle(id: String) {
+    guard isEditing, let number = Int(id), let step = CaseStepOption(rawValue: number) else {
+      return
+    }
     selectedStep = step
+  }
+
+  func startEditing() {
+    isEditing = true
+  }
+
+  func cancelEditing() {
+    selectedStep = savedStep
+    isEditing = false
   }
 
   func save() async {
@@ -47,10 +66,15 @@ final class CaseStepViewModel: ObservableObject {
       let success = try await repository.updateCaseStep(caseId: caseId, stepNumber: step.rawValue)
       if success {
         savedStep = step
+        isEditing = false
         toastMessage = "Etapa actualizada"
       } else {
         toastMessage = "No se pudo actualizar la etapa"
       }
+    } catch APIError.server(let statusCode, let data) {
+      let body = String(data: data ?? Data(), encoding: .utf8) ?? ""
+      debugPrint("Etapa falló. Status: \(statusCode). Respuesta: \(body)")
+      toastMessage = "No se pudo actualizar la etapa"
     } catch {
       debugPrint(error)
       toastMessage = "No se pudo actualizar la etapa"
