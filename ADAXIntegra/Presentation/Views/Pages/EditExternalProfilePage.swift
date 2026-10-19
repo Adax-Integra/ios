@@ -17,11 +17,9 @@ struct EditExternalProfilePage: View {
 
       ScrollView(showsIndicators: false) {
         VStack(alignment: .leading, spacing: 20) {
-          PageHeader(
-            title: "Editar datos",
-            backAction: viewModel.cancelEditing,
-            subtitle: "\(viewModel.displayName) - Externa"
-          )
+          Text("\(viewModel.displayName) - Externa")
+            .font(.subheadline)
+            .foregroundColor(Color("OnBackground").opacity(0.7))
 
           infoBanner
 
@@ -51,7 +49,7 @@ struct EditExternalProfilePage: View {
         .padding(20)
       }
     }
-    .toolbar(.hidden, for: .navigationBar)
+    .navigationTitle("Editar datos")
     .sheet(isPresented: $viewModel.isShowingConfirmation) {
       ChangesSummarySheet(
         externalName: viewModel.displayName,

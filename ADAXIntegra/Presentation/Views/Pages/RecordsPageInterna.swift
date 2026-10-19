@@ -10,16 +10,16 @@ import SwiftUI
 struct RecordsPageInterna: View {
   @StateObject private var viewModel = RecordsViewModel()
   @State private var showRegister = false
-  @Environment(\.dismiss) private var dismiss
 
   var body: some View {
     ListPageTemplate {
-      PageHeader(title: "Expedientes", backAction: { dismiss() })
+      EmptyView()
     } toolbar: {
       toolbar
     } content: {
       content
     }
+    .navigationTitle("Expedientes")
     .task(id: viewModel.searchText) {
       try? await Task.sleep(for: .milliseconds(300))
       guard !Task.isCancelled else { return }
@@ -35,10 +35,12 @@ struct RecordsPageInterna: View {
       await viewModel.refresh()
     }
     .fullScreenCover(isPresented: $showRegister) {
-      RegisterExternalPage(onBack: {
-        showRegister = false
-        Task { await viewModel.refresh() }
-      })
+      NavigationStack {
+        RegisterExternalPage(onBack: {
+          showRegister = false
+          Task { await viewModel.refresh() }
+        })
+      }
     }
   }
 
@@ -154,5 +156,7 @@ struct RecordsPageInterna: View {
 }
 
 #Preview {
-  RecordsPageInterna()
+  NavigationStack {
+    RecordsPageInterna()
+  }
 }

@@ -7,7 +7,6 @@
 import SwiftUI
 
 struct VerifyCodePage: View {
-  @Environment(\.dismiss) private var dismiss
   @ObservedObject var viewModel: PasswordRecoveryViewModel
 
   var body: some View {
@@ -24,12 +23,9 @@ struct VerifyCodePage: View {
       // G-05 resends directly so the link is only enabled when the time has passed
       isResendLinkEnabled: viewModel.canResend,
       isVerifyDisabled: viewModel.isCodeLocked,
-      backAction: { dismiss() },
       onResendTapped: { Task { await viewModel.resendCode() } },
       onVerify: { viewModel.verifyCode() }
     )
-
-    .navigationBarBackButtonHidden(true)
 
     // Error  when resending the code
     .alert("Algo salió mal", isPresented: showGeneralError) {

@@ -148,11 +148,13 @@ struct RecordDetailPage: View {
       )
     }
     .sheet(isPresented: $showRegisterCase) {
-      RegisterCasePage(externalID: externalID) {
-        Task {
-          await recordDetailsViewModel.loadRecordDetails(for: externalID)
+      NavigationStack {
+        RegisterCasePage(externalID: externalID) {
+          Task {
+            await recordDetailsViewModel.loadRecordDetails(for: externalID)
+          }
+          showSuccessToast = true
         }
-        showSuccessToast = true
       }
     }
     .task {

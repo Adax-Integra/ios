@@ -18,8 +18,6 @@ struct AddCollaboratorPage: View {
 
       ScrollView(showsIndicators: false) {
         VStack(alignment: .leading, spacing: 20) {
-          PageHeader(title: "Agregar colaboradora", backAction: { dismiss() })
-
           AddCollaboratorForm(
             firstName: $viewModel.firstName,
             lastName: $viewModel.lastName,
@@ -54,7 +52,7 @@ struct AddCollaboratorPage: View {
         hideKeyboard()
       }
     }
-    .navigationBarBackButtonHidden(true)
+    .navigationTitle("Agregar colaboradora")
     // Error that does not belong to a single field (no connection, expired session...)
     .alert("No se pudo guardar", isPresented: showGeneralError) {
       Button("Aceptar", role: .cancel) {}
@@ -97,5 +95,7 @@ struct AddCollaboratorPage: View {
 }
 
 #Preview {
-  AddCollaboratorPage()
+  NavigationStack {
+    AddCollaboratorPage()
+  }
 }

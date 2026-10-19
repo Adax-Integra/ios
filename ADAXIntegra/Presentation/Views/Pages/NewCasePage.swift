@@ -20,8 +20,6 @@ struct NewCasePage: View {
       Color("Background").ignoresSafeArea()
 
       VStack(alignment: .leading, spacing: 16) {
-        PageHeader(title: "Nuevo Caso") { dismiss() }
-
         ScrollView {
           CaseForm(
             caseDescription: $viewModel.caseDescription,
@@ -45,6 +43,8 @@ struct NewCasePage: View {
         confirmationDialog
       }
     }
+    .navigationTitle("Nuevo Caso")
+    .backToolbarButton(action: { dismiss() })
     .animation(.snappy, value: viewModel.isShowingConfirmation)
     .alert("Apoyo externo", isPresented: $viewModel.isShowingExternalSupportInfo) {
       Button("Entendido", role: .cancel) {}
@@ -96,5 +96,7 @@ struct NewCasePage: View {
 }
 
 #Preview {
-  NewCasePage(viewModel: NewCaseViewModel(userId: "preview-user"))
+  NavigationStack {
+    NewCasePage(viewModel: NewCaseViewModel(userId: "preview-user"))
+  }
 }
