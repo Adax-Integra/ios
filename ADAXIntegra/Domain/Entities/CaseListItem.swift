@@ -159,6 +159,11 @@ extension CaseListItem {
     return caseNumber
   }
 
+  var urgencyType: UrgencyType? {
+    // Backend sends "Alta" / "Media" / "Baja" / "Sin evaluar"
+    UrgencyType(rawValue: urgency.lowercased())
+  }
+
   var stateText: String {
     switch state {
     case "Open": return "En proceso"
