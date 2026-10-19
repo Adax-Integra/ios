@@ -54,6 +54,11 @@ struct CasesPage: View {
     ) {
       newCaseViewModel.onUndo()
     }
+    // R-02: error toast when the case could not be created
+    .toast(
+      isPresented: $newCaseViewModel.showToast,
+      message: newCaseViewModel.toastMessage
+    )
 
     // When the undo window closes, sends the case (if not undone) and refreshes the list
     .onChange(of: newCaseViewModel.isShowingUndoToast) { _, isShowing in

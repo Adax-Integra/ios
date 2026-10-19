@@ -9,7 +9,7 @@ import Foundation
 
 // Exposed as a protocol so the ViewModel can receive a fake in previews and tests
 protocol CreateCaseUseCaseProtocol {
-  func createCase(_ newCase: NewCase, userId: String) async -> String?
+  func createCase(_ newCase: NewCase, userId: String) async throws -> String
 }
 
 // Business rule for HU R-02: registers a new case for the logged-in user.
@@ -21,7 +21,7 @@ class CreateCaseUseCase: CreateCaseUseCaseProtocol {
     self.dataRepository = dataRepository
   }
 
-  func createCase(_ newCase: NewCase, userId: String) async -> String? {
-    await dataRepository.createCase(newCase, userId: userId)
+  func createCase(_ newCase: NewCase, userId: String) async throws -> String {
+    try await dataRepository.createCase(newCase, userId: userId)
   }
 }

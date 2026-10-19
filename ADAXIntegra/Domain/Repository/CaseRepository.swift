@@ -9,8 +9,8 @@ import Foundation
 protocol CaseRepository {
   func getCases(for userId: String) async throws -> [Case]
 
-  // R-02: returns the id of the created case, or nil if the request failed
-  func createCase(_ newCase: NewCase, userId: String) async -> String?
+  // R-02: returns the id of the created case, throws so the ViewModel can read the status code
+  func createCase(_ newCase: NewCase, userId: String) async throws -> String
   // R-11: creates a case for an external user from an internal account
   func createCaseForExternalUser(_ newCase: NewCase, userId: String) async throws -> String
   // V-11: case detail view and close-case action
