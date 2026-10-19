@@ -23,18 +23,16 @@ struct EditCollaboratorProfilePage: View {
 
       ScrollView(showsIndicators: false) {
         VStack(alignment: .leading, spacing: 20) {
-          PageHeader(
-            title: "Editar datos",
-            backAction: { dismiss() },
-            subtitle: "\(viewModel.displayName) - Colaboradora"
-          )
+          Text("\(viewModel.displayName) - Colaboradora")
+            .font(.subheadline)
+            .foregroundColor(Color("OnBackground").opacity(0.7))
 
           content
         }
         .padding(20)
       }
     }
-    .toolbar(.hidden, for: .navigationBar)
+    .navigationTitle("Editar datos")
     .task { await viewModel.load() }
     .overlay {
       if viewModel.isSaving {
