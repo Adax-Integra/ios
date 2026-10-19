@@ -8,6 +8,6 @@
 import Foundation
 
 struct ReviewVerificationRequest: Encodable {
-    let status: String
-    let reason: String?
+  let status: String
+  let reason: String?
 }

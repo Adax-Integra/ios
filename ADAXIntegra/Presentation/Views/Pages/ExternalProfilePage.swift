@@ -53,7 +53,7 @@ struct ExternalProfilePage: View {
                 showReview = true
               }
             }
-            
+
             if session.roles.contains("admin") {
               PrimaryButton(customHeight: 20, title: "Editar datos", isDisabled: false) {
                 viewModel.startEditing()
@@ -109,7 +109,7 @@ struct ExternalProfilePage: View {
           Label(viewModel.display(viewModel.saved.email), systemImage: "envelope")
             .font(.system(size: 13))
             .foregroundColor(Color("InsideTextAndIcons"))
-            
+
           VerificationBadge(status: verification)
             .padding(.top, 2)
         }

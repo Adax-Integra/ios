@@ -111,6 +111,3 @@ final class VerificationReviewViewModel: ObservableObject {
     }
   }
 }
-    
-
-
