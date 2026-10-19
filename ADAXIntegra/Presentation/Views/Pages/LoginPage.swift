@@ -103,6 +103,8 @@ struct LoginPage: View {
     .scrollDismissesKeyboard(.interactively)
     // Color de fondo de la pantalla
     .background(Color("Background").ignoresSafeArea())
+    // closes the keyboard when tapping outside the fields
+    .dismissKeyboardOnTap()
     // Muestra la pantalla de registro
     .fullScreenCover(isPresented: $showRegistration) {
       NavigationStack {
