@@ -12,7 +12,6 @@ import UIKit
 // The admin and ONLY ADMIN consults the information and the cases of a collaborator
 struct CollaboratorDetailPage: View {
   @StateObject private var viewModel: CollaboratorDetailViewModel
-  @Environment(\.dismiss) private var dismiss
   // G-18: shows or hides the edit screen
   @State private var showEdit = false
   private let userId: String
@@ -30,27 +29,25 @@ struct CollaboratorDetailPage: View {
     ZStack {
       Color("Background").ignoresSafeArea()
 
-        GeometryReader { geo in
-          ScrollView(showsIndicators: false) {
-            VStack(alignment: .leading, spacing: 16) {
-              PageHeader(
-                title: "Detalle de colaboradora",
-                backAction: { dismiss() },
-                subtitle: "Gestión de colaboradoras"
-              )
+      GeometryReader { geo in
+        ScrollView(showsIndicators: false) {
+          VStack(alignment: .leading, spacing: 16) {
+            Text("Gestión de colaboradoras")
+              .font(.subheadline)
+              .foregroundColor(Color("OnBackground").opacity(0.7))
 
-              content
-            }
-            .padding(20)
-            .frame(width: geo.size.width, alignment: .leading)
+            content
           }
-          .refreshable {
-            await viewModel.load(force: true)
-            if viewModel.selectedTab == .cases {
-              await viewModel.loadCases(force: true)
-            }
+          .padding(20)
+          .frame(width: geo.size.width, alignment: .leading)
+        }
+        .refreshable {
+          await viewModel.load(force: true)
+          if viewModel.selectedTab == .cases {
+            await viewModel.loadCases(force: true)
           }
         }
+      }
 
       // G-04: dark background and confirmation dialog
       if showStatusDialog, let detail = viewModel.detail {
@@ -77,7 +74,7 @@ struct CollaboratorDetailPage: View {
         )
       }
     }
-    .toolbar(.hidden, for: .navigationBar)
+    .navigationTitle("Detalle de colaboradora")
     .task { await viewModel.load() }
     .toast(isPresented: $viewModel.isShowingCopiedToast, message: "Copiado al portapapeles")
     // G-18: open the edit screen
