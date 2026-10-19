@@ -143,6 +143,21 @@ extension EventListItem {
     else { return nil }
     return notes
   }
+    // nil when the event has no phone, so the section is not shown
+    var displayPhone: String? {
+      guard let phone,
+        !phone.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+      else { return nil }
+      return phone
+    }
+
+    // Digits (and a leading +) only, to build the tel: URL
+    var phoneURL: URL? {
+      guard let displayPhone else { return nil }
+      let cleaned = displayPhone.filter { $0.isNumber || $0 == "+" }
+      guard !cleaned.isEmpty else { return nil }
+      return URL(string: "tel:\(cleaned)")
+    }
 
   // Multi-day events show a range instead of only the start date
   var isMultiDay: Bool {

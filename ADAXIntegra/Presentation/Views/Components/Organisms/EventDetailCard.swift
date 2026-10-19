@@ -31,9 +31,23 @@ struct EventDetailCard: View {
             EventDetailSection(title: "Descripción", text: description)
           }
 
-          if let notes = event.displayNotes {
-            EventDetailSection(title: "Notas", text: notes)
-          }
+            if let notes = event.displayNotes {
+              EventDetailSection(
+                title: "Comentarios", text: notes, systemImage: "text.bubble")
+            }
+
+            if let phone = event.displayPhone {
+              if let url = event.phoneURL {
+                Link(destination: url) {
+                  EventDetailSection(
+                    title: "Teléfono", text: phone, systemImage: "phone")
+                }
+                .buttonStyle(.plain)
+              } else {
+                EventDetailSection(
+                  title: "Teléfono", text: phone, systemImage: "phone")
+              }
+            }
         }
         .padding(20)
         .frame(maxWidth: .infinity, alignment: .leading)

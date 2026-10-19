@@ -17,6 +17,8 @@ final class CaseHelpsViewModel: ObservableObject {
   @Published var errorMessage: String?
   @Published var showToast = false
   @Published var toastMessage = ""
+  // shows the success page after saving, the toast is only for errors
+  @Published var isShowingSuccess = false
 
   // helps saved in the backend, used to know if something changed
   private var savedIds: Set<String> = []
@@ -90,12 +92,12 @@ final class CaseHelpsViewModel: ObservableObject {
       savedIds = Set(result.helps.map { $0.helpId.lowercased() })
       selectedIds = savedIds
       isEditing = false
-      toastMessage = "Los tipos de ayuda se guardaron correctamente."
+      isShowingSuccess = true
     } catch {
       toastMessage = "No se pudieron guardar los tipos de ayuda."
+      showToast = true
     }
 
-    showToast = true
     isSaving = false
   }
 }

@@ -14,6 +14,8 @@ struct AssignCollaboratorPage: View {
 
   @StateObject private var viewModel: AssignCollaboratorViewModel
   @Environment(\.dismiss) private var dismiss
+  // Success page shown after saving, "Continuar" goes back to the case
+  @State private var isShowingSuccess = false
 
   // assignedIds are the collaborators already saved, they start selected and can be removed
   init(
@@ -66,8 +68,7 @@ struct AssignCollaboratorPage: View {
           action: {
             Task {
               if await viewModel.save() {
-                onSaved(viewModel.assignedIds)
-                dismiss()
+                isShowingSuccess = true
               }
             }
           }
@@ -80,8 +81,17 @@ struct AssignCollaboratorPage: View {
     // closes the keyboard when tapping outside the fields
     .dismissKeyboardOnTap()
     .navigationBarTitleDisplayMode(.inline)
-    .toolbar(.visible, for: .navigationBar)
+    .toolbar(isShowingSuccess ? .hidden : .visible, for: .navigationBar)
     .task { await viewModel.load() }
+    .successScreen(
+      isPresented: $isShowingSuccess,
+      title: "¡Colaboradoras actualizadas!",
+      message: "Las colaboradoras del caso se guardaron correctamente.",
+      onContinue: {
+        onSaved(viewModel.assignedIds)
+        dismiss()
+      }
+    )
   }
 
   // Counts the collaborators added and removed so the user knows what will be saved
