@@ -9,7 +9,6 @@ import SwiftUI
 
 struct CollaboratorManagementPage: View {
 
-  @Environment(\.dismiss) private var dismiss
   @StateObject private var viewModel = CollaboratorListViewModel()
   @State private var showAddCollaborator = false
 
@@ -19,11 +18,9 @@ struct CollaboratorManagementPage: View {
 
       ScrollView(showsIndicators: false) {
         VStack(alignment: .leading, spacing: 16) {
-          PageHeader(
-            title: "Gestión de Colaboradoras",
-            backAction: { dismiss() },
-            subtitle: "Administra las cuentas de colaboradoras"
-          )
+          Text("Administra las cuentas de colaboradoras")
+            .font(.subheadline)
+            .foregroundColor(Color("OnBackground").opacity(0.7))
 
           // Opens the add collaborator page
           IconTextPrimaryButton(
@@ -42,7 +39,7 @@ struct CollaboratorManagementPage: View {
       }
       .refreshable { await viewModel.load() }
     }
-    .navigationBarBackButtonHidden(true)
+    .navigationTitle("Gestión de Colaboradoras")
     .task { await viewModel.load() }
     // "Agregar colaboradora" is on a separate page now
     .navigationDestination(isPresented: $showAddCollaborator) {
@@ -82,15 +79,15 @@ struct CollaboratorManagementPage: View {
       } else if viewModel.collaborators.isEmpty {
         emptyCard
       } else {
-          ForEach(viewModel.collaborators) { item in
-            // G-10: tapping a collaborator opens her detail
-            NavigationLink {
-              CollaboratorDetailPage(userId: item.id)
-            } label: {
-              CollaboratorCard(item: item)
-            }
-            .buttonStyle(.plain)
+        ForEach(viewModel.collaborators) { item in
+          // G-10: tapping a collaborator opens her detail
+          NavigationLink {
+            CollaboratorDetailPage(userId: item.id)
+          } label: {
+            CollaboratorCard(item: item)
           }
+          .buttonStyle(.plain)
+        }
       }
     }
   }
