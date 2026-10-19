@@ -14,7 +14,7 @@ struct CollaboratorDetailPage: View {
   @StateObject private var viewModel: CollaboratorDetailViewModel
   @Environment(\.dismiss) private var dismiss
   // G-18: shows or hides the edit screen
-  @State private var showEdit = false
+  // @State private var showEdit = false
   private let userId: String
   // G-04: shows or hides the confirmation dialog
   @State private var showStatusDialog = false
@@ -80,15 +80,17 @@ struct CollaboratorDetailPage: View {
     .toolbar(.hidden, for: .navigationBar)
     .task { await viewModel.load() }
     .toast(isPresented: $viewModel.isShowingCopiedToast, message: "Copiado al portapapeles")
-    // G-18: open the edit screen
-    .navigationDestination(isPresented: $showEdit) {
-      EditCollaboratorProfilePage(userId: userId) {
-        // Reload the detail when the edit screen saved changes
-        Task { await viewModel.load(force: true) }
-      }
-    }
+//G-18: open the edit screen commented because is the same for G-11 but kept if any thing is needed 
+//.navigationDestination(isPresented: $showEdit) {
+//EditCollaboratorProfilePage(userId: userId) {
+//Reload the detail when the edit screen saved changes
+//Task { await viewModel.load(force: true) }
+//}
+//}
     // G-04: success or error message
     .toast(isPresented: $viewModel.isShowingStatusToast, message: viewModel.statusToastMessage)
+    // G-11: success or error message of the edition
+    .toast(isPresented: $viewModel.isShowingEditToast, message: viewModel.editToastMessage)
     // G-04: if the session expired (401), log out and go back to the login
     .onChange(of: viewModel.shouldGoToLogin) { _, goToLogin in
       if goToLogin {
@@ -132,43 +134,71 @@ struct CollaboratorDetailPage: View {
 
   // General tab
 
-  private func generalTab(_ detail: CollaboratorDetail) -> some View {
-    VStack(spacing: 16) {
-      CollaboratorContactCard(
-        email: detail.email,
-        phoneText: viewModel.phoneText,
-        canCopyPhone: !(detail.phone ?? "").isEmpty,
-        onCopyEmail: { copy(detail.email) },
-        onCopyPhone: { copy(detail.phone ?? "") }
-      )
+    private func generalTab(_ detail: CollaboratorDetail) -> some View {
+      VStack(spacing: 16) {
+        // G-11 the contact card turns into the edit form while editing
+        if viewModel.isEditing {
+          CollaboratorEditCard(
+            name: $viewModel.editName,
+            lastName: $viewModel.editLastName,
+            email: $viewModel.editEmail,
+            countryCode: $viewModel.editCountryCode,
+            phone: $viewModel.editPhone,
+            countryCodes: viewModel.countryCodeOptions,
+            nameError: viewModel.editNameError,
+            lastNameError: viewModel.editLastNameError,
+            emailError: viewModel.editEmailError,
+            phoneError: viewModel.editPhoneError
+          )
+        } else {
+          CollaboratorContactCard(
+            email: detail.email,
+            phoneText: viewModel.phoneText,
+            canCopyPhone: !(detail.phone ?? "").isEmpty,
+            onCopyEmail: { copy(detail.email) },
+            onCopyPhone: { copy(detail.phone ?? "") }
+          )
+        }
 
-      CollaboratorOrganizationCard(
-        roleText: viewModel.roleText,
-        officeText: viewModel.officeText,
-        joinedAtText: viewModel.joinedAtText
-      )
+        CollaboratorOrganizationCard(
+          roleText: viewModel.roleText,
+          officeText: viewModel.officeText,
+          joinedAtText: viewModel.joinedAtText
+        )
 
-      CollaboratorStatusCard(
-        isActive: detail.isActive,
-        description: viewModel.statusDescription
-      )
+        CollaboratorStatusCard(
+          isActive: detail.isActive,
+          description: viewModel.statusDescription
+        )
 
-      // G-18: opens the edit screen
-      SecondaryButton(customHeight: 20, title: "Editar información", isDisabled: false) {
-        showEdit = true
-      }
+        if viewModel.isEditing {
+          // G-11: save or discard the changes
+          FormActions(
+            primaryTitle: "Guardar",
+            secondaryTitle: "Cancelar",
+            isPrimaryDisabled: viewModel.isSavingEdit || !viewModel.hasEditChanges,
+            onPrimary: { Task { await viewModel.saveEdits() } },
+            onSecondary: { viewModel.cancelEditing() }
+          )
+        } else {
+          // G-11: turns on the edit mode
+          SecondaryButton(
+            customHeight: 20, title: "Editar información", isDisabled: !detail.isActive
+          ) {
+            viewModel.startEditing()
+          }
 
-      // G-04: opens the confirmation dialog to turn the account on or off
-      SecondaryButton(
-        customHeight: 20,
-        title: "Cambiar estatus",
-        isDisabled: false
-      ) {
-        showStatusDialog = true
+          // G-04: opens the confirmation dialog to turn the account on or off
+          SecondaryButton(
+            customHeight: 20,
+            title: "Cambiar estatus",
+            isDisabled: false
+          ) {
+            showStatusDialog = true
+          }
+        }
       }
     }
-  }
-
   // Cases tab
   private var casesTab: some View {
     VStack(alignment: .leading, spacing: 12) {
