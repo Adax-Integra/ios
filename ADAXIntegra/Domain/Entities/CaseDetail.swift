@@ -55,46 +55,12 @@ struct CaseDetail: Decodable {
   var helps: [CaseDetailHelp] { caseHelp.map { $0.helpTypes } }
   var violenceTypes: [CaseDetailViolenceType] { caseViolence.map { $0.violenceTypes } }
   var assignedUserIds: [String] { caseAssignment?.map(\.userId) ?? [] }
-    // Parses the backend's timestamps (e.g. "2026-10-08T03:33:38.891779").
-      // Returns nil if the format doesn't match, instead of falling back to today's date.
-      private static let backendDateFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "en_US_POSIX")
-        formatter.timeZone = TimeZone(identifier: "UTC")
-        formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSSS"
-        return formatter
-      }()
-    // Dates are parsed with the Date utils  like RecordDetails
-    // The cases table uses timestamp without time zone so it is stored in UTC to be completed
-    // before using the parser
-    var createdDate: Date? { Self.parseBackendDate(createdAt) }
-    var updatedDate: Date? { Self.parseBackendDate(updatedAt) }
 
-    private static func parseBackendDate(_ raw: String?) -> Date? {
-      guard let raw, !raw.isEmpty else { return nil }
-      return Date.parseISODate(normalizedISO(raw))
-    }
-
-    // Makes the text valid for Date.parseISODate UTC zone
-    private static func normalizedISO(_ raw: String) -> String {
-      var text = raw
-
-      // 1. No time zone (timestamp without time zone) it is UTC so we add z to force the format
-      let hasZone =
-        text.hasSuffix("Z")
-        || text.range(of: #"[+-]\d{2}:\d{2}$"#, options: .regularExpression) != nil
-      if !hasZone { text += "Z" }
-
-      // 2. Keep only 3 decimals to avoid any issues with the Date utils
-      text = text.replacingOccurrences(
-        of: #"(\.\d{3})\d+"#, with: "$1", options: .regularExpression)
-
-      // 3. If by any reason the data comes without 3 decimals we add them to avoid any issues with the Date utils
-      if !text.contains(".") {
-        text = text.replacingOccurrences(of: "Z", with: ".000Z")
-      }
-      return text
-    }
+  // Dates are parsed with the Date utils, like RecordDetails
+  var createdDateString: String? { createdAt.map(Date.extractDate) }
+  var createdTimeString: String? { createdAt.map(Date.extractTime) }
+  var updatedDateString: String? { updatedAt.map(Date.extractDate) }
+  var updatedTimeString: String? { updatedAt.map(Date.extractTime) }
 }
 
 // R-12: one collaborator assigned to the case, the backend leaves out the removed ones
@@ -104,7 +70,7 @@ struct CaseDetailAssignment: Decodable {
   enum CodingKeys: String, CodingKey {
     case userId = "user_id"
   }
-    }
+}
 
 // Intermediate container as the backend nests the external user info
 struct CaseDetailRecord: Decodable {

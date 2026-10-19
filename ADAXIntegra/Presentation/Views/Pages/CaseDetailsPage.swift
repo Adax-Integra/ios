@@ -50,6 +50,19 @@ struct CaseDetailsPage: View {
     return parts.isEmpty ? "—" : parts.joined(separator: " ")
   }
 
+  // Date and time of the case already formatted by the Date utils
+  private var lastModifiedText: String {
+    let parts = [viewModel.caseDetail?.updatedDateString, viewModel.caseDetail?.updatedTimeString]
+      .compactMap { $0 }
+    return parts.isEmpty ? "—" : parts.joined(separator: " a las ")
+  }
+
+  private var createdAtText: String {
+    let parts = [viewModel.caseDetail?.createdDateString, viewModel.caseDetail?.createdTimeString]
+      .compactMap { $0 }
+    return parts.isEmpty ? "—" : parts.joined(separator: " a las ")
+  }
+
   // R-12: once there are collaborators the same page is used to change them
   private var collaboratorsButtonTitle: String {
     let count = assignedCollaboratorIds.count
@@ -89,21 +102,19 @@ struct CaseDetailsPage: View {
 
     // Main page structure using  template view
     ZStack {
-        CaseDetailsTemplate(
-          caseNumber: viewModel.caseDetail?.caseNumber ?? "—",
-          status: statusText,
-          content: {
-            RecordCaseSummary(
-              userName: userFullName,
-              recordId: viewModel.caseDetail?.record.recordNumber
-                  ?? viewModel.caseDetail?.recordId
-                  ?? "—",
-              lastModified: viewModel.caseDetail?.updatedDate
-                .map { "\($0.dateString) \($0.timeString)" } ?? "—",
-              createdAt: viewModel.caseDetail?.createdDate
-                .map { "\($0.dateString) \($0.timeString)" } ?? "—",
-              onEditTapped: { print("Edit tapped") }
-            )
+      CaseDetailsTemplate(
+        caseNumber: viewModel.caseDetail?.caseNumber ?? "—",
+        status: statusText,
+        content: {
+          RecordCaseSummary(
+            userName: userFullName,
+            recordId: viewModel.caseDetail?.record.recordNumber
+              ?? viewModel.caseDetail?.recordId
+              ?? "—",
+            lastModified: lastModifiedText,
+            createdAt: createdAtText,
+            onEditTapped: { print("Edit tapped") }
+          )
 
           CaseInfoCard(
             hasLawyer: viewModel.caseDetail?.hasLawyer ?? false
