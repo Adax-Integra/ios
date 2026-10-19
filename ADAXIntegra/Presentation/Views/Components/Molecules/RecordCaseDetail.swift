@@ -43,7 +43,7 @@ struct RecordCaseDetail: View {
           Text("Violencia: ")
             .fontWeight(.bold)
             .fixedSize()
-          Text(violenceType)
+          valueText(violenceType)
             .lineLimit(1)
             .truncationMode(.tail)
         }
@@ -52,7 +52,7 @@ struct RecordCaseDetail: View {
           Text("Asignada al caso: ")
             .fontWeight(.bold)
             .fixedSize()
-          Text(internalAssigned)
+          valueText(internalAssigned)
             .lineLimit(1)
             .truncationMode(.tail)
         }
@@ -70,6 +70,13 @@ struct RecordCaseDetail: View {
     }
     .clipShape(RoundedRectangle(cornerRadius: 16))
     .shadow(color: .black.opacity(0.2), radius: 1, x: 1, y: 1)
+  }
+
+  private func valueText(_ value: String) -> Text {
+    let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines)
+    return trimmed.isEmpty
+      ? Text("Sin asignar").foregroundStyle(.gray)
+      : Text(trimmed)
   }
 }
 
