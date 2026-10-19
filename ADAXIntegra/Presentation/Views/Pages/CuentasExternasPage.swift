@@ -9,7 +9,6 @@ import SwiftUI
 
 // G-16: the admin consults the external accounts before opening one in G-07
 struct CuentasExternasPage: View {
-  @Environment(\.dismiss) private var dismiss
   @StateObject private var viewModel = ExternalUserListViewModel()
 
   var body: some View {
@@ -18,11 +17,9 @@ struct CuentasExternasPage: View {
 
       ScrollView(showsIndicators: false) {
         VStack(alignment: .leading, spacing: 16) {
-          PageHeader(
-            title: "Cuentas de externas",
-            backAction: { dismiss() },
-            subtitle: "Consulta las cuentas de externas"
-          )
+          Text("Consulta las cuentas de externas")
+            .font(.subheadline)
+            .foregroundColor(Color("OnBackground").opacity(0.7))
 
           filtersSection
           usersSection
@@ -30,7 +27,7 @@ struct CuentasExternasPage: View {
         .padding()
       }
     }
-    .navigationBarBackButtonHidden(true)
+    .navigationTitle("Cuentas de externas")
     // Hides the keyboard of the search bar when tapping outside of it
     .onTapGesture {
       UIApplication.shared.sendAction(
