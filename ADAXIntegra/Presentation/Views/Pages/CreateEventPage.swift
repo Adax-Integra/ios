@@ -84,22 +84,16 @@ struct CreateEventPage: View {
     } message: {
       Text(viewModel.errorMessage ?? "")
     }
-    .alert("Evento creado", isPresented: showCreated) {
-      Button("Entendido") { dismiss() }
-    } message: {
-      Text(successMessage)
-    }
-    .fullScreenCover(isPresented: showUpdated) {
-      EventSuccessPage(
-        title: "Evento actualizado",
-        message: updatedMessage,
-        onFinish: {
-          viewModel.eventSaved = false
-          onSaved?()
-          dismiss()
-        }
-      )
-    }
+    // E-04 and E-02: creating and editing show the same success page
+    .successScreen(
+      isPresented: $viewModel.eventSaved,
+      title: viewModel.isEditing ? "¡Evento actualizado!" : "¡Evento creado!",
+      message: successMessage,
+      onContinue: {
+        onSaved?()
+        dismiss()
+      }
+    )
   }
 
   private var buttonTitle: String {
@@ -111,15 +105,14 @@ struct CreateEventPage: View {
 
   // The event is saved even if its picture fails, so the user only gets a warning
   private var successMessage: String {
-    viewModel.imageUploadFailed
+    if viewModel.isEditing {
+      return viewModel.imageUploadFailed
+        ? "Los cambios se guardaron, pero no se pudo subir la imagen."
+        : "Los cambios ya aparecen en el calendario."
+    }
+    return viewModel.imageUploadFailed
       ? "El evento ha sido registrado exitosamente, pero no se pudo subir la imagen."
       : "El evento ha sido registrado exitosamente."
-  }
-
-  private var updatedMessage: String {
-    viewModel.imageUploadFailed
-      ? "Los cambios se guardaron, pero no se pudo subir la imagen."
-      : "Los cambios ya aparecen en el calendario."
   }
 
   // Shows the alert while there is an error and clears it when it is closed
@@ -127,21 +120,6 @@ struct CreateEventPage: View {
     Binding(
       get: { viewModel.errorMessage != nil },
       set: { if !$0 { viewModel.errorMessage = nil } }
-    )
-  }
-
-  // Creating keeps the alert, editing shows the same success page as disabling
-  private var showCreated: Binding<Bool> {
-    Binding(
-      get: { viewModel.eventSaved && !viewModel.isEditing },
-      set: { if !$0 { viewModel.eventSaved = false } }
-    )
-  }
-
-  private var showUpdated: Binding<Bool> {
-    Binding(
-      get: { viewModel.eventSaved && viewModel.isEditing },
-      set: { if !$0 { viewModel.eventSaved = false } }
     )
   }
 

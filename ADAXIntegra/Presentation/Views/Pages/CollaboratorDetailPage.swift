@@ -155,7 +155,7 @@ struct CollaboratorDetailPage: View {
       )
 
       // G-18: opens the edit screen
-      SecondaryButton(customHeight: 20, title: "Editar información", isDisabled: false) {
+      PrimaryButton(customHeight: 20, title: "Editar información", isDisabled: false) {
         showEdit = true
       }
 

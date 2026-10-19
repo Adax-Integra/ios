@@ -49,25 +49,27 @@ struct RecordsPageInterna: View {
       SearchBarInterna(placeholder: "Buscar expediente...", text: $viewModel.searchText)
 
       HStack(spacing: 12) {
-        Menu {
-          Button("Todos") { viewModel.hasOpenCasesFilter = nil }
-          Button("Con casos") { viewModel.hasOpenCasesFilter = true }
-          Button("Sin casos") { viewModel.hasOpenCasesFilter = false }
-        } label: {
-          FilterChip(title: casesFilterText)
-        }
+        ScrollView(.horizontal, showsIndicators: false) {
+          HStack(spacing: 12) {
+            Menu {
+              Button("Todos") { viewModel.hasOpenCasesFilter = nil }
+              Button("Con casos") { viewModel.hasOpenCasesFilter = true }
+              Button("Sin casos") { viewModel.hasOpenCasesFilter = false }
+            } label: {
+              FilterChip(title: casesFilterText)
+            }
 
-        Menu {
-          Button("Todos") { viewModel.statusFilter = nil }
-          Button("Sin empezar") { viewModel.statusFilter = "SIN_EMPEZAR" }
-          Button("En revisión") { viewModel.statusFilter = "EN_REVISION" }
-          Button("En seguimiento") { viewModel.statusFilter = "EN_SEGUIMIENTO" }
-          Button("Completado") { viewModel.statusFilter = "COMPLETADO" }
-        } label: {
-          FilterChip(title: statusFilterText)
+            Menu {
+              Button("Todos") { viewModel.statusFilter = nil }
+              Button("Sin empezar") { viewModel.statusFilter = "SIN_EMPEZAR" }
+              Button("En revisión") { viewModel.statusFilter = "EN_REVISION" }
+              Button("En seguimiento") { viewModel.statusFilter = "EN_SEGUIMIENTO" }
+              Button("Completado") { viewModel.statusFilter = "COMPLETADO" }
+            } label: {
+              FilterChip(title: statusFilterText)
+            }
+          }
         }
-
-        Spacer()
 
         if hasActiveFilters {
           Button {
@@ -78,8 +80,10 @@ struct RecordsPageInterna: View {
             Text("Limpiar filtros")
               .font(.system(size: 13, weight: .semibold))
               .foregroundColor(Color("PrimaryAdax"))
+              .lineLimit(1)
           }
           .buttonStyle(.plain)
+          .fixedSize()
         }
       }
 

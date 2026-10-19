@@ -9,13 +9,14 @@ import SwiftUI
 
 // layout shared by the internal and admin home screens
 struct InternalHomeTemplate<
-  Header: View, Welcome: View, Records: View, Events: View, Podcast: View
+  Header: View, Welcome: View, Records: View, Events: View, SocialMedia: View, Podcast: View
 >: View {
   @ViewBuilder let header: () -> Header
   @ViewBuilder let welcome: () -> Welcome
   @ViewBuilder let records: () -> Records
   @ViewBuilder let events: () -> Events
   @ViewBuilder let podcast: () -> Podcast
+  @ViewBuilder let socialMedia: () -> SocialMedia
 
   var body: some View {
     ZStack {
@@ -29,6 +30,7 @@ struct InternalHomeTemplate<
           records()
           events()
           podcast()
+          socialMedia()
         }
         .padding(.horizontal, 20)
         .padding(.vertical, 16)
