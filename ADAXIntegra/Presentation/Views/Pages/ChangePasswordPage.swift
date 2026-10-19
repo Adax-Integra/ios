@@ -114,11 +114,12 @@ struct ChangePasswordPage: View {
     } message: {
       Text(viewModel.errorMessage ?? "")
     }
-    .alert("Contraseña actualizada", isPresented: $viewModel.passwordChanged) {
-      Button("Aceptar") { dismiss() }
-    } message: {
-      Text("Tu contraseña se cambió con éxito.")
-    }
+    .successScreen(
+      isPresented: $viewModel.passwordChanged,
+      title: "¡Contraseña actualizada!",
+      message: "Tu contraseña se cambió con éxito.",
+      onContinue: { dismiss() }
+    )
   }
 
   // Shows the alert while there is an error and clears it when it is closed
