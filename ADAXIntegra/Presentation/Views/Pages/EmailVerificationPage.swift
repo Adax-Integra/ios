@@ -36,11 +36,10 @@ struct EmailVerificationPage: View {
       isResendLinkEnabled: viewModel.canResend,
       isVerifyDisabled: viewModel.isCodeLocked || viewModel.isLoading,
       verifyTitle: viewModel.isLoading ? "Verificando..." : "Verificar",
-      backAction: onBack,
       onResendTapped: { Task { await viewModel.resendCode() } },
       onVerify: { Task { await viewModel.verifyCode() } }
     )
-    .navigationBarBackButtonHidden(true)
+    .backToolbarButton(action: onBack)
 
     // Starts the countdown or requests a new code
     .task {
