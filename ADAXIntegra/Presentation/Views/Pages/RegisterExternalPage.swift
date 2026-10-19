@@ -63,8 +63,12 @@ struct RegisterExternalPage: View {
         }
         .padding(20)
       }
+      // hides the keyboard when the user scrolls
+      .scrollDismissesKeyboard(.interactively)
     }
     .navigationTitle("Registrar expediente")
+    // closes the keyboard when tapping outside the fields
+    .dismissKeyboardOnTap()
     .backToolbarButton(action: onBack)
     .task {
       await viewModel.loadCountries()
