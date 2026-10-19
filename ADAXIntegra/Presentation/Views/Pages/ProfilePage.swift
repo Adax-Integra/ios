@@ -108,6 +108,16 @@ struct ProfilePage: View {
         )
       }
 
+      NavigationLink {
+        ChangePasswordPage()
+      } label: {
+        MenuRow(
+          icon: "lock",
+          title: "Seguridad",
+          subtitle: "Cambio de contraseña"
+        )
+      }
+
       // R-06: only external users upload identity documents
       if isExternal {
         NavigationLink {
@@ -119,16 +129,6 @@ struct ProfilePage: View {
             subtitle: "INE y comprobante de domicilio"
           )
         }
-      }
-
-      NavigationLink {
-        ChangePasswordPage()
-      } label: {
-        MenuRow(
-          icon: "lock",
-          title: "Seguridad",
-          subtitle: "Cambio de contraseña"
-        )
       }
 
       if canDeactivate {
