@@ -10,6 +10,5 @@ import SwiftUI
 struct ExpedientesListPage: View {
   var body: some View {
     RecordsPageInterna()
-          .toolbar(.hidden, for: .navigationBar)
   }
 }
