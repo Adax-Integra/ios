@@ -27,7 +27,7 @@ struct ExpedientesPage: View {
           MenuRow(
             icon: "folder",
             title: "Expedientes",
-            subtitle: "Desglose Mensual de Expedientes"
+            subtitle: "Consulta todos los expedientes"
           )
         }
 
@@ -37,7 +37,7 @@ struct ExpedientesPage: View {
           MenuRow(
             icon: "folder",
             title: "Todos los casos",
-            subtitle: "Actividades en curso"
+            subtitle: "Consulta los casos"
           )
         }
 
@@ -47,7 +47,7 @@ struct ExpedientesPage: View {
         } label: {
           MenuRow(
             icon: "person",
-            title: "Mis Casos",
+            title: "Mis casos",
             subtitle: "Casos que yo llevo"
           )
         }
@@ -58,7 +58,7 @@ struct ExpedientesPage: View {
           } label: {
             MenuRow(
               icon: "person",
-              title: "Cuentas Externas",
+              title: "Cuentas externas",
               subtitle: "Control de cuentas"
             )
           }
@@ -70,7 +70,7 @@ struct ExpedientesPage: View {
           MenuRow(
             icon: "arrow.down.document",
             title: "Reportes",
-            subtitle: "Desglose mensual de expedientes"
+            subtitle: "Genera reportes sobre casos"
           )
         }
 
