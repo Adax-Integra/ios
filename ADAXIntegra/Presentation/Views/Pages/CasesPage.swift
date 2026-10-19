@@ -88,7 +88,9 @@ struct CasesPage: View {
       }
     }
     .fullScreenCover(isPresented: $isShowingNewCase) {
-      NewCasePage(viewModel: newCaseViewModel)
+      NavigationStack {
+        NewCasePage(viewModel: newCaseViewModel)
+      }
     }
   }
 }
