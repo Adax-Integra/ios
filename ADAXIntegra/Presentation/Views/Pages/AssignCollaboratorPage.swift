@@ -9,21 +9,21 @@ import SwiftUI
 
 struct AssignCollaboratorPage: View {
   let caseNumber: String
-  // Called with the ids of every assigned collaborator after the backend saves them
-  var onAssigned: (Set<String>) -> Void = { _ in }
+  // Called with the ids that stay assigned after the backend saves the changes
+  var onSaved: (Set<String>) -> Void = { _ in }
 
   @StateObject private var viewModel: AssignCollaboratorViewModel
   @Environment(\.dismiss) private var dismiss
 
-  // assignedIds are the collaborators already saved, they start selected
+  // assignedIds are the collaborators already saved, they start selected and can be removed
   init(
     caseId: String,
     caseNumber: String,
     assignedIds: Set<String> = [],
-    onAssigned: @escaping (Set<String>) -> Void = { _ in }
+    onSaved: @escaping (Set<String>) -> Void = { _ in }
   ) {
     self.caseNumber = caseNumber
-    self.onAssigned = onAssigned
+    self.onSaved = onSaved
     _viewModel = StateObject(
       wrappedValue: AssignCollaboratorViewModel(caseId: caseId, assignedIds: assignedIds)
     )
@@ -52,19 +52,19 @@ struct AssignCollaboratorPage: View {
 
       // Pinned to the bottom like the actions of the case detail
       VStack(spacing: 8) {
-        if let assignError = viewModel.assignError {
-          FieldErrorLabel(assignError)
+        if let saveError = viewModel.saveError {
+          FieldErrorLabel(saveError)
             .frame(maxWidth: .infinity, alignment: .leading)
         }
 
         PrimaryButton(
           customHeight: 23,
-          title: assignButtonTitle,
-          isDisabled: !viewModel.canAssign,
+          title: saveButtonTitle,
+          isDisabled: !viewModel.canSave,
           action: {
             Task {
-              if await viewModel.assign() {
-                onAssigned(viewModel.selectedIds)
+              if await viewModel.save() {
+                onSaved(viewModel.assignedIds)
                 dismiss()
               }
             }
@@ -74,16 +74,17 @@ struct AssignCollaboratorPage: View {
       .padding(16)
     }
     .background(Color("Background").ignoresSafeArea())
-    .navigationTitle("Asignar colaboradoras")
+    .navigationTitle("Colaboradoras del caso")
     .navigationBarTitleDisplayMode(.inline)
     .toolbar(.visible, for: .navigationBar)
     .task { await viewModel.load() }
   }
 
-  private var assignButtonTitle: String {
-    if viewModel.isAssigning { return "Asignando..." }
-    let count = viewModel.newIds.count
-    return count == 0 ? "Asignar" : "Asignar (\(count))"
+  // Counts the collaborators added and removed so the user knows what will be saved
+  private var saveButtonTitle: String {
+    if viewModel.isSaving { return "Guardando..." }
+    let count = viewModel.changesCount
+    return count == 0 ? "Guardar cambios" : "Guardar cambios (\(count))"
   }
 
   @ViewBuilder
