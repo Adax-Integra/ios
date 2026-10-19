@@ -28,10 +28,6 @@ struct RegisterCasePage: View {
       Color("Background").ignoresSafeArea()
 
       VStack(alignment: .leading, spacing: 16) {
-        PageHeader(title: "Registrar el caso") {
-          dismiss()
-        }
-
         ScrollView {
           CaseForm(
             caseDescription: $viewModel.caseDescription,
@@ -70,6 +66,8 @@ struct RegisterCasePage: View {
       }
       .padding(.horizontal)
     }
+    .navigationTitle("Registrar el caso")
+    .backToolbarButton(action: { dismiss() })
     .alert("Error", isPresented: $viewModel.showAlert) {
       Button("Entendido", role: .cancel) {}
     } message: {

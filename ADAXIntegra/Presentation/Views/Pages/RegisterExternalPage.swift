@@ -28,8 +28,10 @@ struct RegisterExternalPage: View {
       .toolbar(.hidden, for: .navigationBar)
       .sheet(isPresented: $showRegisterCase) {
         if let userId = viewModel.result?.userId {
-          RegisterCasePage(externalID: userId) {
-            showSuccessToast = true
+          NavigationStack {
+            RegisterCasePage(externalID: userId) {
+              showSuccessToast = true
+            }
           }
         }
       }
