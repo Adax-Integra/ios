@@ -35,11 +35,7 @@ struct ForgotPasswordPage: View {
       }
     }
     // Out to return to the login if needed
-    .overlay(alignment: .topLeading) {
-      BackButton { dismiss() }
-        .padding(16)
-    }
-    .navigationBarBackButtonHidden(true)
+    .backToolbarButton(action: { dismiss() })
 
     // Error when resending the code
 
