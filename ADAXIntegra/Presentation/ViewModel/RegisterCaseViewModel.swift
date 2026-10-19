@@ -49,7 +49,6 @@ final class RegisterCaseViewModel: ObservableObject {
     showErrors && helpDetails.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
       ? "Este campo es obligatorio" : nil
   }
-
   // register a new case for the selected external user
   func saveCase() async -> Bool {
     showErrors = true
@@ -67,17 +66,28 @@ final class RegisterCaseViewModel: ObservableObject {
       hasExternalSupport: hasExternalSupport
     )
 
-    let caseId = await createCaseUseCase.createCase(
-      newCase,
-      userId: externalID
-    )
+    do {
+      _ = try await createCaseUseCase.createCase(
+        newCase,
+        userId: externalID
+      )
 
-    guard caseId != nil else {
+      return true
+    } catch APIError.server(let statusCode, _) {
+      switch statusCode {
+      case 409:
+        errorMessage = "El expediente ya tiene el máximo de 3 casos activos."
+      case 404:
+        errorMessage = "No se encontró un expediente activo para registrar el caso."
+      default:
+        errorMessage = "No se pudo registrar el caso. Intenta de nuevo."
+      }
+      showAlert = true
+      return false
+    } catch {
       errorMessage = "No se pudo registrar el caso. Intenta de nuevo."
       showAlert = true
       return false
     }
-
-    return true
   }
 }

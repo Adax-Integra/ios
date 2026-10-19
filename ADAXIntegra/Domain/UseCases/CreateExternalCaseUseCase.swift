@@ -9,7 +9,7 @@ import Foundation
 
 // R-11: creates a case for an external user from an internal account
 protocol CreateExternalCaseUseCaseProtocol {
-  func createCase(_ newCase: NewCase, userId: String) async -> String?
+  func createCase(_ newCase: NewCase, userId: String) async throws -> String
 }
 
 class CreateExternalCaseUseCase: CreateExternalCaseUseCaseProtocol {
@@ -19,7 +19,7 @@ class CreateExternalCaseUseCase: CreateExternalCaseUseCaseProtocol {
     self.dataRepository = dataRepository
   }
 
-  func createCase(_ newCase: NewCase, userId: String) async -> String? {
-    await dataRepository.createCaseForExternalUser(newCase, userId: userId)
+  func createCase(_ newCase: NewCase, userId: String) async throws -> String {
+    try await dataRepository.createCaseForExternalUser(newCase, userId: userId)
   }
 }

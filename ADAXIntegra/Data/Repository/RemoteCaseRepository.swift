@@ -33,18 +33,13 @@ struct RemoteCaseRepository: CaseRepository {
   }
 
   // R-11: creates a case for an external user from an internal account
-  func createCaseForExternalUser(_ newCase: NewCase, userId: String) async -> String? {
-    do {
-      let response = try await APIProtocol.post(
-        "/internal-users/external-users/\(userId)/cases",
-        body: CreateCaseRequest(from: newCase),
-        as: APIResponse<CreatedCaseModel>.self
-      )
-      return response.data.caseId
-    } catch {
-      debugPrint(error.localizedDescription)
-      return nil
-    }
+  func createCaseForExternalUser(_ newCase: NewCase, userId: String) async throws -> String {
+    let response = try await APIProtocol.post(
+      "/internal-users/external-users/\(userId)/cases",
+      body: CreateCaseRequest(from: newCase),
+      as: APIResponse<CreatedCaseModel>.self
+    )
+    return response.data.caseId
   }
 
   // V11 implementation, function that fetches full details for a single case by its ID
