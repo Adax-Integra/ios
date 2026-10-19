@@ -8,12 +8,11 @@
 import SwiftUI
 
 struct CasesPageInterna: View {
-  @Environment(\.dismiss) private var dismiss
   @StateObject private var viewModel = CasesViewModelInterna()
 
   var body: some View {
     ListPageTemplate {
-      PageHeader(title: "Casos", backAction: { dismiss() })
+      EmptyView()
     } toolbar: {
       CaseListToolbar(
         searchText: $viewModel.searchText,
@@ -52,7 +51,7 @@ struct CasesPageInterna: View {
         }
       }
     }
-    .navigationBarBackButtonHidden(true)
+    .navigationTitle("Casos")
     // pull down the list to reload
     .refreshable {
       await viewModel.loadCases()
@@ -74,5 +73,7 @@ struct CasesPageInterna: View {
 }
 
 #Preview {
-  CasesPageInterna()
+  NavigationStack {
+    CasesPageInterna()
+  }
 }
