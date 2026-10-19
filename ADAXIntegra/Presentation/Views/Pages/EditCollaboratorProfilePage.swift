@@ -21,15 +21,28 @@ struct EditCollaboratorProfilePage: View {
     ZStack {
       Color("Background").ignoresSafeArea()
 
-      ScrollView(showsIndicators: false) {
-        VStack(alignment: .leading, spacing: 20) {
-          Text("\(viewModel.displayName) - Colaboradora")
-            .font(.subheadline)
-            .foregroundColor(Color("OnBackground").opacity(0.7))
+      VStack(spacing: 0) {
+        ScrollView(showsIndicators: false) {
+          VStack(alignment: .leading, spacing: 20) {
+            Text("\(viewModel.displayName) - Colaboradora")
+              .font(.subheadline)
+              .foregroundColor(Color("OnBackground").opacity(0.7))
 
-          content
+            content
+          }
+          .padding(20)
         }
-        .padding(20)
+
+        if !viewModel.isLoading && viewModel.loadErrorMessage == nil {
+          FormActions(
+            primaryTitle: "Guardar",
+            secondaryTitle: "Cancelar",
+            isPrimaryDisabled: viewModel.isSaving || !viewModel.hasChanges,
+            onPrimary: viewModel.onSaveTapped,
+            onSecondary: { dismiss() }
+          )
+          .padding(20)
+        }
       }
     }
     .navigationTitle("Editar datos")
@@ -113,15 +126,6 @@ struct EditCollaboratorProfilePage: View {
         .textInputAutocapitalization(.never)
         .autocorrectionDisabled()
       }
-
-      FormActions(
-        primaryTitle: "Guardar",
-        secondaryTitle: "Cancelar",
-        isPrimaryDisabled: viewModel.isSaving || !viewModel.hasChanges,
-        onPrimary: viewModel.onSaveTapped,
-        onSecondary: { dismiss() }
-      )
-      .padding(.top, 12)
     }
   }
 

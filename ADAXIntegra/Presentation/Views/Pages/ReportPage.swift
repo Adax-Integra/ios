@@ -16,11 +16,9 @@ struct ReportPage: View {
 
   var body: some View {
     VStack(alignment: .leading, spacing: 16) {
-      Text("Reportes")
-        .font(.system(size: 22, weight: .bold))
       Text("Obtén el reporte de los casos")
-        .font(.system(size: 15, weight: .medium))
-        .foregroundColor(Color("OnBackgroundColor"))
+        .font(.subheadline)
+        .foregroundColor(Color("OnBackground").opacity(0.7))
 
       ReportRangeForm(
         startDate: $viewModel.startDate,
@@ -41,6 +39,7 @@ struct ReportPage: View {
     .padding(16)
     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     .background(Color("BackgroundColor"))
+    .navigationTitle("Reportes")
     .alert("Algo salió mal", isPresented: $viewModel.showAlert) {
       Button("Entendido", role: .cancel) {}
     } message: {
