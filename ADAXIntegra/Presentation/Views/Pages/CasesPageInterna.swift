@@ -31,7 +31,7 @@ struct CasesPageInterna: View {
           .foregroundStyle(.secondary)
           .padding()
       } else if viewModel.cases.isEmpty {
-        Text("No hay expedientes")
+        Text("No hay casos disponibles")
           .foregroundStyle(.secondary)
           .padding()
       } else {
@@ -40,11 +40,11 @@ struct CasesPageInterna: View {
             CaseDetailsPage(caseId: item.id)
           } label: {
             CaseCardInterna(
+              caseNumber: item.displayCaseNumber,
               name: item.displayName,
               urgency: item.urgency,
-              state: item.stateText,
-              updateAt: item.updatedDate,
-              categories: item.violenceTypes,
+              violenceTypes: item.violenceTypes,
+              assignedTo: item.assignedNames,
               caseId: item.id
             )
           }
