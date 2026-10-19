@@ -58,12 +58,13 @@ struct AddCollaboratorPage: View {
     } message: {
       Text(viewModel.generalError ?? "")
     }
-    // After creating the collaborator, "Aceptar" goes back to the management page
-    .alert("Colaboradora agregada", isPresented: showSuccess) {
-      Button("Aceptar", role: .cancel) { dismiss() }
-    } message: {
-      Text(viewModel.successMessage ?? "")
-    }
+    // After creating the collaborator, "Continuar" goes back to the management page
+    .successScreen(
+      isPresented: showSuccess,
+      title: "¡Colaboradora agregada!",
+      message: viewModel.successMessage ?? "",
+      onContinue: { dismiss() }
+    )
     // loads the phone codes when the page opens
     .task {
       await viewModel.loadCountryCodes()
@@ -78,7 +79,7 @@ struct AddCollaboratorPage: View {
     )
   }
 
-  // Shows the alert while there is a success message and clears the message when it is closed
+  // Shows the success page while there is a success message and clears it when it is closed
   private var showSuccess: Binding<Bool> {
     Binding(
       get: { viewModel.successMessage != nil },
