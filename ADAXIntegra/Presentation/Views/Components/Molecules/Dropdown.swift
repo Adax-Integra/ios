@@ -7,7 +7,11 @@
 
 import SwiftUI
 
-// Dropdown component for selecting an option from a list
+/*
+ Dropdown component for selecting an option from a list.
+ Uses the native "Menu" so the options float over the content instead of
+ pushing the layout down, and adapts to each iOS version's system style
+*/
 struct Dropdown: View {
   var customWidth: CGFloat = .infinity
   var customHeight: CGFloat = 52
@@ -16,20 +20,9 @@ struct Dropdown: View {
   let prompt: String
   let options: [String]
 
-  // Height of a single option row when the list is expanded
-  var optionHeight: CGFloat = 40
-
-  // Maximum number of options rendered at once when the list is expanded.
-  // If "options.count" exceeds this value, the expanded list becomes
-  // vertically scrollable and its height is capped at
-  // "maxVisibleOptions * optionHeight". Set to "nil" to always show every
-  // option without scrolling
-  var maxVisibleOptions: Int? = 6
-
   // Blocks the dropdown and dims it, used while another field must be filled first.
   var isDisabled: Bool = false
 
-  @State private var isExpanded = false
   @Binding var selection: String?
 
   // An empty string counts as nothing selected, so the prompt is shown
@@ -38,25 +31,27 @@ struct Dropdown: View {
     return selection
   }
 
-  // Max height for the expanded options container.
-  private var expandedMaxHeight: CGFloat? {
-    guard let maxVisibleOptions, options.count > maxVisibleOptions else { return nil }
-    return CGFloat(maxVisibleOptions) * optionHeight
-  }
-
   var body: some View {
     VStack(alignment: .leading) {
       if !title.isEmpty {
         FieldLabel(title)
       }
 
-      SurfaceCard {
-        VStack {
+      Menu {
+        // Inline picker shows a checkmark next to the current selection
+        Picker(title, selection: $selection) {
+          ForEach(options, id: \.self) { option in
+            Text(option).tag(Optional(option))
+          }
+        }
+      } label: {
+        SurfaceCard {
           HStack {
             Text(selectedText ?? prompt)
-              .foregroundColor(
-                selectedText == nil ? Color("InsideTextAndIcons").opacity(0.6) : nil
+              .foregroundStyle(
+                selectedText == nil ? Color("InsideTextAndIcons").opacity(0.6) : .primary
               )
+              .lineLimit(1)
 
             Spacer()
 
@@ -65,71 +60,20 @@ struct Dropdown: View {
               size: 12,
               customColor: "InsideTextAndIcons"
             )
-            .rotationEffect(.degrees(isExpanded ? 180 : 0))
           }
           .frame(height: customHeight)
-          .contentShape(Rectangle())  // Makes the whole rectangle area tappable
           .padding(.horizontal)
-          .onTapGesture {
-            guard !isDisabled else { return }
-            withAnimation(.snappy) { isExpanded.toggle() }
-          }
-
-          if isExpanded {
-            expandedList
-              .transition(.move(edge: .bottom))
-          }
-
+          .frame(maxWidth: customWidth)
+          .contentShape(Rectangle())  // Makes the whole rectangle area tappable
         }
-        .frame(maxWidth: customWidth)
       }
+      // Keeps the options in the same order whether the menu opens up or down
+      .menuOrder(.fixed)
+      .tint(Color("PrimaryAdax"))
+      .disabled(isDisabled)
       .opacity(isDisabled ? 0.5 : 1)
     }
     .frame(maxWidth: .infinity)
-  }
-
-  // When the list already fits within "maxVisibleOptions" (or the cap is
-  // disabled), we render a plain "VStack" so the dropdown hugs its content.
-  //
-  // Only when the list exceeds the cap, we wrap it in a
-  // "ScrollView" whose height is pinned to exactly
-  // "maxVisibleOptions * optionHeight", so the row area stops growing and
-  // scrolling takes over
-  @ViewBuilder
-  private var expandedList: some View {
-    let rows = VStack(spacing: 0) {
-      ForEach(options, id: \.self) { option in
-        optionRow(option)
-      }
-    }
-
-    if let expandedMaxHeight {
-      ScrollView { rows }
-        .frame(height: expandedMaxHeight)
-    } else {
-      rows
-    }
-  }
-
-  private func optionRow(_ option: String) -> some View {
-    HStack {
-      Text(option)
-        .foregroundStyle(
-          selection == option ? Color("PrimaryAdax") : Color("InsideTextAndIcons")
-        )
-        .fontWeight(selection == option ? .bold : .regular)
-
-      Spacer()
-    }
-    .frame(height: optionHeight)
-    .padding(.horizontal)
-    .contentShape(Rectangle())
-    .onTapGesture {
-      withAnimation(.snappy) {
-        selection = option
-        isExpanded.toggle()
-      }
-    }
   }
 }
 
@@ -138,7 +82,6 @@ struct Dropdown: View {
     Color("Background").ignoresSafeArea()
 
     VStack(spacing: 24) {
-      // Short list: fits below the cap, so no scrolling
       Dropdown(
         title: "País",
         prompt: "Selecciona un país",
@@ -146,7 +89,7 @@ struct Dropdown: View {
         selection: .constant("México")
       )
 
-      // Long list: caps at "maxVisibleOptions" rows and becomes scrollable
+      // Long list: the native menu scrolls on its own
       Dropdown(
         title: "Estado",
         prompt: "Selecciona un estado",
@@ -155,7 +98,6 @@ struct Dropdown: View {
           "Campeche", "Chiapas", "Chihuahua", "Ciudad de México",
           "Coahuila", "Colima", "Durango",
         ],
-        maxVisibleOptions: 5,
         selection: .constant(nil)
       )
     }
