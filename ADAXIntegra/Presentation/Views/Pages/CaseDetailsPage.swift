@@ -258,6 +258,27 @@ struct CaseDetailsPage: View {
         assignedIds: viewModel.caseDetail?.helps.compactMap(\.helpId) ?? []
       )
     }
+    // success pages, the errors keep using the toast
+    .successScreen(
+      isPresented: $viewModel.isShowingCloseSuccess,
+      title: "¡Caso cerrado!",
+      message: "El caso se cerró correctamente."
+    )
+    .successScreen(
+      isPresented: $violenceViewModel.isShowingSuccess,
+      title: "¡Tipos de violencia guardados!",
+      message: "Los tipos de violencia se guardaron correctamente."
+    )
+    .successScreen(
+      isPresented: $helpsViewModel.isShowingSuccess,
+      title: "¡Tipos de ayuda guardados!",
+      message: "Los tipos de ayuda se guardaron correctamente."
+    )
+    .successScreen(
+      isPresented: $stepViewModel.isShowingSuccess,
+      title: "¡Etapa actualizada!",
+      message: "La etapa del caso se actualizó correctamente."
+    )
     .toast(
       isPresented: $viewModel.showToast,
       message: viewModel.toastMessage

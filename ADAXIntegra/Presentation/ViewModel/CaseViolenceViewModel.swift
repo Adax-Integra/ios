@@ -18,6 +18,8 @@ final class CaseViolenceViewModel: ObservableObject {
   @Published var errorMessage: String?
   @Published var showToast = false
   @Published var toastMessage = ""
+  // shows the success page after saving, the toast is only for errors
+  @Published var isShowingSuccess = false
 
   // violence types saved in the backend used to know if something changed
   private var savedIds: Set<String> = []
@@ -102,12 +104,12 @@ final class CaseViolenceViewModel: ObservableObject {
       savedIds = Set(result.violenceIds.map { $0.lowercased() })
       selectedIds = savedIds
       isEditing = false
-      toastMessage = "Los tipos de violencia se guardaron correctamente."
+      isShowingSuccess = true
     } catch {
       toastMessage = "No se pudieron guardar los tipos de violencia."
+      showToast = true
     }
 
-    showToast = true
     isSaving = false
   }
 }
