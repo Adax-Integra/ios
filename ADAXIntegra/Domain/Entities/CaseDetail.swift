@@ -64,14 +64,37 @@ struct CaseDetail: Decodable {
         formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSSS"
         return formatter
       }()
+    // Dates are parsed with the Date utils  like RecordDetails
+    // The cases table uses timestamp without time zone so it is stored in UTC to be completed
+    // before using the parser
+    var createdDate: Date? { Self.parseBackendDate(createdAt) }
+    var updatedDate: Date? { Self.parseBackendDate(updatedAt) }
 
-      var createdDate: Date? {
-        createdAt.flatMap { Self.backendDateFormatter.date(from: $0) }
-      }
+    private static func parseBackendDate(_ raw: String?) -> Date? {
+      guard let raw, !raw.isEmpty else { return nil }
+      return Date.parseISODate(normalizedISO(raw))
+    }
 
-      var updatedDate: Date? {
-        updatedAt.flatMap { Self.backendDateFormatter.date(from: $0) }
+    // Makes the text valid for Date.parseISODate UTC zone
+    private static func normalizedISO(_ raw: String) -> String {
+      var text = raw
+
+      // 1. No time zone (timestamp without time zone) it is UTC so we add z to force the format
+      let hasZone =
+        text.hasSuffix("Z")
+        || text.range(of: #"[+-]\d{2}:\d{2}$"#, options: .regularExpression) != nil
+      if !hasZone { text += "Z" }
+
+      // 2. Keep only 3 decimals to avoid any issues with the Date utils
+      text = text.replacingOccurrences(
+        of: #"(\.\d{3})\d+"#, with: "$1", options: .regularExpression)
+
+      // 3. If by any reason the data comes without 3 decimals we add them to avoid any issues with the Date utils
+      if !text.contains(".") {
+        text = text.replacingOccurrences(of: "Z", with: ".000Z")
       }
+      return text
+    }
 }
 
 // R-12: one collaborator assigned to the case, the backend leaves out the removed ones
