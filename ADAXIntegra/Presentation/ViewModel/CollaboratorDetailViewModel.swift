@@ -37,6 +37,7 @@ final class CollaboratorDetailViewModel: ObservableObject {
 
   // G-04: state for changing the account status
   @Published private(set) var isUpdatingStatus = false
+  @Published var isShowingStatusSuccess = false
   @Published var isShowingStatusToast = false
   @Published private(set) var statusToastMessage = ""
   @Published private(set) var shouldGoToLogin = false
@@ -216,13 +217,8 @@ final class CollaboratorDetailViewModel: ObservableObject {
       // Update only the status on screen, no need to load the whole detail again
       self.detail?.isActive = result.isActive
 
-      // Success message at the bottom of the screen
-      if newStatus {
-        statusToastMessage = "La cuenta se activó correctamente."
-      } else {
-        statusToastMessage = "La cuenta se desactivó correctamente."
-      }
-      isShowingStatusToast = true
+      // Success page, the errors keep using the toast
+      isShowingStatusSuccess = true
     } catch {
       await handleStatusError(error)
     }

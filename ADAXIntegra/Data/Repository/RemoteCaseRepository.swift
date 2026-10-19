@@ -81,6 +81,16 @@ struct RemoteCaseRepository: CaseRepository {
     return response.success
   }
 
+  // R-13 updata case step
+  func updateCaseStep(caseId: String, stepNumber: Int) async throws -> Bool {
+    let response = try await APIProtocol.patch(
+      "/cases/\(caseId)/step",
+      body: UpdateCaseStepRequest(stepNumber: stepNumber),
+      as: UpdateCaseStepResult.self
+    )
+    return response.success
+  }
+
   // R-12 implementation, sends the final list of collaborators, an empty list removes everyone inside it
   func updateCollaborators(caseId: String, userIds: [String]) async throws -> [String] {
     let response = try await APIProtocol.put(

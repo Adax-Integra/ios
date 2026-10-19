@@ -71,7 +71,11 @@ struct ExternalProfilePage: View {
         statusOverride = newStatus
       }
     }
-    .toast(isPresented: $viewModel.isShowingSuccessToast, message: "Datos actualizados", edge: .top)
+    .successScreen(
+      isPresented: $viewModel.isShowingSuccess,
+      title: "¡Datos actualizados!",
+      message: "La información de la cuenta se actualizó correctamente"
+    )
     // The edit page shows its own alert, so this one only runs on the detail
     .alert(
       "Aviso",

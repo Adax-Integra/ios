@@ -74,16 +74,9 @@ struct RegistrationTemplate: View {
         .padding(.vertical, 20)
       }
       .scrollDismissesKeyboard(.interactively)
-      // dismisses the keyboard when tapping outside the fields
-      .onTapGesture {
-        UIApplication.shared.sendAction(
-          #selector(UIResponder.resignFirstResponder),
-          to: nil,
-          from: nil,
-          for: nil
-        )
-      }
     }
     .backToolbarButton(action: backAction)
+    // dismisses the keyboard when tapping outside the fields
+    .dismissKeyboardOnTap()
   }
 }

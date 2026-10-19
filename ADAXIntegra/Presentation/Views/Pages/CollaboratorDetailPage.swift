@@ -17,6 +17,8 @@ struct CollaboratorDetailPage: View {
   private let userId: String
   // G-04: shows or hides the confirmation dialog
   @State private var showStatusDialog = false
+  // G-18: success page after the edit screen saved changes, same as G-07
+  @State private var showEditSuccess = false
   // G-04: used to log out when the session expires (401)
   @EnvironmentObject private var session: AuthSession
 
@@ -41,6 +43,8 @@ struct CollaboratorDetailPage: View {
           .padding(20)
           .frame(width: geo.size.width, alignment: .leading)
         }
+        // hides the keyboard when the user scrolls
+        .scrollDismissesKeyboard(.interactively)
         .refreshable {
           await viewModel.load(force: true)
           if viewModel.selectedTab == .cases {
@@ -75,6 +79,8 @@ struct CollaboratorDetailPage: View {
       }
     }
     .navigationTitle("Detalle de colaboradora")
+    // closes the keyboard when tapping outside the fields
+    .dismissKeyboardOnTap()
     .task { await viewModel.load() }
     .toast(isPresented: $viewModel.isShowingCopiedToast, message: "Copiado al portapapeles")
     // G-18: open the edit screen
@@ -82,9 +88,22 @@ struct CollaboratorDetailPage: View {
       EditCollaboratorProfilePage(userId: userId) {
         // Reload the detail when the edit screen saved changes
         Task { await viewModel.load(force: true) }
+        showEditSuccess = true
       }
     }
-    // G-04: success or error message
+    .successScreen(
+      isPresented: $showEditSuccess,
+      title: "¡Datos actualizados!",
+      message: "La información de la cuenta se actualizó correctamente"
+    )
+    // G-04: success page, the errors use the toast
+    .successScreen(
+      isPresented: $viewModel.isShowingStatusSuccess,
+      title: viewModel.detail?.isActive == true ? "¡Cuenta activada!" : "¡Cuenta desactivada!",
+      message: viewModel.detail?.isActive == true
+        ? "La cuenta de la colaboradora se activó correctamente."
+        : "La cuenta de la colaboradora se desactivó correctamente."
+    )
     .toast(isPresented: $viewModel.isShowingStatusToast, message: viewModel.statusToastMessage)
     // G-04: if the session expired (401), log out and go back to the login
     .onChange(of: viewModel.shouldGoToLogin) { _, goToLogin in

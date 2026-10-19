@@ -20,7 +20,7 @@ class ListActivityLogUseCase: ListActivityLogUseCaseProtocol {
   }
 
   func listActivityLog(page: Int, from: Date?, to: Date?) async throws -> ActivityLogResult {
-    // The backend rejects invalid range 
+    // The backend rejects invalid range
     if let from, let to, from > to {
       throw URLError(.badURL)
     }

@@ -32,6 +32,8 @@ struct HomePage: View {
       eventsSection
     } podcast: {
       podcastSection
+    } socialMedia: {
+      socialMediaSection
     }
     .task(id: session.userId) {
       await viewModel.loadRecords()
@@ -113,6 +115,35 @@ struct HomePage: View {
           .font(.subheadline)
           .foregroundColor(Color("PrimaryAdax"))
       }
+    }
+  }
+
+  private var socialMediaSection: some View {
+    VStack(alignment: .leading, spacing: 12) {
+      Text("Redes sociales")
+        .font(.title2.bold())
+        .foregroundColor(Color("OnBackground"))
+
+      SocialMediaCard(
+        onFacebookTap: {
+          openExternalLink(
+            "https://www.facebook.com/ADAxDigitales/"
+          )
+        },
+        onInstagramTap: {
+          openExternalLink(
+            "https://www.instagram.com/adax_digitales_a.c._/"
+          )
+        },
+        onXTap: {
+          openExternalLink("https://x.com/ADAxDigitalesAC")
+        },
+        onTikTokTap: {
+          openExternalLink(
+            "https://www.tiktok.com/@adax_digitales"
+          )
+        }
+      )
     }
   }
 

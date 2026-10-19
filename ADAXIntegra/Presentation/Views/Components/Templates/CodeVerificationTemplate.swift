@@ -69,11 +69,7 @@ struct CodeVerificationTemplate: View {
     }
     .navigationTitle("Verifica tu cuenta")
     // Closes the keyboard when tapping outside the code boxes
-    .onTapGesture {
-      UIApplication.shared.sendAction(
-        #selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil
-      )
-    }
+    .dismissKeyboardOnTap()
   }
 }
 

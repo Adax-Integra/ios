@@ -55,6 +55,12 @@ struct CaseDetail: Decodable {
   var helps: [CaseDetailHelp] { caseHelp.map { $0.helpTypes } }
   var violenceTypes: [CaseDetailViolenceType] { caseViolence.map { $0.violenceTypes } }
   var assignedUserIds: [String] { caseAssignment?.map(\.userId) ?? [] }
+
+  // Dates are parsed with the Date utils, like RecordDetails
+  var createdDateString: String? { createdAt.map(Date.extractDate) }
+  var createdTimeString: String? { createdAt.map(Date.extractTime) }
+  var updatedDateString: String? { updatedAt.map(Date.extractDate) }
+  var updatedTimeString: String? { updatedAt.map(Date.extractTime) }
 }
 
 // R-12: one collaborator assigned to the case, the backend leaves out the removed ones

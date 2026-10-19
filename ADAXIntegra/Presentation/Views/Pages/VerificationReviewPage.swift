@@ -35,6 +35,8 @@ struct VerificationReviewPage: View {
         }
         .padding(20)
       }
+      // hides the keyboard when the user scrolls
+      .scrollDismissesKeyboard(.interactively)
 
       if viewModel.isSubmitting {
         Color.black.opacity(0.15).ignoresSafeArea()
@@ -43,6 +45,8 @@ struct VerificationReviewPage: View {
     }
     .navigationTitle("Revisar verificación")
     .navigationBarTitleDisplayMode(.inline)
+    // closes the keyboard when tapping outside the fields
+    .dismissKeyboardOnTap()
     .task { await viewModel.load() }
     .onChange(of: viewModel.didFinish) { _, finished in
       if finished {

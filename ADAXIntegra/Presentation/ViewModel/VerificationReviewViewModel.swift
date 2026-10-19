@@ -63,7 +63,7 @@ final class VerificationReviewViewModel: ObservableObject {
   func previewProof() async {
     await openFile(from: proofUrl, name: "comprobante_domicilio", preview: true)
   }
- 
+
   func downloadIdentity() async {
     await openFile(from: identityUrl, name: "comprobante_identidad", preview: false)
   }

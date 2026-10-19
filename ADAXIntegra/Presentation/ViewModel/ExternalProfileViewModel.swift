@@ -33,7 +33,7 @@ final class ExternalProfileViewModel: ObservableObject {
   @Published var isSaving = false
   @Published var isEditing = false
   @Published var isShowingConfirmation = false
-  @Published var isShowingSuccessToast = false
+  @Published var isShowingSuccess = false
   @Published var errorMessage: String?
 
   // Email that the backend answered as already registered (409)
@@ -247,7 +247,7 @@ final class ExternalProfileViewModel: ObservableObject {
       )
       apply(updated)
       isEditing = false
-      isShowingSuccessToast = true
+      isShowingSuccess = true
     } catch {
       handle(error)
     }

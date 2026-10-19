@@ -74,6 +74,8 @@ struct ViewAndEditProfileTemplate: View {
         .padding(.horizontal, 24)
         .padding(.vertical, 20)
       }
+      // hides the keyboard when the user scrolls
+      .scrollDismissesKeyboard(.interactively)
       .safeAreaInset(edge: .bottom) {
         if isEditing {
           PrimaryButton(
@@ -96,6 +98,8 @@ struct ViewAndEditProfileTemplate: View {
         }
       }
     }
+    // closes the keyboard when tapping outside the fields
+    .dismissKeyboardOnTap()
   }
 }
 

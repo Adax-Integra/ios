@@ -101,6 +101,8 @@ struct ChangePasswordPage: View {
       .padding()
     }
     .navigationTitle("Cambiar contraseña")
+    // closes the keyboard when tapping outside the fields
+    .dismissKeyboardOnTap()
     .confirmDialog(
       isPresented: $showConfirmation,
       title: "Cambiar contraseña",
