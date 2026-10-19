@@ -5,7 +5,6 @@
 //  Created by Oscar Alexander Vilchis Soto on 18/10/26.
 //
 
-
 import Combine
 import Foundation
 
@@ -23,14 +22,14 @@ final class ChangeLogViewModel: ObservableObject {
   @Published private(set) var total = 0
   @Published private(set) var isLoading = false
   @Published var errorMessage: String?
-// Only letters and single spaces are accepted. Anything else (enters, numbers,
-// symbols, emojis) is removed as soon as it is typed
+  // Only letters and single spaces are accepted. Anything else (enters, numbers,
+  // symbols, emojis) is removed as soon as it is typed
   @Published var searchText = "" {
-        didSet {
-          let clean = Self.sanitizeSearch(searchText)
-          if clean != searchText { searchText = clean }
-        }
-      }
+    didSet {
+      let clean = Self.sanitizeSearch(searchText)
+      if clean != searchText { searchText = clean }
+    }
+  }
 
   // Date range sent to the backend as from / to
   @Published private(set) var startDate: Date?
@@ -145,13 +144,12 @@ final class ChangeLogViewModel: ObservableObject {
   }
 
   private static func sanitizeSearch(_ text: String) -> String {
-        var result = ""
-        for char in text {
-          guard char.isLetter || char == " " else { continue }
-          if char == " " && (result.isEmpty || result.last == " ") { continue }
-          result.append(char)
-        }
-        return String(result.prefix(40))
-      }
+    var result = ""
+    for char in text {
+      guard char.isLetter || char == " " else { continue }
+      if char == " " && (result.isEmpty || result.last == " ") { continue }
+      result.append(char)
+    }
+    return String(result.prefix(40))
+  }
 }
- 
