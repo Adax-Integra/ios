@@ -112,8 +112,7 @@ struct CaseDetailsPage: View {
               ?? viewModel.caseDetail?.recordId
               ?? "—",
             lastModified: lastModifiedText,
-            createdAt: createdAtText,
-            onEditTapped: { print("Edit tapped") }
+            createdAt: createdAtText
           )
 
           CaseInfoCard(
