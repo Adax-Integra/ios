@@ -61,14 +61,12 @@ struct RegisterCasePage: View {
           }
         }
 
-        Button("Cancelar") {
+        SecondaryButton(
+          title: "Cancelar",
+          isDisabled: viewModel.isSaving
+        ) {
           dismiss()
         }
-        .font(.system(size: 16, weight: .semibold))
-        .foregroundColor(Color("PrimaryAdax"))
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 12)
-        .disabled(viewModel.isSaving)
       }
       .padding(.horizontal)
     }

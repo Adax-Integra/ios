@@ -58,7 +58,7 @@ struct RegisterConfirmationView: View {
           .padding(.horizontal, 20)
         }
 
-        PrimaryButton(title: "Listo", isDisabled: false, action: onDone)
+        SecondaryButton(title: "Listo", isDisabled: false, action: onDone)
           .frame(maxWidth: .infinity, minHeight: 52, maxHeight: 52)
           .padding(.horizontal, 20)
           .padding(.bottom, 24)
