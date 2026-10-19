@@ -35,10 +35,12 @@ struct RecordsPageInterna: View {
       await viewModel.refresh()
     }
     .fullScreenCover(isPresented: $showRegister) {
-      RegisterExternalPage(onBack: {
-        showRegister = false
-        Task { await viewModel.refresh() }
-      })
+      NavigationStack {
+        RegisterExternalPage(onBack: {
+          showRegister = false
+          Task { await viewModel.refresh() }
+        })
+      }
     }
   }
 

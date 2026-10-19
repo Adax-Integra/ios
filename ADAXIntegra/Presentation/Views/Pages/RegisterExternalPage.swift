@@ -25,6 +25,7 @@ struct RegisterExternalPage: View {
           showRegisterCase = true
         }
       )
+      .toolbar(.hidden, for: .navigationBar)
       .sheet(isPresented: $showRegisterCase) {
         if let userId = viewModel.result?.userId {
           RegisterCasePage(externalID: userId) {
@@ -47,7 +48,6 @@ struct RegisterExternalPage: View {
       Color("Background").ignoresSafeArea()
       ScrollView(showsIndicators: false) {
         VStack(alignment: .leading, spacing: 20) {
-          PageHeader(title: "Registrar expediente", backAction: onBack)
           profileSection
           addressSection
 
@@ -62,6 +62,8 @@ struct RegisterExternalPage: View {
         .padding(20)
       }
     }
+    .navigationTitle("Registrar expediente")
+    .backToolbarButton(action: onBack)
     .task {
       await viewModel.loadCountries()
     }
@@ -233,5 +235,7 @@ struct RegisterExternalPage: View {
 }
 
 #Preview {
-  RegisterExternalPage()
+  NavigationStack {
+    RegisterExternalPage()
+  }
 }
