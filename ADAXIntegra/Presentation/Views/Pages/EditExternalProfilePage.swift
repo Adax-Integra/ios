@@ -48,8 +48,12 @@ struct EditExternalProfilePage: View {
         }
         .padding(20)
       }
+      // hides the keyboard when the user scrolls
+      .scrollDismissesKeyboard(.interactively)
     }
     .navigationTitle("Editar datos")
+    // closes the keyboard when tapping outside the fields
+    .dismissKeyboardOnTap()
     .sheet(isPresented: $viewModel.isShowingConfirmation) {
       ChangesSummarySheet(
         externalName: viewModel.displayName,

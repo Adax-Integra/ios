@@ -101,6 +101,8 @@ struct ChangePasswordPage: View {
       .padding()
     }
     .navigationTitle("Cambiar contraseña")
+    // closes the keyboard when tapping outside the fields
+    .dismissKeyboardOnTap()
     .alert("Cambiar contraseña", isPresented: $showConfirmation) {
       Button("Guardar") {
         Task { await viewModel.changePassword() }

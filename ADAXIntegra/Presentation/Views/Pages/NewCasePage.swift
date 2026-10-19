@@ -44,6 +44,8 @@ struct NewCasePage: View {
       }
     }
     .navigationTitle("Nuevo Caso")
+    // closes the keyboard when tapping outside the fields
+    .dismissKeyboardOnTap()
     .backToolbarButton(action: { dismiss() })
     .animation(.snappy, value: viewModel.isShowingConfirmation)
     .alert("Apoyo externo", isPresented: $viewModel.isShowingExternalSupportInfo) {

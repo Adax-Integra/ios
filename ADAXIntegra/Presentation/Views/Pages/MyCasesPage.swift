@@ -56,12 +56,6 @@ struct MyCasesPage: View {
     .refreshable {
       await viewModel.loadCases()
     }
-    // Hides the keyboard of the search bar
-    .onTapGesture {
-      UIApplication.shared.sendAction(
-        #selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil
-      )
-    }
     // Reloads when the search or the filter changes, waiting a little while the user types
     .task(id: "\(viewModel.searchText)|\(viewModel.urgencyFilter)") {
       try? await Task.sleep(for: .milliseconds(300))

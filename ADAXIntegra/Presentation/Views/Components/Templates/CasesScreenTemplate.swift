@@ -22,6 +22,10 @@ struct CasesScreenTemplate<Header: View, Content: View>: View {
       }
       .padding(16)
     }
+    // hides the keyboard when the user scrolls
+    .scrollDismissesKeyboard(.interactively)
     .background(Color("BackgroundColor"))
+    // closes the keyboard when tapping outside the fields
+    .dismissKeyboardOnTap()
   }
 }

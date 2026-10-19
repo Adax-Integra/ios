@@ -74,6 +74,8 @@ struct SearchableDropdown: View {
           }
         }
         .listStyle(.plain)
+        // hides the keyboard when the user scrolls
+        .scrollDismissesKeyboard(.interactively)
         .searchable(text: $query, prompt: "Buscar...")
         .navigationTitle(title)
         .navigationBarTitleDisplayMode(.inline)

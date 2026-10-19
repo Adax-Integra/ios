@@ -45,9 +45,6 @@ struct ForgotPasswordPage: View {
       Text(viewModel.generalError ?? "")
     }
 
-    .onTapGesture {
-      hideKeyboard()
-    }
     .navigationDestination(isPresented: $viewModel.showVerifyCode) {
       VerifyCodePage(viewModel: viewModel)
     }
@@ -65,12 +62,6 @@ struct ForgotPasswordPage: View {
     Binding(
       get: { viewModel.generalError != nil && !viewModel.showVerifyCode },
       set: { if !$0 { viewModel.generalError = nil } }
-    )
-  }
-
-  private func hideKeyboard() {
-    UIApplication.shared.sendAction(
-      #selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil
     )
   }
 }
