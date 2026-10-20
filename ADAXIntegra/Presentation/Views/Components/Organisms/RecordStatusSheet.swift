@@ -82,6 +82,8 @@ struct RecordStatusSheet: View {
           .font(.system(size: 13, weight: .medium))
           .foregroundStyle(Color("Error"))
           .multilineTextAlignment(.center)
+          .fixedSize(horizontal: false, vertical: true)
+          .frame(maxWidth: .infinity)
       }
 
       Spacer()
