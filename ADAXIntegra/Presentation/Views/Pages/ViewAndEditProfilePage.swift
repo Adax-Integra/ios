@@ -35,6 +35,7 @@ struct ViewAndEditProfilePage: View {
           countries: viewModel.countryOptions,
           states: viewModel.stateOptions,
           isEditing: viewModel.isEditing,
+          isVerified: viewModel.isVerified,
           isSaving: viewModel.isSaving,
           editAction: viewModel.startEditing,
           cancelAction: viewModel.cancelEditing,

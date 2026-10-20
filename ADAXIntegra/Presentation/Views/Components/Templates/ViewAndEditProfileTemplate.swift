@@ -26,6 +26,7 @@ struct ViewAndEditProfileTemplate: View {
   var states: [String] = []
 
   var isEditing: Bool
+  var isVerified: Bool = false
   var isSaving: Bool = false
 
   let editAction: () -> Void
@@ -40,9 +41,12 @@ struct ViewAndEditProfileTemplate: View {
       ScrollView {
         VStack(alignment: .leading, spacing: 20) {
           LabeledTextField(title: "Nombre", placeholder: "Escribe aquí...", text: $name)
+            .disabled(isVerified)
 
           LabeledTextField(
-            title: "Apellidos", placeholder: "Escribe aquí...", text: $lastName)
+            title: "Apellidos", placeholder: "Escribe aquí...", text: $lastName
+          )
+          .disabled(isVerified)
 
           PhoneField(
             countryCodes: countryCodes,
