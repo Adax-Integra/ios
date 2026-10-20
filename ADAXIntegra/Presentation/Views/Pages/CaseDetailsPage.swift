@@ -285,21 +285,26 @@ struct CaseDetailsPage: View {
       title: "¡Etapa actualizada!",
       message: "La etapa del caso se actualizó correctamente."
     )
+    // these toasts only show errors, so they use the error style
     .toast(
       isPresented: $viewModel.showToast,
-      message: viewModel.toastMessage
+      message: viewModel.toastMessage,
+      style: .error
     )
     .toast(
       isPresented: $violenceViewModel.showToast,
-      message: violenceViewModel.toastMessage
+      message: violenceViewModel.toastMessage,
+      style: .error
     )
     .toast(
       isPresented: $helpsViewModel.showToast,
-      message: helpsViewModel.toastMessage
+      message: helpsViewModel.toastMessage,
+      style: .error
     )
     .toast(
       isPresented: $stepViewModel.showToast,
-      message: stepViewModel.toastMessage
+      message: stepViewModel.toastMessage,
+      style: .error
     )
   }
 }
