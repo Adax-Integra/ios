@@ -181,6 +181,8 @@ struct CaseDetailsPage: View {
             isLoading: false,
             errorMessage: nil,
             emptyMessage: "No hay etapas disponibles",
+            // only one stage can be selected, so it uses circles
+            selectionStyle: .radio,
             onEdit: { stepViewModel.startEditing() },
             onCancel: { stepViewModel.cancelEditing() },
             onSave: { Task { await stepViewModel.save() } }
