@@ -217,6 +217,8 @@ struct CaseDetailsPage: View {
         },
         bottomActions: {
           CloseCaseAction(
+            // hides the close case button once the case is closed
+            canClose: isCaseOpen,
             onCloseCaseTapped: {
               withAnimation { showCloseModal = true }
             },
