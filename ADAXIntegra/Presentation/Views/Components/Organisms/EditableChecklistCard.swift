@@ -30,6 +30,8 @@ struct EditableChecklistCard: View {
   var isLoading: Bool = false
   var errorMessage: String? = nil
   var emptyMessage: String = "No hay opciones disponibles"
+  // radio when only one option can be selected
+  var selectionStyle: CheckboxRowStyle = .checkbox
   let onEdit: () -> Void
   let onCancel: () -> Void
   let onSave: () -> Void
@@ -98,7 +100,8 @@ struct EditableChecklistCard: View {
         CheckboxRow(
           title: option.title,
           isChecked: isSelected(option.id),
-          isEnabled: isEditing && !isSaving
+          isEnabled: isEditing && !isSaving,
+          style: selectionStyle
         ) {
           onToggle(option.id)
         }
