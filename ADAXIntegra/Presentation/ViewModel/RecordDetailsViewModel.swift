@@ -34,7 +34,9 @@ final class RecordDetailsViewModel: ObservableObject {
     do {
       let result = try await repository.getRecordFromExternal(for: externalId)
       guard !Task.isCancelled else { return }
-      recordDetails = result
+      // closed cases go at the end of the list, the rest keeps the backend order
+      recordDetails =
+        result.filter { $0.state != "Closed" } + result.filter { $0.state == "Closed" }
       if result.isEmpty {
         errorMessage = "No se ha encontrado ningún caso perteneciente a este expediente"
       }

@@ -47,7 +47,9 @@ final class MyCasesViewModel: ObservableObject {
       )
 
       guard requestID == latestRequestID else { return }
-      cases = result.cases
+      // closed cases go at the end of the list, the rest keeps the backend order
+      cases =
+        result.cases.filter { $0.state != "Closed" } + result.cases.filter { $0.state == "Closed" }
       total = result.total
     } catch {
       guard requestID == latestRequestID else { return }
