@@ -20,6 +20,8 @@ struct EditableChecklistCard: View {
   let title: String
   var subtitle: String? = nil
   var subtitleColor: Color = Color("InsideTextAndIcons")
+  // what voiceover reads for the subtitle when the text has symbols like an arrow
+  var subtitleAccessibilityText: String? = nil
   let options: [ChecklistOption]
   let isSelected: (String) -> Bool
   let onToggle: (String) -> Void
@@ -69,6 +71,7 @@ struct EditableChecklistCard: View {
       }
       .buttonStyle(.plain)
       .accessibilityLabel(isExpanded ? "Ocultar \(title)" : "Mostrar \(title)")
+      .accessibilityValue(subtitleAccessibilityText ?? subtitle ?? "")
 
       if isExpanded {
         options_list
