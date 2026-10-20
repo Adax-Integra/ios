@@ -20,6 +20,8 @@ final class CaseViolenceViewModel: ObservableObject {
   @Published var toastMessage = ""
   // shows the success page after saving, the toast is only for errors
   @Published var isShowingSuccess = false
+  // says the new urgency when saving changed it
+  @Published private(set) var successMessage = "Los tipos de violencia se guardaron correctamente."
 
   // violence types saved in the backend used to know if something changed
   private var savedIds: Set<String> = []
@@ -43,9 +45,32 @@ final class CaseViolenceViewModel: ObservableObject {
   // urgency of the case with the current selection
 
   var urgency: String {
+    urgency(for: selectedIds)
+  }
+
+  // urgency with what is saved, used to show the change while editing
+  var savedUrgency: String {
+    urgency(for: savedIds)
+  }
+
+  var urgencyChanged: Bool { urgency != savedUrgency }
+
+  // shows from which urgency to which one the case goes while editing
+  var urgencySubtitle: String {
+    guard isEditing, urgencyChanged else { return "Urgencia: \(urgency)" }
+    return "Urgencia: \(savedUrgency) → \(urgency)"
+  }
+
+  // same as the subtitle but without the arrow for voiceover
+  var urgencyAccessibilityText: String {
+    guard isEditing, urgencyChanged else { return "Urgencia: \(urgency)" }
+    return "Urgencia cambia de \(savedUrgency) a \(urgency)"
+  }
+
+  private func urgency(for ids: Set<String>) -> String {
     let severity =
       violenceTypes
-      .filter { isSelected(id: $0.violenceId) }
+      .filter { ids.contains($0.violenceId.lowercased()) }
       .compactMap(\.severity)
       .max()
     return CaseUrgency.from(severity: severity)
@@ -94,6 +119,7 @@ final class CaseViolenceViewModel: ObservableObject {
   func save() async {
     guard hasChanges, !isSaving else { return }
     isSaving = true
+    let previousUrgency = savedUrgency
 
     do {
       let result = try await assignViolenceTypesUseCase.execute(
@@ -104,6 +130,10 @@ final class CaseViolenceViewModel: ObservableObject {
       savedIds = Set(result.violenceIds.map { $0.lowercased() })
       selectedIds = savedIds
       isEditing = false
+      successMessage =
+        urgency == previousUrgency
+        ? "Los tipos de violencia se guardaron correctamente."
+        : "Los tipos de violencia se guardaron correctamente. La urgencia del caso ahora es \(urgency)."
       isShowingSuccess = true
     } catch {
       toastMessage = "No se pudieron guardar los tipos de violencia."

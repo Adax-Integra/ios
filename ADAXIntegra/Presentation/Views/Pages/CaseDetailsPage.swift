@@ -125,8 +125,10 @@ struct CaseDetailsPage: View {
 
           EditableChecklistCard(
             title: "Tipos de violencia asignados",
-            subtitle: "Urgencia: \(violenceViewModel.urgency)",
+            // shows "Media → Alta" while editing if the urgency changes
+            subtitle: violenceViewModel.urgencySubtitle,
             subtitleColor: urgencyColor,
+            subtitleAccessibilityText: violenceViewModel.urgencyAccessibilityText,
             options: violenceViewModel.violenceTypes.map {
               ChecklistOption(id: $0.violenceId, title: $0.title)
             },
@@ -271,7 +273,7 @@ struct CaseDetailsPage: View {
     .successScreen(
       isPresented: $violenceViewModel.isShowingSuccess,
       title: "¡Tipos de violencia guardados!",
-      message: "Los tipos de violencia se guardaron correctamente."
+      message: violenceViewModel.successMessage
     )
     .successScreen(
       isPresented: $helpsViewModel.isShowingSuccess,
