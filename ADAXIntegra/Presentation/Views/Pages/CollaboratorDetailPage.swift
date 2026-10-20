@@ -82,7 +82,10 @@ struct CollaboratorDetailPage: View {
     // closes the keyboard when tapping outside the fields
     .dismissKeyboardOnTap()
     .task { await viewModel.load() }
-    .toast(isPresented: $viewModel.isShowingCopiedToast, message: "Copiado al portapapeles")
+    .toast(
+      isPresented: $viewModel.isShowingCopiedToast, message: "Copiado al portapapeles",
+      style: .success
+    )
     // G-18: open the edit screen
     .navigationDestination(isPresented: $showEdit) {
       EditCollaboratorProfilePage(userId: userId) {
@@ -104,7 +107,11 @@ struct CollaboratorDetailPage: View {
         ? "La cuenta de la colaboradora se activó correctamente."
         : "La cuenta de la colaboradora se desactivó correctamente."
     )
-    .toast(isPresented: $viewModel.isShowingStatusToast, message: viewModel.statusToastMessage)
+    // the status toast only shows errors
+    .toast(
+      isPresented: $viewModel.isShowingStatusToast, message: viewModel.statusToastMessage,
+      style: .error
+    )
     // G-04: if the session expired (401), log out and go back to the login
     .onChange(of: viewModel.shouldGoToLogin) { _, goToLogin in
       if goToLogin {
