@@ -15,14 +15,17 @@ final class RecordStatusViewModel: ObservableObject {
   @Published var errorMessage: String?
 
   private let recordId: String
+  private let externalId: String
   private let repository: RecordRepository
 
   init(
     recordId: String,
+    externalId: String,
     initialStatus: RecordStatus,
     repository: RecordRepository = RemoteRecordRepository()
   ) {
     self.recordId = recordId
+    self.externalId = externalId
     self.currentStatus = initialStatus
     self.repository = repository
   }
@@ -44,6 +47,16 @@ final class RecordStatusViewModel: ObservableObject {
     defer { isUpdating = false }
 
     do {
+      if newStatus == .completado {
+        let cases = try await repository.getRecordFromExternal(
+          for: externalId)
+
+        guard cases.allSatisfy({ CaseState(dbValue: $0.state) == .closed }) else {
+          errorMessage = "No puedes completar el expediente porque todavía tiene casos abiertos."
+          return
+        }
+      }
+
       let updatedRaw = try await repository.updateRecordStatus(
         recordId: recordId,
         newStatus: newStatus.rawValue

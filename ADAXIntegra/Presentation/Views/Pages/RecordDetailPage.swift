@@ -24,6 +24,7 @@ struct RecordDetailPage: View {
     _statusViewModel = StateObject(
       wrappedValue: RecordStatusViewModel(
         recordId: recordId,
+        externalId: externalID,
         initialStatus: initialStatus
       )
     )
