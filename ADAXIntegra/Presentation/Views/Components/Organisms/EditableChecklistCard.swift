@@ -20,6 +20,8 @@ struct EditableChecklistCard: View {
   let title: String
   var subtitle: String? = nil
   var subtitleColor: Color = Color("InsideTextAndIcons")
+  // what voiceover reads for the subtitle when the text has symbols like an arrow
+  var subtitleAccessibilityText: String? = nil
   let options: [ChecklistOption]
   let isSelected: (String) -> Bool
   let onToggle: (String) -> Void
@@ -30,6 +32,8 @@ struct EditableChecklistCard: View {
   var isLoading: Bool = false
   var errorMessage: String? = nil
   var emptyMessage: String = "No hay opciones disponibles"
+  // radio when only one option can be selected
+  var selectionStyle: CheckboxRowStyle = .checkbox
   let onEdit: () -> Void
   let onCancel: () -> Void
   let onSave: () -> Void
@@ -67,6 +71,7 @@ struct EditableChecklistCard: View {
       }
       .buttonStyle(.plain)
       .accessibilityLabel(isExpanded ? "Ocultar \(title)" : "Mostrar \(title)")
+      .accessibilityValue(subtitleAccessibilityText ?? subtitle ?? "")
 
       if isExpanded {
         options_list
@@ -98,7 +103,8 @@ struct EditableChecklistCard: View {
         CheckboxRow(
           title: option.title,
           isChecked: isSelected(option.id),
-          isEnabled: isEditing && !isSaving
+          isEnabled: isEditing && !isSaving,
+          style: selectionStyle
         ) {
           onToggle(option.id)
         }

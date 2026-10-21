@@ -81,7 +81,10 @@ struct EventsListPage: View {
         )
       }
     }
-    .toast(isPresented: $disableViewModel.showToast, message: disableViewModel.toastMessage)
+    // the disable toast only shows errors
+    .toast(
+      isPresented: $disableViewModel.showToast, message: disableViewModel.toastMessage,
+      style: .error)
   }
 
   @ViewBuilder

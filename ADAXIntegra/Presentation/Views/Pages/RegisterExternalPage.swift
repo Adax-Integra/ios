@@ -75,7 +75,8 @@ struct RegisterExternalPage: View {
     }
     .toast(
       isPresented: $viewModel.showErrorToast,
-      message: viewModel.errorMessage ?? ""
+      message: viewModel.errorMessage ?? "",
+      style: .error
     )
   }
 

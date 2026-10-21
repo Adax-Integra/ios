@@ -125,8 +125,10 @@ struct CaseDetailsPage: View {
 
           EditableChecklistCard(
             title: "Tipos de violencia asignados",
-            subtitle: "Urgencia: \(violenceViewModel.urgency)",
+            // shows "Media → Alta" while editing if the urgency changes
+            subtitle: violenceViewModel.urgencySubtitle,
             subtitleColor: urgencyColor,
+            subtitleAccessibilityText: violenceViewModel.urgencyAccessibilityText,
             options: violenceViewModel.violenceTypes.map {
               ChecklistOption(id: $0.violenceId, title: $0.title)
             },
@@ -181,6 +183,8 @@ struct CaseDetailsPage: View {
             isLoading: false,
             errorMessage: nil,
             emptyMessage: "No hay etapas disponibles",
+            // only one stage can be selected, so it uses circles
+            selectionStyle: .radio,
             onEdit: { stepViewModel.startEditing() },
             onCancel: { stepViewModel.cancelEditing() },
             onSave: { Task { await stepViewModel.save() } }
@@ -217,6 +221,8 @@ struct CaseDetailsPage: View {
         },
         bottomActions: {
           CloseCaseAction(
+            // hides the close case button once the case is closed
+            canClose: isCaseOpen,
             onCloseCaseTapped: {
               withAnimation { showCloseModal = true }
             },
@@ -267,7 +273,7 @@ struct CaseDetailsPage: View {
     .successScreen(
       isPresented: $violenceViewModel.isShowingSuccess,
       title: "¡Tipos de violencia guardados!",
-      message: "Los tipos de violencia se guardaron correctamente."
+      message: violenceViewModel.successMessage
     )
     .successScreen(
       isPresented: $helpsViewModel.isShowingSuccess,
@@ -279,21 +285,26 @@ struct CaseDetailsPage: View {
       title: "¡Etapa actualizada!",
       message: "La etapa del caso se actualizó correctamente."
     )
+    // these toasts only show errors, so they use the error style
     .toast(
       isPresented: $viewModel.showToast,
-      message: viewModel.toastMessage
+      message: viewModel.toastMessage,
+      style: .error
     )
     .toast(
       isPresented: $violenceViewModel.showToast,
-      message: violenceViewModel.toastMessage
+      message: violenceViewModel.toastMessage,
+      style: .error
     )
     .toast(
       isPresented: $helpsViewModel.showToast,
-      message: helpsViewModel.toastMessage
+      message: helpsViewModel.toastMessage,
+      style: .error
     )
     .toast(
       isPresented: $stepViewModel.showToast,
-      message: stepViewModel.toastMessage
+      message: stepViewModel.toastMessage,
+      style: .error
     )
   }
 }

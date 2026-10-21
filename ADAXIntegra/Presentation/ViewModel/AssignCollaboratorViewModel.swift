@@ -43,8 +43,12 @@ final class AssignCollaboratorViewModel: ObservableObject {
   // Search by name, an empty search shows everyone
   var filteredCollaborators: [AssignableCollaborator] {
     let query = searchText.trimmingCharacters(in: .whitespaces)
-    guard !query.isEmpty else { return collaborators }
-    return collaborators.filter { $0.fullName.localizedCaseInsensitiveContains(query) }
+    let matching =
+      query.isEmpty
+      ? collaborators
+      : collaborators.filter { $0.fullName.localizedCaseInsensitiveContains(query) }
+    // saved collaborators go first, each group keeps the order by name
+    return matching.filter { isAssigned($0) } + matching.filter { !isAssigned($0) }
   }
 
   // Selected collaborators that are not saved yet

@@ -155,11 +155,13 @@ final class CollaboratorDetailViewModel: ObservableObject {
   var filteredCases: [CollaboratorAssignedCase] {
     let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
 
-    return cases.filter { item in
+    let matching = cases.filter { item in
       if onlyActiveCases && item.state != "Open" { return false }
       guard !query.isEmpty else { return true }
       return matches(item.caseNumber, query) || matches(item.name, query)
     }
+    // closed cases go at the end of the list, the rest keeps the backend order
+    return matching.filter { $0.state != "Closed" } + matching.filter { $0.state == "Closed" }
   }
 
   // Actions
