@@ -10,7 +10,7 @@ import SwiftUI
 struct RecordCaseDetail: View {
   var caseId: String
   var externalName: String
-  var status: CaseStatus
+  var urgencyType: UrgencyType
   var violenceType: String
   var internalAssigned: String
   var lastUpdated: String
@@ -34,16 +34,6 @@ struct RecordCaseDetail: View {
 
           Text(externalName)
         }
-
-        CaseTag(
-          width: 75, height: 27,
-          rectangleColor: status.tagBackgroundColor,
-          textColor: status.tagTextColor,
-          textSize: 14,
-          text: status.label
-        )
-        .padding(.bottom, 40)
-
       }
 
       Divider()
@@ -53,7 +43,7 @@ struct RecordCaseDetail: View {
           Text("Violencia: ")
             .fontWeight(.bold)
             .fixedSize()
-          Text(violenceType)
+          valueText(violenceType)
             .lineLimit(1)
             .truncationMode(.tail)
         }
@@ -62,18 +52,10 @@ struct RecordCaseDetail: View {
           Text("Asignada al caso: ")
             .fontWeight(.bold)
             .fixedSize()
-          Text(internalAssigned)
+          valueText(internalAssigned)
             .lineLimit(1)
             .truncationMode(.tail)
         }
-
-        HStack(spacing: 2) {
-          Text("Última actualización: ")
-          Text(lastUpdated)
-        }
-        .frame(maxWidth: .infinity, alignment: .trailing)
-        .font(.system(size: 12))
-        .padding(.top, 6)
       }
       .font(.system(size: 14))
     }
@@ -83,11 +65,38 @@ struct RecordCaseDetail: View {
     .background(Color(.systemBackground))
     .overlay(alignment: .leading) {
       Rectangle()
-        .fill(status.tagTextColor)
+        .fill(urgencyType.tagBorderColor)
         .frame(width: 6)
     }
     .clipShape(RoundedRectangle(cornerRadius: 16))
-    .shadow(color: .black.opacity(0.1), radius: 6, x: 0, y: 2)
+    .shadow(color: .black.opacity(0.2), radius: 1, x: 1, y: 1)
+  }
+
+  private func valueText(_ value: String) -> Text {
+    let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines)
+    return trimmed.isEmpty
+      ? Text("Sin asignar").foregroundStyle(.gray)
+      : Text(trimmed)
+  }
+}
+
+enum UrgencyType: String {
+  case alta
+  case media
+  case baja
+  case sinEvaluar = "sin evaluar"
+
+  var tagBorderColor: Color {
+    switch self {
+    case .alta:
+      return Color("UrgencyHigh")
+    case .media:
+      return Color("UrgencyMedium")
+    case .baja:
+      return Color("UrgencyLow")
+    case .sinEvaluar:
+      return Color(.systemGray)
+    }
   }
 }
 
@@ -98,7 +107,7 @@ struct RecordCaseDetail: View {
     RecordCaseDetail(
       caseId: "C-26-9999",
       externalName: "Adriana Velásquez",
-      status: .open,
+      urgencyType: .baja,
       violenceType: "Familiar",
       internalAssigned: "Alejandra Benítez ",
       lastUpdated: "12 Jul 2026"

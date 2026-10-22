@@ -8,30 +8,28 @@
 import SwiftUI
 
 struct CaseDetailsTemplate<Content: View, BottomActions: View>: View {
-  // Display number for the case shown in the header, the status of the case (Open/Closed) and the back button
+  // Display number for the case shown in the header and the status of the case (Open/Closed).
+  // The back button is the native one of the navigation bar
   var caseNumber: String
   var status: String
-  var onBack: () -> Void
 
   @ViewBuilder var content: Content
   @ViewBuilder var bottomActions: BottomActions
 
   var body: some View {
     VStack(spacing: 0) {
+      // Same title and status badge as before, only the custom back button was removed
       HStack(spacing: 12) {
-        BackButton(action: onBack)
-
         Text(" \(caseNumber)")
           .font(.title2)
           .fontWeight(.bold)
           .foregroundColor(.primary)
 
         StatusBadge(text: status)
-
-        Spacer()
       }
+      .frame(maxWidth: .infinity, alignment: .leading)
       .padding(.horizontal, 16)
-      .padding(.top, 16)
+      .padding(.top, 8)
       .padding(.bottom, 24)
 
       ScrollView(showsIndicators: false) {
@@ -48,7 +46,9 @@ struct CaseDetailsTemplate<Content: View, BottomActions: View>: View {
       .padding(.horizontal, 16)
       .padding(.bottom, 16)
     }
-    .background(Color(UIColor.systemGray6).ignoresSafeArea())
-    .navigationBarHidden(true)
+    .background(Color("BackgroundColor").ignoresSafeArea())
+    // Shows the native navigation bar (with the iOS back button) and no title,
+    // because the case number is already displayed in the header above
+    .navigationBarTitleDisplayMode(.inline)
   }
 }

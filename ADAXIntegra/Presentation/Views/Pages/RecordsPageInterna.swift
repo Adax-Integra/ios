@@ -10,16 +10,16 @@ import SwiftUI
 struct RecordsPageInterna: View {
   @StateObject private var viewModel = RecordsViewModel()
   @State private var showRegister = false
-  @Environment(\.dismiss) private var dismiss
 
   var body: some View {
     ListPageTemplate {
-      PageHeader(title: "Expedientes", backAction: { dismiss() })
+      EmptyView()
     } toolbar: {
       toolbar
     } content: {
       content
     }
+    .navigationTitle("Expedientes")
     .task(id: viewModel.searchText) {
       try? await Task.sleep(for: .milliseconds(300))
       guard !Task.isCancelled else { return }
@@ -35,10 +35,12 @@ struct RecordsPageInterna: View {
       await viewModel.refresh()
     }
     .fullScreenCover(isPresented: $showRegister) {
-      RegisterExternalPage(onBack: {
-        showRegister = false
-        Task { await viewModel.refresh() }
-      })
+      NavigationStack {
+        RegisterExternalPage(onBack: {
+          showRegister = false
+          Task { await viewModel.refresh() }
+        })
+      }
     }
   }
 
@@ -47,25 +49,27 @@ struct RecordsPageInterna: View {
       SearchBarInterna(placeholder: "Buscar expediente...", text: $viewModel.searchText)
 
       HStack(spacing: 12) {
-        Menu {
-          Button("Todos") { viewModel.hasOpenCasesFilter = nil }
-          Button("Con casos") { viewModel.hasOpenCasesFilter = true }
-          Button("Sin casos") { viewModel.hasOpenCasesFilter = false }
-        } label: {
-          FilterChip(title: casesFilterText)
-        }
+        ScrollView(.horizontal, showsIndicators: false) {
+          HStack(spacing: 12) {
+            Menu {
+              Button("Todos") { viewModel.hasOpenCasesFilter = nil }
+              Button("Con casos") { viewModel.hasOpenCasesFilter = true }
+              Button("Sin casos") { viewModel.hasOpenCasesFilter = false }
+            } label: {
+              FilterChip(title: casesFilterText)
+            }
 
-        Menu {
-          Button("Todos") { viewModel.statusFilter = nil }
-          Button("Sin empezar") { viewModel.statusFilter = "SIN_EMPEZAR" }
-          Button("En revisión") { viewModel.statusFilter = "EN_REVISION" }
-          Button("En seguimiento") { viewModel.statusFilter = "EN_SEGUIMIENTO" }
-          Button("Completado") { viewModel.statusFilter = "COMPLETADO" }
-        } label: {
-          FilterChip(title: statusFilterText)
+            Menu {
+              Button("Todos") { viewModel.statusFilter = nil }
+              Button("Sin empezar") { viewModel.statusFilter = "SIN_EMPEZAR" }
+              Button("En revisión") { viewModel.statusFilter = "EN_REVISION" }
+              Button("En seguimiento") { viewModel.statusFilter = "EN_SEGUIMIENTO" }
+              Button("Completado") { viewModel.statusFilter = "COMPLETADO" }
+            } label: {
+              FilterChip(title: statusFilterText)
+            }
+          }
         }
-        
-        Spacer()
 
         if hasActiveFilters {
           Button {
@@ -73,11 +77,13 @@ struct RecordsPageInterna: View {
             viewModel.hasOpenCasesFilter = nil
             viewModel.statusFilter = nil
           } label: {
-              Text("Limpiar filtros")
-                .font(.system(size: 13, weight: .semibold))
-                .foregroundColor(Color("PrimaryAdax"))
+            Text("Limpiar filtros")
+              .font(.system(size: 13, weight: .semibold))
+              .foregroundColor(Color("PrimaryAdax"))
+              .lineLimit(1)
           }
           .buttonStyle(.plain)
+          .fixedSize()
         }
       }
 
@@ -108,7 +114,12 @@ struct RecordsPageInterna: View {
     } else {
       ForEach(viewModel.records) { item in
         NavigationLink {
-          RecordDetailPage(externalID: item.userId)
+          RecordDetailPage(
+            externalID: item.userId,
+            externalName: item.name,
+            recordId: item.id,
+            initialStatus: RecordStatus(rawValue: item.status ?? "") ?? .sinEmpezar
+          )
         } label: {
           RecordCardInterna(item: item)
         }
@@ -149,5 +160,7 @@ struct RecordsPageInterna: View {
 }
 
 #Preview {
-  RecordsPageInterna()
+  NavigationStack {
+    RecordsPageInterna()
+  }
 }

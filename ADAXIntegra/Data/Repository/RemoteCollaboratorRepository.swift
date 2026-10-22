@@ -16,4 +16,12 @@ struct RemoteCollaboratorRepository: CollaboratorRepository {
     )
     return response.data
   }
+
+  // G-06: GET /internal-users, newest first
+  func listCollaborators() async throws -> [CollaboratorListItem] {
+    let response = try await APIProtocol.get(
+      "/internal-users", as: APIResponse<[CollaboratorListItem]>.self
+    )
+    return response.data
+  }
 }

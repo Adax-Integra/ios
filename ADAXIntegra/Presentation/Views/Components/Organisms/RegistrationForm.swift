@@ -31,19 +31,26 @@ struct RegistrationForm: View {
     return "\(firstName) \(surname)"
   }
 
+  // allows letters, accents, ñ, ü, and spaces
+  private func isValidNameText(_ text: String) -> Bool {
+    let pattern = #"^[\p{L}\p{M}]+(?: [\p{L}\p{M}]+)*$"#
+    return text.range(of: pattern, options: .regularExpression) != nil
+  }
+
+  // validates names and the maximum length
   private var isNameValid: Bool {
     let firstName = name.trimmingCharacters(in: .whitespacesAndNewlines)
     let surname = lastName.trimmingCharacters(in: .whitespacesAndNewlines)
     let fullName = "\(firstName) \(surname)"
-
-    return !firstName.isEmpty && !surname.isEmpty && fullName.count <= 100
+    return isValidNameText(firstName)
+      && isValidNameText(surname)
+      && fullName.count <= 100
   }
 
+  // validates email format without accents, ñ or emojis
   private var isEmailValid: Bool {
-    email.range(
-      of: #"^[^\s@]+@[^\s@]+\.[^\s@]+$"#,
-      options: .regularExpression
-    ) != nil
+    let pattern = #"^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)+$"#
+    return email.range(of: pattern, options: .regularExpression) != nil
   }
 
   // checks the password requirements
@@ -52,6 +59,8 @@ struct RegistrationForm: View {
       && password.rangeOfCharacter(from: .uppercaseLetters) != nil
       && password.rangeOfCharacter(from: .decimalDigits) != nil
       && password.rangeOfCharacter(from: .punctuationCharacters.union(.symbols)) != nil
+      && password.unicodeScalars.allSatisfy { $0.isASCII && $0.value >= 33 && $0.value <= 126 }
+      && password.rangeOfCharacter(from: .lowercaseLetters) != nil
   }
 
   // enables registration if all fields contain valid data
@@ -59,7 +68,7 @@ struct RegistrationForm: View {
     isNameValid && isEmailValid
       && countryCode != nil
       && phoneNumber.count == 10
-      && phoneNumber.allSatisfy { $0.isNumber }
+      && phoneNumber.allSatisfy { $0.isASCII && $0.isNumber }
       && isPasswordValid
       && password == confirmPassword
   }
@@ -67,12 +76,20 @@ struct RegistrationForm: View {
   var body: some View {
     VStack(alignment: .leading, spacing: 18) {
 
-      LabeledTextField(
-        title: "Nombre",
-        placeholder: "Ingresa tu nombre",
-        text: $name
-      )
+      // name field
+      VStack(alignment: .leading, spacing: 6) {
+        LabeledTextField(
+          title: "Nombre",
+          placeholder: "Ingresa tu nombre",
+          text: $name
+        )
 
+        if !name.isEmpty && !isValidNameText(name) {
+          FieldErrorLabel("Solo se permiten letras, acentos y ñ.")
+        }
+      }
+
+      // last name field
       VStack(alignment: .leading, spacing: 6) {
         LabeledTextField(
           title: "Apellido",
@@ -80,26 +97,45 @@ struct RegistrationForm: View {
           text: $lastName
         )
 
+        if !lastName.isEmpty && !isValidNameText(lastName) {
+          FieldErrorLabel("Solo se permiten letras, acentos y espacios.")
+        }
+
         if fullName.count > 100 {
-          Text("El nombre completo debe tener máximo 100 caracteres.")
-            .font(.caption)
-            .foregroundStyle(.red)
+          FieldErrorLabel("El nombre completo debe tener máximo 100 caracteres.")
         }
       }
 
-      LabeledTextField(
-        title: "Correo electrónico",
-        placeholder: "correo@ejemplo.com",
-        keyboardType: .emailAddress,
-        text: $email
-      )
+      // email field
+      VStack(alignment: .leading, spacing: 6) {
+        LabeledTextField(
+          title: "Correo electrónico",
+          placeholder: "correo@ejemplo.com",
+          keyboardType: .emailAddress,
+          text: $email
+        )
 
-      PhoneField(
-        countryCodes: countryCodes,
-        countryCode: $countryCode,
-        phone: $phoneNumber
-      )
+        if !email.isEmpty && !isEmailValid {
+          FieldErrorLabel("Ingresa un correo electrónico válido, sin acentos ni ñ.")
+        }
+      }
 
+      // phone field
+      VStack(alignment: .leading, spacing: 6) {
+        PhoneField(
+          countryCodes: countryCodes,
+          countryCode: $countryCode,
+          phone: $phoneNumber
+        )
+
+        if !phoneNumber.isEmpty
+          && (phoneNumber.count != 10 || !phoneNumber.allSatisfy({ $0.isASCII && $0.isNumber }))
+        {
+          FieldErrorLabel("El teléfono debe contener 10 dígitos.")
+        }
+      }
+
+      // password field
       VStack(alignment: .leading, spacing: 6) {
         PasswordTextField(
           title: "Contraseña",
@@ -113,8 +149,41 @@ struct RegistrationForm: View {
         .font(.caption)
         .foregroundStyle(.secondary)
         .fixedSize(horizontal: false, vertical: true)
+
+        // shows missing password requirements
+        if !password.isEmpty {
+          if password.count < 8 || password.count > 24 {
+            FieldErrorLabel("La contraseña debe tener entre 8 y 24 caracteres.")
+
+          }
+
+          if password.rangeOfCharacter(from: .uppercaseLetters) == nil {
+            FieldErrorLabel("Falta una letra mayúscula.")
+          }
+
+          if password.rangeOfCharacter(from: .lowercaseLetters) == nil {
+            FieldErrorLabel("Falta una letra minúscula.")
+          }
+
+          if password.rangeOfCharacter(from: .decimalDigits) == nil {
+            FieldErrorLabel("Falta un número.")
+
+          }
+
+          if password.rangeOfCharacter(from: .punctuationCharacters.union(.symbols)) == nil {
+            FieldErrorLabel("Falta un carácter especial.")
+
+          }
+
+          if !password.unicodeScalars.allSatisfy({ $0.isASCII && $0.value >= 33 && $0.value <= 126 }
+          ) {
+            FieldErrorLabel("No se permiten espacios, acentos, ñ ni emojis")
+
+          }
+        }
       }
 
+      // confirm password field
       VStack(alignment: .leading, spacing: 6) {
         PasswordTextField(
           title: "Confirmar contraseña",
@@ -123,9 +192,7 @@ struct RegistrationForm: View {
         )
 
         if !confirmPassword.isEmpty && password != confirmPassword {
-          Text("Las contraseñas no coinciden.")
-            .font(.caption)
-            .foregroundStyle(.red)
+          FieldErrorLabel("Las contraseñas no coinciden.")
         }
       }
 

@@ -17,11 +17,15 @@ struct SurfaceCard<Content: View>: View {
 
   @ViewBuilder let content: () -> Content
 
+  // Turns gray when a parent applies ".disabled(true)"
+  @Environment(\.isEnabled) private var isEnabled
+
   var body: some View {
     let shape = RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
 
     content()
-      .background(shape.fill(Color.white))
+      .opacity(isEnabled ? 1 : 0.6)
+      .background(shape.fill(isEnabled ? Color.white : Color.gray.opacity(0.25)))
       .clipShape(shape)
       .overlay(
         shape.stroke(

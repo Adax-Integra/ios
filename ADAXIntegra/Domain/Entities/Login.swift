@@ -24,4 +24,15 @@ struct LoginResult: Decodable {
   }
 }
 
+struct EmptyBody: Encodable {}
+
+struct LogoutResult: Decodable {
+  let message: String
+}
+
+struct DeactivateAccountResult: Decodable {
+  let userId: String?
+  let deactivatedAt: String?
+}
+
 // Token: 5 days = 120 hours

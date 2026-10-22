@@ -29,12 +29,17 @@ enum AppTab: CaseIterable {
 
 struct CustomTabBar: View {
   @Binding var selectedTab: AppTab
+  var onReselect: () -> Void = {}
 
   var body: some View {
     HStack {
       ForEach(AppTab.allCases, id: \.self) { tab in
         Button {
-          selectedTab = tab
+          if selectedTab == tab {
+            onReselect()
+          } else {
+            selectedTab = tab
+          }
         } label: {
           VStack(spacing: 4) {
             Image(systemName: tab.icon)
@@ -53,8 +58,6 @@ struct CustomTabBar: View {
     .shadow(color: .black.opacity(0.08), radius: 8, x: 0, y: -2)
   }
 }
-
-// al final de CustomTabBar.swift
 
 #Preview {
   PreviewWrapper()

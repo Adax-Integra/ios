@@ -13,7 +13,6 @@ struct RecordCaseSummary: View {
   var recordId: String
   var lastModified: String
   var createdAt: String
-  var onEditTapped: () -> Void
 
   var body: some View {
     VStack(spacing: 16) {
@@ -33,8 +32,6 @@ struct RecordCaseSummary: View {
         .padding(.top, 4)
 
         Spacer()
-        CircularEditButton(action: onEditTapped)
-          .offset(x: 8, y: -8)
       }
 
       Divider()
@@ -79,10 +76,7 @@ struct RecordCaseSummary: View {
       userName: " ",
       recordId: " ",
       lastModified: " ",
-      createdAt: " ",
-      onEditTapped: {
-        print("Edit tapped")
-      }
+      createdAt: " "
     )
     .padding()
   }

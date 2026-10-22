@@ -20,6 +20,8 @@ final class CaseDetailViewModel: ObservableObject {
   @Published var errorMessage: String?
   @Published var showToast = false
   @Published var toastMessage = ""
+  // shows the success page after the case was closed
+  @Published var isShowingCloseSuccess = false
 
   private let caseId: String
   private let getCaseDetailUseCase: GetCaseDetailUseCaseProtocol
@@ -50,8 +52,7 @@ final class CaseDetailViewModel: ObservableObject {
     do {
       let success = try await closeCaseUseCase.execute(caseId: caseId)
       if success {
-        toastMessage = "El caso se cerró correctamente."
-        showToast = true
+        isShowingCloseSuccess = true
         await loadCase()
       }
     } catch {

@@ -23,6 +23,9 @@ class LoginViewModel: ObservableObject {
   // Stores a message if an error occurs
   @Published var error: String?
 
+  // G-09: email of an account that still has to be verified opens "Verifica tu cuenta"
+  @Published var pendingVerificationEmail: String?
+
   // Used to log in
   private let repository: AuthRepository
 
@@ -40,8 +43,12 @@ class LoginViewModel: ObservableObject {
   // Tries to log in with the email and password
   func login() {
 
+    // Removes spaces at the start and end of the email
+
+    let cleanEmail = email.trimmingCharacters(in: .whitespacesAndNewlines)
+
     // Checks that the fields are not empty
-    guard !email.isEmpty, !password.isEmpty else {
+    guard !cleanEmail.isEmpty, !password.isEmpty else {
       error = "Ingresa tu correo y contraseña."
       return
     }
@@ -53,23 +60,41 @@ class LoginViewModel: ObservableObject {
     isLoading = true
 
     Task {
-
-      // Sends the email and password to the repository
-      let result = await repository.login(
-        email: email,
-        password: password
-      )
-
-      // Checks if the login returned a result
-      if let result {
+      do {
+        // Sends the email and password to the repository
+        let result = try await repository.login(email: cleanEmail, password: password)
         isLoggedIn = true
         onLogin(result)
-      } else {
-        error = "No se pudo iniciar sesión."
+      } catch {
+        // G-09: checks if the account still has to be verified
+        handle(error, email: cleanEmail)
       }
 
       // Ends the loading state
       isLoading = false
     }
+  }
+
+  // G-09: an unverified account goes to "Verifica tu cuenta" and any other error keeps the message
+  private func handle(_ error: Error, email: String) {
+    print("Error al iniciar sesión: ", error)
+
+    if case let APIError.server(_, data) = error,
+      let data,
+      let body = try? JSONDecoder().decode(APIErrorResponse.self, from: data),
+      body.code == "EMAIL_NOT_VERIFIED"
+    {
+      pendingVerificationEmail = email
+      return
+    }
+
+    // No answer from the server (no internet or timeout)
+    guard case APIError.server = error else {
+      self.error = "No se pudo conectar. Revisa tu conexión a internet."
+      return
+    }
+
+    // Any answer from the backend that is an error
+    self.error = "No se pudo iniciar sesión."
   }
 }

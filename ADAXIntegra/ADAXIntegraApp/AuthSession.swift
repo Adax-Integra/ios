@@ -25,10 +25,15 @@ class AuthSession: ObservableObject {
 
   private let storageKey = "session"
 
-  // seconds (5 days)
-  private let sessionLifetime: TimeInterval = 120 * 60 * 60
+  private let authRepository: AuthRepository
 
-  init() { restore() }
+  // seconds
+  private let sessionLifetime: TimeInterval = 167 * 60 * 60
+
+  init(authRepository: AuthRepository = RemoteAuthRepository()) {
+    self.authRepository = authRepository
+    restore()
+  }
 
   func login(with result: LoginResult) {
     token = result.token
@@ -39,11 +44,35 @@ class AuthSession: ObservableObject {
     persist()
   }
 
-  func logout() {
+  func logout() async {
+    defer { clearSession() }
+
+    do {
+      try await authRepository.logout()
+    } catch APIError.server(let statusCode, let data) {
+      let body = String(data: data ?? Data(), encoding: .utf8) ?? ""
+      debugPrint("Logout falló. Status: \(statusCode). Respuesta: \(body)")
+    } catch {
+      debugPrint(error.localizedDescription)
+    }
+  }
+
+  func deactivateAccount() async -> Bool {
+    guard let userId else { return false }
+    do {
+      try await authRepository.deactivateAccount(userId: userId)
+      clearSession()
+      return true
+    } catch {
+      debugPrint(error)
+      return false
+    }
+  }
+
+  private func clearSession() {
     token = nil
     userId = nil
     roles = []
-    // Requests after logout go out without credentials
     APIConfig.token = nil
     UserDefaults.standard.removeObject(forKey: storageKey)
   }

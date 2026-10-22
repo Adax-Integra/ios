@@ -10,7 +10,11 @@
 import Foundation
 
 protocol AuthRepository {
-  func login(email: String, password: String) async -> LoginResult?
+  func login(email: String, password: String) async throws -> LoginResult
   func changePassword(currentPassword: String, newPassword: String, confirmPassword: String)
     async throws -> ChangePasswordResult
+
+  func logout() async throws
+
+  func deactivateAccount(userId: String) async throws
 }

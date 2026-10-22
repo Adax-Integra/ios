@@ -8,18 +8,22 @@
 import SwiftUI
 
 struct CloseCaseAction: View {
+  // a closed case only shows the cancel button
+  var canClose: Bool = true
   let onCloseCaseTapped: () -> Void
   let onCancelTapped: () -> Void
 
   var body: some View {
     HStack(spacing: 16) {
-      PrimaryButton(
-        customWidth: 150,
-        customHeight: 23,
-        title: "Cerrar Caso",
-        isDisabled: false,
-        action: onCloseCaseTapped
-      )
+      if canClose {
+        PrimaryButton(
+          customWidth: 150,
+          customHeight: 23,
+          title: "Cerrar Caso",
+          isDisabled: false,
+          action: onCloseCaseTapped
+        )
+      }
 
       SecondaryButton(
         customWidth: 163,
