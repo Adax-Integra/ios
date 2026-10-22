@@ -27,6 +27,7 @@ final class ViewAndEditProfileViewModel: ObservableObject {
   @Published var isSaving = false
   @Published var isEditing = false
   @Published var errorMessage: String?
+  @Published private(set) var isVerified = false
 
   // Only external users have an address
   let showsAddress: Bool
@@ -36,6 +37,7 @@ final class ViewAndEditProfileViewModel: ObservableObject {
   private let userId: String?
   private let useCase: ViewAndEditProfileUseCaseProtocol
   private let countryRepository: CountryRepository
+  private let profileRepository: ProfileRepository
 
   // Same code the phone field shows as its placeholder
   private static let defaultCountryCode = "+52"
@@ -44,9 +46,11 @@ final class ViewAndEditProfileViewModel: ObservableObject {
     self.userId = userId
     self.showsAddress =
       roles.contains("external") && !roles.contains("admin") && !roles.contains("internal")
+    self.isVerified = self.showsAddress
     self.useCase = ViewAndEditProfileUseCase(
       dataRepository: RemoteViewAndEditProfileRepository())
     self.countryRepository = CachedCountryRepository(remote: RemoteCountryRepository())
+    self.profileRepository = RemoteProfileRepository()
   }
 
   var countryCodes: [String] { Country.dialCodes(in: countries) }
@@ -62,6 +66,10 @@ final class ViewAndEditProfileViewModel: ObservableObject {
 
     do {
       try await fetchProfile(for: userId)
+      if showsAddress {
+        let profile = try await profileRepository.getProfile(for: userId)
+        isVerified = profile.verification == .verificado
+      }
     } catch {
       errorMessage = "Ocurrió un error al cargar el perfil."
     }
@@ -79,6 +87,13 @@ final class ViewAndEditProfileViewModel: ObservableObject {
 
   func save() async {
     guard let userId else { return }
+
+    if showsAddress && isVerified && (form.name != saved.name || form.lastName != saved.lastName) {
+      errorMessage =
+        "No puedes modificar tu nombre ni apellidos porque tu cuenta ya está verificada."
+      return
+    }
+
     isSaving = true
 
     // Only the changed fields are sent, so an untouched field is never revalidated
