@@ -12,6 +12,9 @@ struct LoginPage: View {
   @StateObject var viewModel: LoginViewModel
   @State private var showRegistration = false
 
+  // Abre el flujo de recuperación de contraseña
+  @State private var showForgotPassword = false
+
   var body: some View {
     // Permite hacer scroll si la pantalla es pequeña
     ScrollView {
@@ -83,8 +86,9 @@ struct LoginPage: View {
           }
         }
 
+        // Botón para recuperar contraseña
         Button {
-          // Boton para recuperar contraseña
+          showForgotPassword = true
         } label: {
           Text("¿Olvidaste tu contraseña?")
             .font(.system(size: 16))
@@ -99,12 +103,41 @@ struct LoginPage: View {
     .scrollDismissesKeyboard(.interactively)
     // Color de fondo de la pantalla
     .background(Color("Background").ignoresSafeArea())
-    // shows the registration screen
+    // closes the keyboard when tapping outside the fields
+    .dismissKeyboardOnTap()
+    // Muestra la pantalla de registro
     .fullScreenCover(isPresented: $showRegistration) {
-      RegistrationPage()
+      NavigationStack {
+        RegistrationPage()
+      }
+    }
+    // El flujo de recuperación se abre encima del login con su propia navegación
+    .fullScreenCover(isPresented: $showForgotPassword) {
+      NavigationStack {
+        ForgotPasswordPage()
+      }
+    }
+    // G-09: an account that is not verified yet goes to "Verifica tu cuenta"
+
+    .fullScreenCover(isPresented: showVerification) {
+      NavigationStack {
+        EmailVerificationPage(
+          email: viewModel.pendingVerificationEmail ?? "",
+          codeAlreadySent: false,
+          onBack: { viewModel.pendingVerificationEmail = nil }
+        )
+      }
     }
   }
+  // G-09: shows "Verifica tu cuenta" while there is an account pending to verify
+  private var showVerification: Binding<Bool> {
+    Binding(
+      get: { viewModel.pendingVerificationEmail != nil },
+      set: { if !$0 { viewModel.pendingVerificationEmail = nil } }
+    )
+  }
 }
+
 // Permite visualizar la pantalla desde Xcode
 #Preview {
   LoginPage(viewModel: LoginViewModel(repository: RemoteAuthRepository()))

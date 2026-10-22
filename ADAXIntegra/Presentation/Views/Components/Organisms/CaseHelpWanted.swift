@@ -9,10 +9,11 @@ import SwiftUI
 
 struct CaseHelpWanted: View {
   var helpwanted: String
+  var title: String = " Ayuda requerida del caso"
 
   var body: some View {
     VStack(alignment: .leading, spacing: 12) {
-      Text(" Ayuda requerida del caso")
+      Text(title)
         .font(.system(size: 16, weight: .bold))
         .foregroundColor(.primary)
 

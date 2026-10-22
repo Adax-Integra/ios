@@ -15,21 +15,24 @@ struct RemoteCaseRepository: CaseRepository {
     return response.data
   }
 
-  func createCase(_ newCase: NewCase, userId: String) async -> String? {
-    do {
-      let response = try await APIProtocol.post(
-        "/external-users/\(userId)/cases",
-        body: CreateCaseRequest(from: newCase),
-        as: APIResponse<CreatedCaseModel>.self
-      )
+  // R-02: errors are thrown so the ViewModel decides what to show the user
+  func createCase(_ newCase: NewCase, userId: String) async throws -> String {
+    let response = try await APIProtocol.post(
+      "/external-users/\(userId)/cases",
+      body: CreateCaseRequest(from: newCase),
+      as: APIResponse<CreatedCaseModel>.self
+    )
+    return response.data.caseId
+  }
 
-      return response.data.caseId
-    } catch {
-      // Any failure (no connection, 4xx, 5xx, bad JSON) is reported as nil.
-      // The ViewModel decides what to show the user
-      debugPrint(error.localizedDescription)
-      return nil
-    }
+  // R-11: creates a case for an external user from an internal account
+  func createCaseForExternalUser(_ newCase: NewCase, userId: String) async throws -> String {
+    let response = try await APIProtocol.post(
+      "/internal-users/external-users/\(userId)/cases",
+      body: CreateCaseRequest(from: newCase),
+      as: APIResponse<CreatedCaseModel>.self
+    )
+    return response.data.caseId
   }
 
   // V11 implementation, function that fetches full details for a single case by its ID
@@ -51,5 +54,43 @@ struct RemoteCaseRepository: CaseRepository {
       "/cases/\(caseId)/close", as: APIResponse<CloseCaseResult>.self
     )
     return response.success
+  }
+
+  // R-10 implementation, active internal and admin accounts sorted by name
+  func listAssignableCollaborators() async throws -> [AssignableCollaborator] {
+    let response = try await APIProtocol.get(
+      "/cases/collaborators", as: APIResponse<[AssignableCollaborator]>.self
+    )
+    return response.data
+  }
+
+  // R-10 implementation, assigns one or more internal or admin users to the case in one call
+  func assignCollaborators(caseId: String, userIds: [String]) async throws -> Bool {
+    let response = try await APIProtocol.post(
+      "/cases/\(caseId)/assignments",
+      body: AssignCaseCollaboratorsRequest(userIds: userIds),
+      as: CaseAssignmentResult.self
+    )
+    return response.success
+  }
+
+  // R-13 updata case step
+  func updateCaseStep(caseId: String, stepNumber: Int) async throws -> Bool {
+    let response = try await APIProtocol.patch(
+      "/cases/\(caseId)/step",
+      body: UpdateCaseStepRequest(stepNumber: stepNumber),
+      as: UpdateCaseStepResult.self
+    )
+    return response.success
+  }
+
+  // R-12 implementation, sends the final list of collaborators, an empty list removes everyone inside it
+  func updateCollaborators(caseId: String, userIds: [String]) async throws -> [String] {
+    let response = try await APIProtocol.put(
+      "/cases/\(caseId)/assignments",
+      body: AssignCaseCollaboratorsRequest(userIds: userIds),
+      as: APIResponse<UpdatedCaseCollaborators>.self
+    )
+    return response.data.userIds
   }
 }

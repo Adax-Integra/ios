@@ -37,8 +37,6 @@ struct RegistrationTemplate: View {
 
       ScrollView {
         VStack(alignment: .leading, spacing: 24) {
-          BackButton(action: backAction)
-
           Text("Crear cuenta")
             .font(.system(size: 28, weight: .bold))
             .foregroundColor(Color("OnBackground"))
@@ -75,6 +73,10 @@ struct RegistrationTemplate: View {
         .padding(.horizontal, 24)
         .padding(.vertical, 20)
       }
+      .scrollDismissesKeyboard(.interactively)
     }
+    .backToolbarButton(action: backAction)
+    // dismisses the keyboard when tapping outside the fields
+    .dismissKeyboardOnTap()
   }
 }

@@ -8,6 +8,9 @@
 import SwiftUI
 
 struct ExpedientesPage: View {
+  // G-16: the external accounts list is only for the admin
+  @EnvironmentObject private var session: AuthSession
+
   var body: some View {
     ScrollView {
       VStack(
@@ -24,7 +27,7 @@ struct ExpedientesPage: View {
           MenuRow(
             icon: "folder",
             title: "Expedientes",
-            subtitle: "Desglose Mensual de Expedientes"
+            subtitle: "Consulta todos los expedientes"
           )
         }
 
@@ -34,17 +37,40 @@ struct ExpedientesPage: View {
           MenuRow(
             icon: "folder",
             title: "Todos los casos",
-            subtitle: "Actividades en curso"
+            subtitle: "Consulta los casos"
           )
         }
 
+        // V-12: cases assigned to the logged-in collaborator
         NavigationLink {
-          CuentasExternasPage()
+          MyCasesPage()
         } label: {
           MenuRow(
             icon: "person",
-            title: "Cuentas Externas",
-            subtitle: "Control de cuentas"
+            title: "Mis casos",
+            subtitle: "Casos que yo llevo"
+          )
+        }
+
+        if session.roles.contains("admin") || session.roles.contains("internal") {
+          NavigationLink {
+            CuentasExternasPage()
+          } label: {
+            MenuRow(
+              icon: "person",
+              title: "Cuentas externas",
+              subtitle: "Control de cuentas"
+            )
+          }
+        }
+
+        NavigationLink {
+          ReportPage(viewModel: ReportViewModel(repository: RemoteReportRepository()))
+        } label: {
+          MenuRow(
+            icon: "arrow.down.document",
+            title: "Reportes",
+            subtitle: "Genera reportes sobre casos"
           )
         }
 

@@ -18,8 +18,6 @@ struct AddCollaboratorPage: View {
 
       ScrollView(showsIndicators: false) {
         VStack(alignment: .leading, spacing: 20) {
-          PageHeader(title: "Agregar colaboradora", backAction: { dismiss() })
-
           AddCollaboratorForm(
             firstName: $viewModel.firstName,
             lastName: $viewModel.lastName,
@@ -50,23 +48,23 @@ struct AddCollaboratorPage: View {
       }
       // hides the keyboard when the user scrolls
       .scrollDismissesKeyboard(.interactively)
-      .onTapGesture {
-        hideKeyboard()
-      }
     }
-    .navigationBarBackButtonHidden(true)
+    .navigationTitle("Agregar colaboradora")
+    // closes the keyboard when tapping outside the fields
+    .dismissKeyboardOnTap()
     // Error that does not belong to a single field (no connection, expired session...)
     .alert("No se pudo guardar", isPresented: showGeneralError) {
       Button("Aceptar", role: .cancel) {}
     } message: {
       Text(viewModel.generalError ?? "")
     }
-    // After creating the collaborator, "Aceptar" goes back to the management page
-    .alert("Colaboradora agregada", isPresented: showSuccess) {
-      Button("Aceptar", role: .cancel) { dismiss() }
-    } message: {
-      Text(viewModel.successMessage ?? "")
-    }
+    // After creating the collaborator, "Continuar" goes back to the management page
+    .successScreen(
+      isPresented: showSuccess,
+      title: "¡Colaboradora agregada!",
+      message: viewModel.successMessage ?? "",
+      onContinue: { dismiss() }
+    )
     // loads the phone codes when the page opens
     .task {
       await viewModel.loadCountryCodes()
@@ -81,21 +79,17 @@ struct AddCollaboratorPage: View {
     )
   }
 
-  // Shows the alert while there is a success message and clears the message when it is closed
+  // Shows the success page while there is a success message and clears it when it is closed
   private var showSuccess: Binding<Bool> {
     Binding(
       get: { viewModel.successMessage != nil },
       set: { if !$0 { viewModel.successMessage = nil } }
     )
   }
-
-  private func hideKeyboard() {
-    UIApplication.shared.sendAction(
-      #selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil
-    )
-  }
 }
 
 #Preview {
-  AddCollaboratorPage()
+  NavigationStack {
+    AddCollaboratorPage()
+  }
 }

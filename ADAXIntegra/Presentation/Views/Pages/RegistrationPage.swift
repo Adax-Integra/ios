@@ -20,7 +20,8 @@ struct RegistrationPage: View {
   @State private var phoneNumber = ""
   @State private var password = ""
   @State private var confirmPassword = ""
-  @State private var showSuccess = false
+  // G-09: opens "Verifica tu cuenta" agert the account is created
+  @State private var showVerification = false
 
   var body: some View {
     RegistrationTemplate(
@@ -51,9 +52,10 @@ struct RegistrationPage: View {
             password: password,
             confirmPassword: confirmPassword
           )
-          // returns to login after the account is created successfully
+
+          // G-09: the backend already emailed the code, so she verifies her account now
           if viewModel.accountCreated {
-            showSuccess = true
+            showVerification = true
           }
         }
       }
@@ -79,12 +81,19 @@ struct RegistrationPage: View {
     } message: {
       Text(viewModel.errorMessage ?? "")
     }
-    .alert("Cuenta creada", isPresented: $showSuccess) {
-      Button("Ir a iniciar sesión") {
-        dismiss()
+    // G-09: "Verifica tu cuenta" with the email she just registered
+    .fullScreenCover(isPresented: $showVerification) {
+      NavigationStack {
+        EmailVerificationPage(
+          email: email,
+          codeAlreadySent: true,
+          onBack: {
+            // The account already exists so going back returns to the login where she can verify later when she logs in
+            showVerification = false
+            dismiss()
+          }
+        )
       }
-    } message: {
-      Text("Tu cuenta se creó correctamente.")
     }
   }
 }

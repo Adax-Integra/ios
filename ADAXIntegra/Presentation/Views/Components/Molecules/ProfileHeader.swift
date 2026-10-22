@@ -8,10 +8,11 @@
 import SwiftUI
 
 // Card with the avatar, the full name and how long the user has had the account
-struct ProfileHeader: View {
+struct ProfileHeader<Accessory: View>: View {
   let initials: String
   let fullName: String
   let memberSince: String
+  @ViewBuilder var accessory: () -> Accessory
 
   var body: some View {
     SurfaceCard {
@@ -28,11 +29,25 @@ struct ProfileHeader: View {
           Text(memberSince)
             .font(.system(size: 13))
             .foregroundColor(Color("InsideTextAndIcons"))
+
+          accessory()
         }
 
         Spacer(minLength: 0)
       }
       .padding(20)
+    }
+  }
+}
+
+extension ProfileHeader where Accessory == EmptyView {
+  init(initials: String, fullName: String, memberSince: String) {
+    self.init(
+      initials: initials,
+      fullName: fullName,
+      memberSince: memberSince
+    ) {
+      EmptyView()
     }
   }
 }

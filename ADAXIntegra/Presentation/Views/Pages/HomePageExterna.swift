@@ -12,14 +12,26 @@ struct HomePageExterna: View {
   @Environment(\.openURL) private var openURL
   @EnvironmentObject private var session: AuthSession
   @StateObject private var profileViewModel = ProfileViewModel()
+  @StateObject private var eventsViewModel = EventsViewModel(scope: .month)
+  @StateObject private var casesViewModel: CasesViewModel
+  @State private var isLoadingCases = true
+  @State private var showUpload = false
+  @State private var showNewCase = false
+
+  init(userId: String) {
+    _casesViewModel = StateObject(
+      wrappedValue: CasesViewModel(
+        repository: RemoteCaseRepository(),
+        userId: userId
+      )
+    )
+  }
 
   var body: some View {
     HomeTemplate {
-      HomeHeader(onNotificationsTap: {
-        // to do: connect the notification screen
-      })
+      HomeHeader()
     } welcome: {
-      VStack(alignment: .leading, spacing: 8) {
+      VStack(alignment: .leading, spacing: 12) {
         Text(
           profileViewModel.profile.map { "¡Hola, \($0.name)!" }
             ?? "¡Hola!"
@@ -30,27 +42,52 @@ struct HomePageExterna: View {
         Text("No estás sola, estamos aquí para acompañarte")
           .font(.subheadline)
           .foregroundColor(Color("PrimaryAdax"))
+        if let profile = profileViewModel.profile,
+          profile.verification != .verificado
+        {
+          VerificationBanner(status: profile.verification) {
+            showUpload = true
+          }
+          .padding(.top, 4)
+        }
       }
     } caseProgress: {
-      // space reserved for the case progress component
-      SurfaceCard(cornerRadius: 28) {
-        Text("Tu caso en curso")
-          .font(.headline)
-          .foregroundColor(Color("OnBackground"))
-          .frame(maxWidth: .infinity, alignment: .topLeading)
-          .frame(minHeight: 120, alignment: .topLeading)
+      if isLoadingCases {
+        SurfaceCard(cornerRadius: 28) {
+          ProgressView("Cargando casos...")
+            .padding(20)
+        }
+      } else if casesViewModel.errorMessage != nil {
+        SurfaceCard(cornerRadius: 28) {
+          Text("No se pudo cargar la información de tus casos.")
+            .padding(20)
+        }
+      } else if let latestCase = casesViewModel.latestCase {
+        HomeCaseProgressCard(caseId: latestCase.id)
+      } else {
+        SurfaceCard(cornerRadius: 28) {
+          VStack(alignment: .leading, spacing: 12) {
+            Text("Tu caso en curso")
+              .font(.title2.bold())
+
+            Text("Todavía no tienes un caso en curso")
+              .font(.subheadline)
+              .foregroundColor(.secondary)
+
+            IconTextPrimaryButton(
+              systemName: "plus",
+              title: "Nuevo caso",
+              isDisabled: false
+            ) {
+              showNewCase = true
+            }
+          }
+          .frame(maxWidth: .infinity, alignment: .leading)
           .padding(20)
+        }
       }
     } events: {
-      // space reserved for the events carousel
-      VStack(alignment: .leading, spacing: 12) {
-        Text("Eventos")
-          .font(.title2.bold())
-          .foregroundColor(Color("OnBackground"))
-
-        Color.clear
-          .frame(height: 200)
-      }
+      EventsCarousel(viewModel: eventsViewModel)
     } socialMedia: {
       VStack(alignment: .leading, spacing: 12) {
         Text("Redes sociales")
@@ -100,6 +137,41 @@ struct HomePageExterna: View {
     .task(id: session.userId) {
       await profileViewModel.loadProfile(for: session.userId)
     }
+    .task {
+      await eventsViewModel.loadEvents()
+    }
+    // loads the user's cases
+    .task {
+      await casesViewModel.loadCases()
+      isLoadingCases = false
+    }
+    .navigationDestination(isPresented: $showUpload) {
+      IdentityDocumentsPage(userId: session.userId)
+    }
+    .navigationDestination(isPresented: $showNewCase) {
+      if let userId = session.userId {
+        CasesPage(
+          viewModel: CasesViewModel(
+            repository: RemoteCaseRepository(),
+            userId: userId
+          ),
+          userId: userId,
+          openNewCaseOnAppear: true,
+          onCaseSubmitted: {
+            Task {
+              await casesViewModel.loadCases()
+            }
+          }
+        )
+      }
+    }
+    .onChange(of: showUpload) { _, isShowing in
+      if !isShowing {
+        Task {
+          await profileViewModel.loadProfile(for: session.userId)
+        }
+      }
+    }
   }
 
   // opens an external address using the system URL action
@@ -110,6 +182,8 @@ struct HomePageExterna: View {
 }
 
 #Preview {
-  HomePageExterna()
-    .environmentObject(AuthSession())
+  NavigationStack {
+    HomePageExterna(userId: "preview-user")
+  }
+  .environmentObject(AuthSession())
 }

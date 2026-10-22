@@ -20,7 +20,6 @@ struct CaseDetail: Decodable {
   let recordId: String?
   let createdAt: String?
   let updatedAt: String?
-    
 
   // Raw nested shapes as they arrive in the JSON
   let record: CaseDetailRecord
@@ -29,6 +28,7 @@ struct CaseDetail: Decodable {
   let caseHelp: [CaseDetailHelpWrapper]
   let isRiskSituation: Bool?
   let regionId: String?
+  let caseAssignment: [CaseDetailAssignment]?
 
   enum CodingKeys: String, CodingKey {
     case caseId = "case_id"
@@ -46,6 +46,7 @@ struct CaseDetail: Decodable {
     case caseHelp = "case_help"
     case isRiskSituation = "is_risk_situation"
     case regionId = "region_id"
+    case caseAssignment = "case_assignment"
   }
 
   // we unwrap supabase join structure so  we "help" the View and ViewModel by not letting them deal with raw JSON structure
@@ -53,20 +54,35 @@ struct CaseDetail: Decodable {
   var steps: [CaseDetailStep] { caseSteps }
   var helps: [CaseDetailHelp] { caseHelp.map { $0.helpTypes } }
   var violenceTypes: [CaseDetailViolenceType] { caseViolence.map { $0.violenceTypes } }
+  var assignedUserIds: [String] { caseAssignment?.map(\.userId) ?? [] }
+
+  // Dates are parsed with the Date utils, like RecordDetails
+  var createdDateString: String? { createdAt.map(Date.extractDate) }
+  var createdTimeString: String? { createdAt.map(Date.extractTime) }
+  var updatedDateString: String? { updatedAt.map(Date.extractDate) }
+  var updatedTimeString: String? { updatedAt.map(Date.extractTime) }
+}
+
+// R-12: one collaborator assigned to the case, the backend leaves out the removed ones
+struct CaseDetailAssignment: Decodable {
+  let userId: String
+
+  enum CodingKeys: String, CodingKey {
+    case userId = "user_id"
+  }
 }
 
 // Intermediate container as the backend nests the external user info
 struct CaseDetailRecord: Decodable {
-    let recordId: String?
-    let recordNumber: String?
-    let user: CaseDetailUser
-    
+  let recordId: String?
+  let recordNumber: String?
+  let user: CaseDetailUser
 
-    enum CodingKeys: String, CodingKey {
-        case recordId = "record_id"
-        case recordNumber = "record_number"
-        case user
-    }
+  enum CodingKeys: String, CodingKey {
+    case recordId = "record_id"
+    case recordNumber = "record_number"
+    case user
+  }
 }
 
 // Basic info about the external who the case belongs to

@@ -29,7 +29,8 @@ struct FieldErrorLabel: View {
   var body: some View {
     Text(message)
       .font(.system(size: size, weight: weight))
-      .foregroundColor(Color("Error"))
+      // darker red so the error reads with enough contrast on the background
+      .foregroundColor(Color("ErrorText"))
       .fixedSize(horizontal: false, vertical: true)
   }
 }

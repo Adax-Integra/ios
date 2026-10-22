@@ -17,12 +17,6 @@ struct ChangePasswordPage: View {
       Color("Background").ignoresSafeArea()
 
       VStack(alignment: .leading, spacing: 16) {
-        PageHeader(
-          title: "Cambiar contraseña",
-          backAction: { dismiss() },
-          subtitle: "Seguridad"
-        )
-
         ScrollView {
           VStack(alignment: .leading, spacing: 16) {
             Text("Para proteger tu expediente, confirma primero tu contraseña actual.")
@@ -106,25 +100,28 @@ struct ChangePasswordPage: View {
       }
       .padding()
     }
-    .navigationBarBackButtonHidden(true)
-    .alert("Cambiar contraseña", isPresented: $showConfirmation) {
-      Button("Guardar") {
-        Task { await viewModel.changePassword() }
-      }
-      Button("Cancelar", role: .cancel) {}
-    } message: {
-      Text("¿Quieres guardar tu nueva contraseña?")
+    .navigationTitle("Cambiar contraseña")
+    // closes the keyboard when tapping outside the fields
+    .dismissKeyboardOnTap()
+    .confirmDialog(
+      isPresented: $showConfirmation,
+      title: "Cambiar contraseña",
+      message: "¿Quieres guardar tu nueva contraseña?",
+      confirmTitle: "Guardar"
+    ) {
+      Task { await viewModel.changePassword() }
     }
     .alert("No se pudo cambiar la contraseña", isPresented: showError) {
       Button("Aceptar", role: .cancel) {}
     } message: {
       Text(viewModel.errorMessage ?? "")
     }
-    .alert("Contraseña actualizada", isPresented: $viewModel.passwordChanged) {
-      Button("Aceptar") { dismiss() }
-    } message: {
-      Text("Tu contraseña se cambió con éxito.")
-    }
+    .successScreen(
+      isPresented: $viewModel.passwordChanged,
+      title: "¡Contraseña actualizada!",
+      message: "Tu contraseña se cambió con éxito.",
+      onContinue: { dismiss() }
+    )
   }
 
   // Shows the alert while there is an error and clears it when it is closed
@@ -135,7 +132,7 @@ struct ChangePasswordPage: View {
     )
   }
 
-  // Closes the keyboard before the confirmation alert, same as NewCasePage
+  // Closes the keyboard before the confirmation, same as NewCasePage
   private func dismissKeyboard() {
     UIApplication.shared.sendAction(
       #selector(UIResponder.resignFirstResponder),
@@ -147,5 +144,7 @@ struct ChangePasswordPage: View {
 }
 
 #Preview {
-  ChangePasswordPage()
+  NavigationStack {
+    ChangePasswordPage()
+  }
 }
